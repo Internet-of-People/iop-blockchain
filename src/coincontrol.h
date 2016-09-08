@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_COINCONTROL_H
-#define BITCOIN_COINCONTROL_H
+#ifndef IoP_COINCONTROL_H
+#define IoP_COINCONTROL_H
 
 #include "primitives/transaction.h"
 
@@ -73,4 +73,4 @@ private:
     std::set<COutPoint> setSelected;
 };
 
-#endif // BITCOIN_COINCONTROL_H
+#endif // IoP_COINCONTROL_H

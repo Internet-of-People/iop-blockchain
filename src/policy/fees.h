@@ -2,8 +2,8 @@
 // Copyright (c) 2009-2015 The Bitcoin developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
-#ifndef BITCOIN_POLICYESTIMATOR_H
-#define BITCOIN_POLICYESTIMATOR_H
+#ifndef IoP_POLICYESTIMATOR_H
+#define IoP_POLICYESTIMATOR_H
 
 #include "amount.h"
 #include "uint256.h"
@@ -299,4 +299,4 @@ public:
 private:
     std::set<double> feeset;
 };
-#endif /*BITCOIN_POLICYESTIMATOR_H */
+#endif /*IoP_POLICYESTIMATOR_H */

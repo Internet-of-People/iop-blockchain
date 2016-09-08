@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=IoP
+Comment=IoP P2P Cryptocurrency
+Comment[fr]=IoP, monnaie virtuelle cryptographique pair à pair
+Comment[tr]=IoP, eşten eşe kriptografik sanal para birimi
+Exec=IoP-qt %u
+Terminal=false
+Type=Application
+Icon=IoP128
+MimeType=x-scheme-handler/IoP;
+Categories=Office;Finance;

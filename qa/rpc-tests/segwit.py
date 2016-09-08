@@ -7,7 +7,7 @@
 # Test the SegWit changeover logic
 #
 
-from test_framework.test_framework import BitcoinTestFramework
+from test_framework.test_framework import IoPTestFramework
 from test_framework.util import *
 from test_framework.mininode import sha256, ripemd160
 import os
@@ -74,7 +74,7 @@ def find_unspent(node, min_value):
         if utxo['amount'] >= min_value:
             return utxo
 
-class SegWitTest(BitcoinTestFramework):
+class SegWitTest(IoPTestFramework):
 
     def setup_chain(self):
         print("Initializing test directory "+self.options.tmpdir)

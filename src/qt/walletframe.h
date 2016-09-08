@@ -2,13 +2,13 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_QT_WALLETFRAME_H
-#define BITCOIN_QT_WALLETFRAME_H
+#ifndef IoP_QT_WALLETFRAME_H
+#define IoP_QT_WALLETFRAME_H
 
 #include <QFrame>
 #include <QMap>
 
-class BitcoinGUI;
+class IoPGUI;
 class ClientModel;
 class PlatformStyle;
 class SendCoinsRecipient;
@@ -24,7 +24,7 @@ class WalletFrame : public QFrame
     Q_OBJECT
 
 public:
-    explicit WalletFrame(const PlatformStyle *platformStyle, BitcoinGUI *_gui = 0);
+    explicit WalletFrame(const PlatformStyle *platformStyle, IoPGUI *_gui = 0);
     ~WalletFrame();
 
     void setClientModel(ClientModel *clientModel);
@@ -40,7 +40,7 @@ public:
 
 private:
     QStackedWidget *walletStack;
-    BitcoinGUI *gui;
+    IoPGUI *gui;
     ClientModel *clientModel;
     QMap<QString, WalletView*> mapWalletViews;
 
@@ -80,4 +80,4 @@ public Q_SLOTS:
     void usedReceivingAddresses();
 };
 
-#endif // BITCOIN_QT_WALLETFRAME_H
+#endif // IoP_QT_WALLETFRAME_H

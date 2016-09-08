@@ -5,12 +5,12 @@
 
 #
 # Helper script to create the cache
-# (see BitcoinTestFramework.setup_chain)
+# (see IoPTestFramework.setup_chain)
 #
 
-from test_framework.test_framework import BitcoinTestFramework
+from test_framework.test_framework import IoPTestFramework
 
-class CreateCache(BitcoinTestFramework):
+class CreateCache(IoPTestFramework):
 
     def setup_network(self):
         # Don't setup any test nodes

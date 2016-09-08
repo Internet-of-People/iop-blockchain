@@ -1,0 +1,157 @@
+
+## <summary>policy for IoP</summary>
+
+
+########################################
+## <summary>
+##	Transition to IoP.
+## </summary>
+## <param name="domain">
+## <summary>
+##	Domain allowed to transition.
+## </summary>
+## </param>
+#
+interface(`IoP_domtrans',`
+	gen_require(`
+		type IoP_t, IoP_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	domtrans_pattern($1, IoP_exec_t, IoP_t)
+')
+
+
+########################################
+## <summary>
+##	Execute IoP server in the IoP domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`IoP_initrc_domtrans',`
+	gen_require(`
+		type IoP_initrc_exec_t;
+	')
+
+	init_labeled_script_domtrans($1, IoP_initrc_exec_t)
+')
+
+
+########################################
+## <summary>
+##	Search IoP lib directories.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`IoP_search_lib',`
+	gen_require(`
+		type IoP_var_lib_t;
+	')
+
+	allow $1 IoP_var_lib_t:dir search_dir_perms;
+	files_search_var_lib($1)
+')
+
+########################################
+## <summary>
+##	Read IoP lib files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`IoP_read_lib_files',`
+	gen_require(`
+		type IoP_var_lib_t;
+	')
+
+	files_search_var_lib($1)
+	read_files_pattern($1, IoP_var_lib_t, IoP_var_lib_t)
+')
+
+########################################
+## <summary>
+##	Manage IoP lib files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`IoP_manage_lib_files',`
+	gen_require(`
+		type IoP_var_lib_t;
+	')
+
+	files_search_var_lib($1)
+	manage_files_pattern($1, IoP_var_lib_t, IoP_var_lib_t)
+')
+
+########################################
+## <summary>
+##	Manage IoP lib directories.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`IoP_manage_lib_dirs',`
+	gen_require(`
+		type IoP_var_lib_t;
+	')
+
+	files_search_var_lib($1)
+	manage_dirs_pattern($1, IoP_var_lib_t, IoP_var_lib_t)
+')
+
+
+########################################
+## <summary>
+##	All of the rules required to administrate
+##	an IoP environment
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+## <param name="role">
+##	<summary>
+##	Role allowed access.
+##	</summary>
+## </param>
+## <rolecap/>
+#
+interface(`IoP_admin',`
+	gen_require(`
+		type IoP_t;
+		type IoP_initrc_exec_t;
+		type IoP_var_lib_t;
+	')
+
+	allow $1 IoP_t:process { ptrace signal_perms };
+	ps_process_pattern($1, IoP_t)
+
+	IoP_initrc_domtrans($1)
+	domain_system_change_exemption($1)
+	role_transition $2 IoP_initrc_exec_t system_r;
+	allow $2 system_r;
+
+	files_search_var_lib($1)
+	admin_pattern($1, IoP_var_lib_t)
+
+')
+

@@ -195,7 +195,7 @@ class BIP9SoftForksTest(ComparisonTestFramework):
         # Restart all
         self.test.block_store.close()
         stop_nodes(self.nodes)
-        wait_bitcoinds()
+        wait_IoPds()
         shutil.rmtree(self.options.tmpdir)
         self.setup_chain()
         self.setup_network()
