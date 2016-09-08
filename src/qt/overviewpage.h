@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_QT_OVERVIEWPAGE_H
-#define BITCOIN_QT_OVERVIEWPAGE_H
+#ifndef IoP_QT_OVERVIEWPAGE_H
+#define IoP_QT_OVERVIEWPAGE_H
 
 #include "amount.h"
 
@@ -64,4 +64,4 @@ private Q_SLOTS:
     void updateWatchOnlyLabels(bool showWatchOnly);
 };
 
-#endif // BITCOIN_QT_OVERVIEWPAGE_H
+#endif // IoP_QT_OVERVIEWPAGE_H

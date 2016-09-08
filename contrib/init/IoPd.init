@@ -1,0 +1,67 @@
+#!/bin/bash
+#
+#  IoPd The IoP core server.
+#
+#
+# chkconfig: 345 80 20
+# description: IoPd
+# processname: IoPd
+#
+
+# Source function library.
+. /etc/init.d/functions
+
+# you can override defaults in /etc/sysconfig/IoPd, see below
+if [ -f /etc/sysconfig/IoPd ]; then
+        . /etc/sysconfig/IoPd
+fi
+
+RETVAL=0
+
+prog=IoPd
+# you can override the lockfile via IoPD_LOCKFILE in /etc/sysconfig/IoPd
+lockfile=${IoPD_LOCKFILE-/var/lock/subsys/IoPd}
+
+# IoPd defaults to /usr/bin/IoPd, override with IoPD_BIN
+IoPd=${IoPD_BIN-/usr/bin/IoPd}
+
+# IoPd opts default to -disablewallet, override with IoPD_OPTS
+IoPd_opts=${IoPD_OPTS--disablewallet}
+
+start() {
+    echo -n $"Starting $prog: "
+    daemon $DAEMONOPTS $IoPd $IoPd_opts
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && touch $lockfile
+    return $RETVAL
+}
+
+stop() {
+    echo -n $"Stopping $prog: "
+    killproc $prog
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && rm -f $lockfile
+    return $RETVAL
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    status)
+        status $prog
+        ;;
+    restart)
+        stop
+        start
+        ;;
+    *)
+        echo "Usage: service $prog {start|stop|status|restart}"
+        exit 1
+        ;;
+esac

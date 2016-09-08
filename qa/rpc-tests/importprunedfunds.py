@@ -3,11 +3,11 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-from test_framework.test_framework import BitcoinTestFramework
+from test_framework.test_framework import IoPTestFramework
 from test_framework.util import *
 import decimal
 
-class ImportPrunedFundsTest(BitcoinTestFramework):
+class ImportPrunedFundsTest(IoPTestFramework):
 
     def __init__(self):
         super().__init__()

@@ -5,7 +5,7 @@
 
 # Exercise the listreceivedbyaddress API
 
-from test_framework.test_framework import BitcoinTestFramework
+from test_framework.test_framework import IoPTestFramework
 from test_framework.util import *
 
 
@@ -25,7 +25,7 @@ def get_sub_array_from_array(object_array, to_match):
         return item
     return []
 
-class ReceivedByTest(BitcoinTestFramework):
+class ReceivedByTest(IoPTestFramework):
 
     def __init__(self):
         super().__init__()

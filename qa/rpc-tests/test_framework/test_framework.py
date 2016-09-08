@@ -21,7 +21,7 @@ from .util import (
     sync_mempools,
     stop_nodes,
     stop_node,
-    wait_bitcoinds,
+    wait_IoPds,
     enable_coverage,
     check_json_precision,
     initialize_chain_clean,
@@ -30,7 +30,7 @@ from .util import (
 from .authproxy import JSONRPCException
 
 
-class BitcoinTestFramework(object):
+class IoPTestFramework(object):
 
     def __init__(self):
         self.num_nodes = 4
@@ -81,7 +81,7 @@ class BitcoinTestFramework(object):
         """
         assert not self.is_network_split
         stop_nodes(self.nodes)
-        wait_bitcoinds()
+        wait_IoPds()
         self.setup_network(True)
 
     def sync_all(self):
@@ -100,18 +100,18 @@ class BitcoinTestFramework(object):
         """
         assert self.is_network_split
         stop_nodes(self.nodes)
-        wait_bitcoinds()
+        wait_IoPds()
         self.setup_network(False)
 
     def main(self):
 
         parser = optparse.OptionParser(usage="%prog [options]")
         parser.add_option("--nocleanup", dest="nocleanup", default=False, action="store_true",
-                          help="Leave bitcoinds and test.* datadir on exit or error")
+                          help="Leave IoPds and test.* datadir on exit or error")
         parser.add_option("--noshutdown", dest="noshutdown", default=False, action="store_true",
-                          help="Don't stop bitcoinds after the test execution")
+                          help="Don't stop IoPds after the test execution")
         parser.add_option("--srcdir", dest="srcdir", default=os.path.normpath(os.path.dirname(os.path.realpath(__file__))+"/../../../src"),
-                          help="Source directory containing bitcoind/bitcoin-cli (default: %default)")
+                          help="Source directory containing IoPd/IoP-cli (default: %default)")
         parser.add_option("--tmpdir", dest="tmpdir", default=tempfile.mkdtemp(prefix="test"),
                           help="Root directory for datadirs")
         parser.add_option("--tracerpc", dest="trace_rpc", default=False, action="store_true",
@@ -167,9 +167,9 @@ class BitcoinTestFramework(object):
         if not self.options.noshutdown:
             print("Stopping nodes")
             stop_nodes(self.nodes)
-            wait_bitcoinds()
+            wait_IoPds()
         else:
-            print("Note: bitcoinds were not stopped and may still be running")
+            print("Note: IoPds were not stopped and may still be running")
 
         if not self.options.nocleanup and not self.options.noshutdown and success:
             print("Cleaning up")
@@ -185,13 +185,13 @@ class BitcoinTestFramework(object):
             sys.exit(1)
 
 
-# Test framework for doing p2p comparison testing, which sets up some bitcoind
+# Test framework for doing p2p comparison testing, which sets up some IoPd
 # binaries:
 # 1 binary: test binary
 # 2 binaries: 1 test binary, 1 ref binary
 # n>2 binaries: 1 test binary, n-1 ref binaries
 
-class ComparisonTestFramework(BitcoinTestFramework):
+class ComparisonTestFramework(IoPTestFramework):
 
     def __init__(self):
         super().__init__()
@@ -200,11 +200,11 @@ class ComparisonTestFramework(BitcoinTestFramework):
 
     def add_options(self, parser):
         parser.add_option("--testbinary", dest="testbinary",
-                          default=os.getenv("BITCOIND", "bitcoind"),
-                          help="bitcoind binary to test")
+                          default=os.getenv("IoPD", "IoPd"),
+                          help="IoPd binary to test")
         parser.add_option("--refbinary", dest="refbinary",
-                          default=os.getenv("BITCOIND", "bitcoind"),
-                          help="bitcoind binary to use for reference nodes (if any)")
+                          default=os.getenv("IoPD", "IoPd"),
+                          help="IoPd binary to use for reference nodes (if any)")
 
     def setup_network(self):
         self.nodes = start_nodes(

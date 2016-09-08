@@ -2,11 +2,11 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_QT_PAYMENTSERVER_H
-#define BITCOIN_QT_PAYMENTSERVER_H
+#ifndef IoP_QT_PAYMENTSERVER_H
+#define IoP_QT_PAYMENTSERVER_H
 
 // This class handles payment requests from clicking on
-// bitcoin: URIs
+// IoP: URIs
 //
 // This is somewhat tricky, because we have to deal with
 // the situation where the user clicks on a link during
@@ -148,4 +148,4 @@ private:
     OptionsModel *optionsModel;
 };
 
-#endif // BITCOIN_QT_PAYMENTSERVER_H
+#endif // IoP_QT_PAYMENTSERVER_H

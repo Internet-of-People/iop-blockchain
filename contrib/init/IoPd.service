@@ -1,0 +1,22 @@
+[Unit]
+Description=IoP's distributed currency daemon
+After=network.target
+
+[Service]
+User=IoP
+Group=IoP
+
+Type=forking
+PIDFile=/var/lib/IoPd/IoPd.pid
+ExecStart=/usr/bin/IoPd -daemon -pid=/var/lib/IoPd/IoPd.pid \
+-conf=/etc/IoP/IoP.conf -datadir=/var/lib/IoPd -disablewallet
+
+Restart=always
+PrivateTmp=true
+TimeoutStopSec=60s
+TimeoutStartSec=2s
+StartLimitInterval=120s
+StartLimitBurst=5
+
+[Install]
+WantedBy=multi-user.target

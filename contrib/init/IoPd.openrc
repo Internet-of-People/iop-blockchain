@@ -1,0 +1,92 @@
+#!/sbin/runscript
+
+# backward compatibility for existing gentoo layout 
+#
+if [ -d "/var/lib/IoP/.IoP" ]; then
+	IoPD_DEFAULT_DATADIR="/var/lib/IoP/.IoP"
+else
+	IoPD_DEFAULT_DATADIR="/var/lib/IoPd"
+fi
+
+IoPD_CONFIGFILE=${IoPD_CONFIGFILE:-/etc/IoP/IoP.conf}
+IoPD_PIDDIR=${IoPD_PIDDIR:-/var/run/IoPd}
+IoPD_PIDFILE=${IoPD_PIDFILE:-${IoPD_PIDDIR}/IoPd.pid}
+IoPD_DATADIR=${IoPD_DATADIR:-${IoPD_DEFAULT_DATADIR}}
+IoPD_USER=${IoPD_USER:-${IoP_USER:-IoP}}
+IoPD_GROUP=${IoPD_GROUP:-IoP}
+IoPD_BIN=${IoPD_BIN:-/usr/bin/IoPd}
+IoPD_NICE=${IoPD_NICE:-${NICELEVEL:-0}}
+IoPD_OPTS="${IoPD_OPTS:-${IoP_OPTS}}"
+
+name="IoP Core Daemon"
+description="IoP cryptocurrency P2P network daemon"
+
+command="/usr/bin/IoPd"
+command_args="-pid=\"${IoPD_PIDFILE}\" \
+		-conf=\"${IoPD_CONFIGFILE}\" \
+		-datadir=\"${IoPD_DATADIR}\" \
+		-daemon \
+		${IoPD_OPTS}"
+
+required_files="${IoPD_CONFIGFILE}"
+start_stop_daemon_args="-u ${IoPD_USER} \
+			-N ${IoPD_NICE} -w 2000"
+pidfile="${IoPD_PIDFILE}"
+
+# The retry schedule to use when stopping the daemon. Could be either
+# a timeout in seconds or multiple signal/timeout pairs (like
+# "SIGKILL/180 SIGTERM/300")
+retry="${IoPD_SIGTERM_TIMEOUT}"
+
+depend() {
+	need localmount net
+}
+
+# verify
+# 1) that the datadir exists and is writable (or create it)
+# 2) that a directory for the pid exists and is writable
+# 3) ownership and permissions on the config file
+start_pre() {
+	checkpath \
+	-d \
+	--mode 0750 \
+	--owner "${IoPD_USER}:${IoPD_GROUP}" \
+	"${IoPD_DATADIR}"
+
+	checkpath \
+	-d \
+	--mode 0755 \
+	--owner "${IoPD_USER}:${IoPD_GROUP}" \
+	"${IoPD_PIDDIR}"
+
+	checkpath -f \
+	-o ${IoPD_USER}:${IoPD_GROUP} \
+	-m 0660 \
+	${IoPD_CONFIGFILE}
+
+	checkconfig || return 1
+}
+
+checkconfig()
+{
+	if ! grep -qs '^rpcpassword=' "${IoPD_CONFIGFILE}" ; then
+		eerror ""
+		eerror "ERROR: You must set a secure rpcpassword to run IoPd."
+		eerror "The setting must appear in ${IoPD_CONFIGFILE}"
+		eerror ""
+		eerror "This password is security critical to securing wallets "
+		eerror "and must not be the same as the rpcuser setting."
+		eerror "You can generate a suitable random password using the following"
+		eerror "command from the shell:"
+		eerror ""
+		eerror "bash -c 'tr -dc a-zA-Z0-9 < /dev/urandom | head -c32 && echo'"
+		eerror ""
+		eerror "It is also recommended that you also set alertnotify so you are "
+		eerror "notified of problems:"
+		eerror ""
+		eerror "ie: alertnotify=echo %%s | mail -s \"IoP Alert\"" \
+			"admin@foo.com"
+		eerror ""
+		return 1
+	fi
+}

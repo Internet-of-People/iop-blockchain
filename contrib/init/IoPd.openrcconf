@@ -1,0 +1,33 @@
+# /etc/conf.d/IoPd: config file for /etc/init.d/IoPd
+
+# Config file location
+#IoPD_CONFIGFILE="/etc/IoP/IoP.conf"
+
+# What directory to write pidfile to?  (created and owned by $IoPD_USER)
+#IoPD_PIDDIR="/var/run/IoPd"
+
+# What filename to give the pidfile
+#IoPD_PIDFILE="${IoPD_PIDDIR}/IoPd.pid"
+
+# Where to write IoPd data (be mindful that the blockchain is large)
+#IoPD_DATADIR="/var/lib/IoPd"
+
+# User and group to own IoPd process
+#IoPD_USER="IoP"
+#IoPD_GROUP="IoP"
+
+# Path to IoPd executable
+#IoPD_BIN="/usr/bin/IoPd"
+
+# Nice value to run IoPd under
+#IoPD_NICE=0
+
+# Additional options (avoid -conf and -datadir, use flags above)
+IoPD_OPTS="-disablewallet"
+
+# The timeout in seconds OpenRC will wait for IoPd to terminate
+# after a SIGTERM has been raised.
+# Note that this will be mapped as argument to start-stop-daemon's
+# '--retry' option, which means you can specify a retry schedule
+# here. For more information see man 8 start-stop-daemon.
+IoPD_SIGTERM_TIMEOUT=60

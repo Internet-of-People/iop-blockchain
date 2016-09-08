@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_CORE_IO_H
-#define BITCOIN_CORE_IO_H
+#ifndef IoP_CORE_IO_H
+#define IoP_CORE_IO_H
 
 #include <string>
 #include <vector>
@@ -29,4 +29,4 @@ extern std::string EncodeHexTx(const CTransaction& tx);
 extern void ScriptPubKeyToUniv(const CScript& scriptPubKey, UniValue& out, bool fIncludeHex);
 extern void TxToUniv(const CTransaction& tx, const uint256& hashBlock, UniValue& entry);
 
-#endif // BITCOIN_CORE_IO_H
+#endif // IoP_CORE_IO_H

@@ -4,7 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 from test_framework.mininode import *
-from test_framework.test_framework import BitcoinTestFramework
+from test_framework.test_framework import IoPTestFramework
 from test_framework.util import *
 from test_framework.blocktools import create_block, create_coinbase
 
@@ -240,7 +240,7 @@ class TestNode(BaseNode):
     def __init__(self):
         BaseNode.__init__(self)
 
-class SendHeadersTest(BitcoinTestFramework):
+class SendHeadersTest(IoPTestFramework):
     def __init__(self):
         super().__init__()
         self.setup_clean_chain = True

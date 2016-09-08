@@ -7,13 +7,13 @@
 # Test node handling
 #
 
-from test_framework.test_framework import BitcoinTestFramework
+from test_framework.test_framework import IoPTestFramework
 from test_framework.util import *
 
 import http.client
 import urllib.parse
 
-class NodeHandlingTest (BitcoinTestFramework):
+class NodeHandlingTest (IoPTestFramework):
 
     def __init__(self):
         super().__init__()

@@ -4,7 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 from test_framework.mininode import *
-from test_framework.test_framework import BitcoinTestFramework
+from test_framework.test_framework import IoPTestFramework
 from test_framework.util import *
 import time
 
@@ -79,12 +79,12 @@ class TestNode(NodeConnCB):
         self.ping_counter += 1
         return success
 
-class MaxUploadTest(BitcoinTestFramework):
+class MaxUploadTest(IoPTestFramework):
  
     def add_options(self, parser):
         parser.add_option("--testbinary", dest="testbinary",
-                          default=os.getenv("BITCOIND", "bitcoind"),
-                          help="bitcoind binary to test")
+                          default=os.getenv("IoPD", "IoPd"),
+                          help="IoPd binary to test")
 
     def __init__(self):
         super().__init__()

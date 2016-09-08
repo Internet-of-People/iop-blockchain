@@ -91,7 +91,7 @@ bool static IsCompressedOrUncompressedPubKey(const valtype &vchPubKey) {
  * excessively padded (do not start with a 0 byte, unless an otherwise negative number follows,
  * in which case a single 0 byte is necessary and even required).
  * 
- * See https://bitcointalk.org/index.php?topic=8392.msg127623#msg127623
+ * See https://IoPtalk.org/index.php?topic=8392.msg127623#msg127623
  *
  * This function is consensus-critical since BIP66.
  */

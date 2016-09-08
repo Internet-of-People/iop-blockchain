@@ -7,7 +7,7 @@
 # Test ZMQ interface
 #
 
-from test_framework.test_framework import BitcoinTestFramework
+from test_framework.test_framework import IoPTestFramework
 from test_framework.util import *
 import zmq
 import struct
@@ -15,13 +15,13 @@ import struct
 import http.client
 import urllib.parse
 
-class ZMQTest (BitcoinTestFramework):
+class ZMQTest (IoPTestFramework):
 
     def __init__(self):
         super().__init__()
         self.num_nodes = 4
 
-    port = 28332
+    port = 28337
 
     def setup_nodes(self):
         self.zmqContext = zmq.Context()
