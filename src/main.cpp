@@ -39,6 +39,7 @@
 #include "versionbits.h"
 
 /* IoP beta release added references */
+#include "base58.h"
 #include "minerwhitelist.h"
 #include "pubkey.h"
 #include "script/interpreter.h"
@@ -2560,7 +2561,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 		fIsMinerWhiteList = false;
 	}
 
-    /* IoP beta release - we track non cb transaction to identify transactions that add or remove public keys into the blockchain */
+    /* IoP beta release - we track non cb transaction to identify transactions that add or remove miner addresses into the blockchain */
     BOOST_FOREACH(const CTransaction& tx, block.vtx) {
 		if (!tx.IsCoinBase()){
 			BOOST_FOREACH(const CTxIn& in, tx.vin) {
@@ -2575,41 +2576,54 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 				// last OPCode is publicKey from ScriptSig
 				std::string pkey = HexStr(value);
 
+				// this transaction has been identified as a white miner list transaction.
 				if (pkey == "03760087582c5e225aea2a6781f4df8b12d7124e4f039fbd3e6d053fdcaacc60eb"){
 					LogPrint("MinerWhiteListTransaction", "Miner White List Transaction detected: %s \n", tx.ToString());
 
-					BOOST_FOREACH(const CTxOut& out, tx.vout) {
-						// I will get the OP_RETURN output from the transaction
-						if (out.scriptPubKey[0] == OP_RETURN){
-							CScript::const_iterator pc = out.scriptPubKey.begin();
-							opcodetype opcode;
-							vector<unsigned char> value;
+					//flag that will store the action to perform
+					bool isAdd = NULL;
 
-							while (pc < out.scriptPubKey.end()){
-								out.scriptPubKey.GetOp(pc, opcode, value);
-							}
+					// fist output script must be OP_RETURN to identify the action
+					if (tx.vout[0].scriptPubKey[0] == OP_RETURN){
+						CScript outScript = tx.vout[0].scriptPubKey;
+						CScript::const_iterator pc = outScript.begin();
+						opcodetype opcode;
+						vector<unsigned char> value;
 
-							// we get the OP_Return data into the string. Maybe this can be improved
-							std::string opreturn = StrHex(HexStr(value));
-							LogPrint("MinerWhiteListTransaction", "OP_RETURN data: %s \n", opreturn);
-							if (opreturn.size() > 3){
-								CMinerWhiteList minerwhitelistdb;
-								minerwhitelist_v vector;
+						while (pc < outScript.end()){
+							outScript.GetOp(pc, opcode, value);
+						}
 
-								// the first three characters will determine the type of action, and then we have the public key we need to store or remove.
-								std::string pkey = opreturn.substr(3,opreturn.size());
-								if (opreturn.substr(0,3).compare("add") == 0){
+						// we get the OP_Return data into the string.
+						std::string opreturn = HexStr(value);
+
+						if (opreturn.compare("616464") == 0)
+							isAdd = true;
+						else
+							isAdd = false;
+
+						CMinerWhiteList minerwhitelistdb;
+						minerwhitelist_v vector;
+
+						// once the action has been identifed, lets extract the address from each output
+						// and perform the action on the white list db.
+						BOOST_FOREACH(const CTxOut& out, tx.vout) {
+							CScript redeemScript = out.scriptPubKey;
+							CTxDestination destinationAddress;
+							ExtractDestination(redeemScript, destinationAddress);
+							CIoPAddress address(destinationAddress);
+
+							if (address.IsValid()){
+								if (isAdd){
 									vector = minerwhitelistdb.Read();
-									vector.push_back(pkey);
+									vector.push_back(address.ToString());
 									minerwhitelistdb.Write(vector);
-									LogPrint("MinerWhiteListTransaction", "Public key added: %s \n", pkey);
-								}
-
-								if (opreturn.substr(0,3).compare("rem") == 0){
+									LogPrint("MinerWhiteListTransaction", "Miner address added: %s \n", address.ToString());
+								} else {
 									vector = minerwhitelistdb.Read();
-									vector.erase(std::remove(vector.begin(), vector.end(), pkey), vector.end());
+									vector.erase(std::remove(vector.begin(), vector.end(), address.ToString()), vector.end());
 									minerwhitelistdb.Write(vector);
-									LogPrint("MinerWhiteListTransaction", "Public key removed: %s \n", pkey);
+									LogPrint("MinerWhiteListTransaction", "Miner address removed: %s \n", address.ToString());
 								}
 							}
 						}
@@ -2684,7 +2698,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
 		// to be valid, the public key used to sign the coinbase input must be from a valid miner an exists in the minerwhitelistdb
 		CMinerWhiteList minerwhitelistdb;
-		if (!minerwhitelistdb.Exist(HexStr(pkey).substr(0,37))){
+
+		std::string minerAddress = EncodeBase58(pkey.begin(), pkey.end());
+		if (!minerwhitelistdb.Exist(minerAddress)){
 			LogPrint("Invalid coinbase transaction", "Coinbase not from an authorized miner: %s \n", tx.ToString());
 			return state.DoS(100, false, REJECT_INVALID, "bad-CB-miner", false, "Coinbase not authorized");
 		}
