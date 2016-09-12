@@ -2561,6 +2561,12 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 		fIsMinerWhiteList = false;
 	}
 
+    /* IoP beta release - added a list of public keys that are valid to detect miner white list transactions. */
+    std::set<std::string> masterValidMiners {
+    	"03760087582c5e225aea2a6781f4df8b12d7124e4f039fbd3e6d053fdcaacc60eb",
+		"03760087582c5e225aea2a6781f4df8b12d7124e4f039fbd3e6d053fdcaacc60eb",
+		"03760087582c5e225aea2a6781f4df8b12d7124e4f039fbd3e6d053fdcaacc60eb"};
+
     /* IoP beta release - we track non cb transaction to identify transactions that add or remove miner addresses into the blockchain */
     BOOST_FOREACH(const CTransaction& tx, block.vtx) {
 		if (!tx.IsCoinBase()){
@@ -2577,7 +2583,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 				std::string pkey = HexStr(value);
 
 				// this transaction has been identified as a white miner list transaction.
-				if (pkey == "03760087582c5e225aea2a6781f4df8b12d7124e4f039fbd3e6d053fdcaacc60eb"){
+				if (masterValidMiners.count(pkey)){
 					LogPrint("MinerWhiteListTransaction", "Miner White List Transaction detected: %s \n", tx.ToString());
 
 					//flag that will store the action to perform
