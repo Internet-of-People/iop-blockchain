@@ -1472,7 +1472,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 
     if (GetBoolArg("-gen", false)) {
         LogPrintf("Miner enabled, initializing\n");
-        threadGroup.create_thread(boost::bind(&MinerThread));
+        threadGroup.create_thread(&MinerThread);
     }
 
     return !fRequestShutdown;
