@@ -64,7 +64,7 @@
 // NOTE this is a hack to reach the RPC miner code from here
 #include <univalue.h>
 UniValue generateBlocks(boost::shared_ptr<CReserveScript> coinbaseScript, int nGenerate, uint64_t nMaxTries, bool keepScript);
-UniValue MinerThread(boost::shared_ptr<CReserveScript> coinbaseScript);
+void MinerThread();
 
 
 using namespace std;
@@ -1470,22 +1470,37 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     }
 #endif
 
-//    LogPrintf("***** Option '-gen' (mining) is turned %s *****\n",
-//        GetBoolArg("-gen", false) ? "on" : "off" );
     if (GetBoolArg("-gen", false)) {
-        boost::shared_ptr<CReserveScript> coinbaseScript;
-        GetMainSignals().ScriptForMining(coinbaseScript);
-        threadGroup.create_thread(boost::bind(&MinerThread, boost::ref(coinbaseScript)));
+        LogPrintf("Miner enabled, initializing\n");
+        threadGroup.create_thread(boost::bind(&MinerThread));
     }
 
     return !fRequestShutdown;
 }
 
 
-UniValue MinerThread(boost::shared_ptr<CReserveScript> coinbaseScript)
+void MinerThread()
 {
+    boost::shared_ptr<CReserveScript> coinbaseScript;
+    GetMainSignals().ScriptForMining(coinbaseScript);
     while (true) {
-        UniValue result = generateBlocks(coinbaseScript, 1, UINT64_MAX, true);
-        // TODO should we do anything with the result except for logging it?
+        try {
+            LogPrintf("Start mining block\n");
+            UniValue result = generateBlocks(coinbaseScript, 1, UINT64_MAX, true);
+            if (result.empty()) {
+                LogPrintf("Finished mining attempt with no success\n");
+            } else {
+                LogPrintf("Mined a block, yaay!!!\n");
+            }
+        } catch (boost::thread_interrupted &e) {
+            LogPrintf("Miner thread interrupt, shutting down\n");
+            return;
+        } catch (exception &e) {
+            LogPrintf("Mining failed: %s\n", e.what());
+            MilliSleep(10000);
+        } catch (...) {
+            LogPrintf("Mining failed with unknown error\n");
+            MilliSleep(10000);
+        }
     }
 }
