@@ -330,7 +330,7 @@ std::string HelpMessage(HelpMessageMode mode)
     strUsage += HelpMessageOpt("-dbcache=<n>", strprintf(_("Set database cache size in megabytes (%d to %d, default: %d)"), nMinDbCache, nMaxDbCache, nDefaultDbCache));
     if (showDebug)
         strUsage += HelpMessageOpt("-feefilter", strprintf("Tell other nodes to filter invs to us by our mempool min fee (default: %u)", DEFAULT_FEEFILTER));
-    strUsage += HelpMessageOpt("-gen=<walletaddress>", _("Participate in mining. Value must be a valid wallet address to store mined coins into."));
+    strUsage += HelpMessageOpt("-gen=<address>", _("Participate in mining. Value must be a valid address to store mined coins into."));
     strUsage += HelpMessageOpt("-loadblock=<file>", _("Imports blocks from external blk000??.dat file on startup"));
     strUsage += HelpMessageOpt("-maxorphantx=<n>", strprintf(_("Keep at most <n> unconnectable transactions in memory (default: %u)"), DEFAULT_MAX_ORPHAN_TRANSACTIONS));
     strUsage += HelpMessageOpt("-maxmempool=<n>", strprintf(_("Keep the transaction memory pool below <n> megabytes (default: %u)"), DEFAULT_MAX_MEMPOOL_SIZE));
@@ -1472,7 +1472,6 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
         // Run a thread to flush wallet periodically
         threadGroup.create_thread(boost::bind(&ThreadFlushWalletDB, boost::ref(pwalletMain->strWalletFile)));
     }
-#endif
 
     string mineToAddressStr = GetArg("-gen", "");
     if (! mineToAddressStr.empty()) {
@@ -1491,6 +1490,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
             threadGroup.create_thread(boost::bind(&MinerThread, coinbaseScript));
         }
     }
+#endif
 
     return !fRequestShutdown;
 }
