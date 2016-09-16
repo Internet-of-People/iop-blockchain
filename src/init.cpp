@@ -66,7 +66,7 @@
 #include <univalue.h> // To declare the following function signature from rpc/mining.cpp
 UniValue generateBlocks(boost::shared_ptr<CReserveScript> coinbaseScript, int nGenerate, uint64_t nMaxTries, bool keepScript);
 #include "base58.h" // To access class CIoPAddress to handle the mining target address parameter
-void MinerThread();
+void MinerThread(boost::shared_ptr<CReserveScript> coinbaseScript);
 
 
 
@@ -330,8 +330,7 @@ std::string HelpMessage(HelpMessageMode mode)
     strUsage += HelpMessageOpt("-dbcache=<n>", strprintf(_("Set database cache size in megabytes (%d to %d, default: %d)"), nMinDbCache, nMaxDbCache, nDefaultDbCache));
     if (showDebug)
         strUsage += HelpMessageOpt("-feefilter", strprintf("Tell other nodes to filter invs to us by our mempool min fee (default: %u)", DEFAULT_FEEFILTER));
-    strUsage += HelpMessageOpt("-gen", _("Participate in mining. If enabled, you must also specify the -genaddr option."));
-    strUsage += HelpMessageOpt("-genaddr", _("Wallet address to store mined coins into."));
+    strUsage += HelpMessageOpt("-gen=<walletaddress>", _("Participate in mining. Value must be a valid wallet address to store mined coins into."));
     strUsage += HelpMessageOpt("-loadblock=<file>", _("Imports blocks from external blk000??.dat file on startup"));
     strUsage += HelpMessageOpt("-maxorphantx=<n>", strprintf(_("Keep at most <n> unconnectable transactions in memory (default: %u)"), DEFAULT_MAX_ORPHAN_TRANSACTIONS));
     strUsage += HelpMessageOpt("-maxmempool=<n>", strprintf(_("Keep the transaction memory pool below <n> megabytes (default: %u)"), DEFAULT_MAX_MEMPOOL_SIZE));
@@ -1475,36 +1474,31 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     }
 #endif
 
-    if (GetBoolArg("-gen", false)) {
+    string mineToAddressStr = GetArg("-gen", "");
+    if (! mineToAddressStr.empty()) {
         LogPrintf("Miner enabled, initializing\n");
-        threadGroup.create_thread(&MinerThread);
+        
+        CIoPAddress address(mineToAddressStr);
+        if (!address.IsValid()) {
+            cerr << "ERROR: Invalid address to store mining results, check address specified for option -gen" << endl;
+            StartShutdown();
+        }
+
+        if (! fRequestShutdown) {
+            boost::shared_ptr<CReserveScript> coinbaseScript(new CReserveScript());
+            coinbaseScript->reserveScript = GetScriptForDestination(address.Get());
+            
+            threadGroup.create_thread(boost::bind(&MinerThread, coinbaseScript));
+        }
     }
 
     return !fRequestShutdown;
 }
 
 
-void MinerThread()
+void MinerThread(boost::shared_ptr<CReserveScript> coinbaseScript)
 {
-    // Initialize mining options, especially the mining address
-    string mineToAddressStr = GetArg("-genaddr", "");
-    if (mineToAddressStr.empty()) {
-        cerr << "ERROR: Option -genaddr is mandatory when mining, a wallet address is needed to store mined coins into" << endl;
-        StartShutdown();
-        MilliSleep(UINT32_MAX); // TODO hack to avoid running further and encounter more errors while waiting for a clean shutdown shutting down
-    }
-        
-    CIoPAddress address(mineToAddressStr);
-    if (!address.IsValid()) {
-        cerr << "ERROR: Invalid address to store mining results, check address specified for option -genaddr\n" << endl;
-        StartShutdown();
-        MilliSleep(UINT32_MAX); // TODO hack to avoid running further and encounter more errors while waiting for a clean shutdown shutting down
-    }
-    
-    boost::shared_ptr<CReserveScript> coinbaseScript(new CReserveScript());
-    coinbaseScript->reserveScript = GetScriptForDestination(address.Get());
-    
-    // Start mining forever (until shutdown)
+    // Mine forever (until shutdown)
     while (true) {
         try {
             LogPrintf("Start mining block\n");
