@@ -331,8 +331,9 @@ std::string HelpMessage(HelpMessageMode mode)
     if (showDebug)
         strUsage += HelpMessageOpt("-feefilter", strprintf("Tell other nodes to filter invs to us by our mempool min fee (default: %u)", DEFAULT_FEEFILTER));
 #ifdef ENABLE_WALLET
-    strUsage += HelpMessageOpt("-gen=<address>", _("Participate in mining. Value must be a valid address to store mined coins into."));
+    strUsage += HelpMessageOpt("-gen", _("Participate in mining. Coins will be stored into a newly generated address for every successfully mined block."));
 #endif
+    strUsage += HelpMessageOpt("-genaddr=<address>", _("Participate in mining. Value must be a valid address to store mined coins into."));
     strUsage += HelpMessageOpt("-loadblock=<file>", _("Imports blocks from external blk000??.dat file on startup"));
     strUsage += HelpMessageOpt("-maxorphantx=<n>", strprintf(_("Keep at most <n> unconnectable transactions in memory (default: %u)"), DEFAULT_MAX_ORPHAN_TRANSACTIONS));
     strUsage += HelpMessageOpt("-maxmempool=<n>", strprintf(_("Keep the transaction memory pool below <n> megabytes (default: %u)"), DEFAULT_MAX_MEMPOOL_SIZE));
@@ -1474,14 +1475,15 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
         // Run a thread to flush wallet periodically
         threadGroup.create_thread(boost::bind(&ThreadFlushWalletDB, boost::ref(pwalletMain->strWalletFile)));
     }
+#endif
 
-    string mineToAddressStr = GetArg("-gen", "");
+    string mineToAddressStr = GetArg("-genaddr", "");
     if (! mineToAddressStr.empty()) {
         LogPrintf("Miner enabled, initializing\n");
         
         CIoPAddress address(mineToAddressStr);
         if (!address.IsValid()) {
-            cerr << "ERROR: Invalid address to store mining results, check address specified for option -gen" << endl;
+            cerr << "ERROR: Invalid address to store mining results, check address specified for option -genaddr" << endl;
             StartShutdown();
         }
 
@@ -1489,6 +1491,26 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
             boost::shared_ptr<CReserveScript> coinbaseScript(new CReserveScript());
             coinbaseScript->reserveScript = GetScriptForDestination(address.Get());
             
+            threadGroup.create_thread(boost::bind(&MinerThread, coinbaseScript));
+        }
+    }
+#ifdef ENABLE_WALLET
+    else if (GetBoolArg("-gen", false)) {
+        LogPrintf("Miner enabled, initializing\n");
+        
+        boost::shared_ptr<CReserveScript> coinbaseScript;
+        GetMainSignals().ScriptForMining(coinbaseScript);
+        
+        if (!coinbaseScript) {
+            cerr << "ERROR: Keypool ran out, please call keypoolrefill first" << endl;
+            StartShutdown();
+        }
+        else if (coinbaseScript->reserveScript.empty()) {
+            cerr << "ERROR: No coinbase script available (mining requires a wallet)" << endl;
+            StartShutdown();
+        }
+        
+        if (! fRequestShutdown) {
             threadGroup.create_thread(boost::bind(&MinerThread, coinbaseScript));
         }
     }
@@ -1509,6 +1531,7 @@ void MinerThread(boost::shared_ptr<CReserveScript> coinbaseScript)
                 LogPrintf("Finished mining attempt with no success\n");
             } else {
                 LogPrintf("Mined a block, yaay!!!\n");
+                MilliSleep(10000);
             }
         } catch (boost::thread_interrupted &e) {
             LogPrintf("Miner thread interrupt, shutting down\n");
