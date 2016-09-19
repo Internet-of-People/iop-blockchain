@@ -103,6 +103,7 @@ IoP_CORE_H = \
   main.h \
   memusage.h \
   merkleblock.h \
+  minerwhitelist.h \
   miner.h \
   net.h \
   netbase.h \
@@ -174,6 +175,7 @@ libIoP_server_a_SOURCES = \
   main.cpp \
   merkleblock.cpp \
   miner.cpp \
+  minerwhitelist.cpp \
   net.cpp \
   noui.cpp \
   policy/fees.cpp \

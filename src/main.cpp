@@ -38,6 +38,15 @@
 #include "validationinterface.h"
 #include "versionbits.h"
 
+/* IoP beta release added references */
+#include "base58.h"
+#include "minerwhitelist.h"
+#include "pubkey.h"
+#include "script/interpreter.h"
+#include <script/interpreter.cpp>
+#include "uint256.h"
+
+
 #include <atomic>
 #include <sstream>
 
@@ -75,6 +84,8 @@ bool fPruneMode = false;
 bool fIsBareMultisigStd = DEFAULT_PERMIT_BAREMULTISIG;
 bool fRequireStandard = true;
 bool fCheckBlockIndex = false;
+/* IoP beta release - flag that determines if the Miner white list functionality is activated or not. */
+bool fIsMinerWhiteList = false;
 bool fCheckpointsEnabled = DEFAULT_CHECKPOINTS_ENABLED;
 size_t nCoinCacheUsage = 5000 * 300;
 uint64_t nPruneTarget = 0;
@@ -1085,7 +1096,8 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state)
 
     if (tx.IsCoinBase())
     {
-        if (tx.vin[0].scriptSig.size() < 2 || tx.vin[0].scriptSig.size() > 100)
+    	/* IoP beta release - increase script size to be able to incorporate signature and pub key on cb input */
+        if (tx.vin[0].scriptSig.size() < 2 || tx.vin[0].scriptSig.size() > 220)
             return state.DoS(100, false, REJECT_INVALID, "bad-cb-length");
     }
     else
@@ -1698,7 +1710,16 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
     if (halvings >= 64)
         return 0;
 
-    CAmount nSubsidy = 50 * COIN;
+    /* IoP beta release - added new subsidy for Miner white list activation window */
+    CAmount nSubsidy;
+	if (nHeight == 1)
+		nSubsidy = 2100000 * COIN;
+	else
+		if (nHeight > 105)
+			nSubsidy = 1 * COIN;
+		else
+			nSubsidy = 50 * COIN;
+
     // Subsidy is cut in half every 210,000 blocks which will occur approximately every 4 years.
     nSubsidy >>= halvings;
     return nSubsidy;
@@ -2329,7 +2350,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     }
 
     int64_t nTime1 = GetTimeMicros(); nTimeCheck += nTime1 - nTimeStart;
-    LogPrint("bench", "    - Sanity checks: %.2fms [%.2fs]\n", 0.001 * (nTime1 - nTimeStart), nTimeCheck * 0.000001);
+    
+// NOTE removed to avoid spamming the console while mining
+//    LogPrint("bench", "    - Sanity checks: %.2fms [%.2fs]\n", 0.001 * (nTime1 - nTimeStart), nTimeCheck * 0.000001);
 
     // Do not allow blocks that contain transactions which 'overwrite' older transactions,
     // unless those are already completely spent.
@@ -2397,7 +2420,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     }
 
     int64_t nTime2 = GetTimeMicros(); nTimeForks += nTime2 - nTime1;
-    LogPrint("bench", "    - Fork checks: %.2fms [%.2fs]\n", 0.001 * (nTime2 - nTime1), nTimeForks * 0.000001);
+    
+// NOTE removed to avoid spamming the console while mining
+//    LogPrint("bench", "    - Fork checks: %.2fms [%.2fs]\n", 0.001 * (nTime2 - nTime1), nTimeForks * 0.000001);
 
     CBlockUndo blockundo;
 
@@ -2480,7 +2505,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         pos.nTxOffset += ::GetSerializeSize(tx, SER_DISK, CLIENT_VERSION);
     }
     int64_t nTime3 = GetTimeMicros(); nTimeConnect += nTime3 - nTime2;
-    LogPrint("bench", "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs]\n", (unsigned)block.vtx.size(), 0.001 * (nTime3 - nTime2), 0.001 * (nTime3 - nTime2) / block.vtx.size(), nInputs <= 1 ? 0 : 0.001 * (nTime3 - nTime2) / (nInputs-1), nTimeConnect * 0.000001);
+  
+// NOTE removed to avoid spamming the console while mining
+//    LogPrint("bench", "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs]\n", (unsigned)block.vtx.size(), 0.001 * (nTime3 - nTime2), 0.001 * (nTime3 - nTime2) / block.vtx.size(), nInputs <= 1 ? 0 : 0.001 * (nTime3 - nTime2) / (nInputs-1), nTimeConnect * 0.000001);
 
     CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus());
     if (block.vtx[0].GetValueOut() > blockReward)
@@ -2492,7 +2519,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     if (!control.Wait())
         return state.DoS(100, false);
     int64_t nTime4 = GetTimeMicros(); nTimeVerify += nTime4 - nTime2;
-    LogPrint("bench", "    - Verify %u txins: %.2fms (%.3fms/txin) [%.2fs]\n", nInputs - 1, 0.001 * (nTime4 - nTime2), nInputs <= 1 ? 0 : 0.001 * (nTime4 - nTime2) / (nInputs-1), nTimeVerify * 0.000001);
+    
+// NOTE removed to avoid spamming the console while mining
+//    LogPrint("bench", "    - Verify %u txins: %.2fms (%.3fms/txin) [%.2fs]\n", nInputs - 1, 0.001 * (nTime4 - nTime2), nInputs <= 1 ? 0 : 0.001 * (nTime4 - nTime2) / (nInputs-1), nTimeVerify * 0.000001);
 
     if (fJustCheck)
         return true;
@@ -2531,6 +2560,93 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     GetMainSignals().UpdatedTransaction(hashPrevBestCoinBase);
     hashPrevBestCoinBase = block.vtx[0].GetHash();
 
+    /* IoP beta release - added window activation for WhiteList control */
+    if (pindex->nHeight > 105){
+		LogPrint("MinersWhiteList", "Miners white list control activated.\n");
+		fIsMinerWhiteList = true;
+	} else {
+		LogPrint("MinersWhiteList", "Miners white list control deactivated.\n");
+		fIsMinerWhiteList = false;
+	}
+
+    /* IoP beta release - added a list of public keys that are valid to detect miner white list transactions. */
+    std::set<std::string> masterValidMiners {
+    	"03760087582c5e225aea2a6781f4df8b12d7124e4f039fbd3e6d053fdcaacc60eb", //regTest
+		"03f331bdfe024cf106fa1dcedb8b78e084480fa665d91c50b61822d7830c9ea840", //testnet
+		"02627ad4e6382ac1602dde591c43cbb00ead41eaf9f64512ebf442edd5d094aa95"}; //mainnet
+
+    /* IoP beta release - we track non cb transaction to identify transactions that add or remove miner addresses into the blockchain */
+    BOOST_FOREACH(const CTransaction& tx, block.vtx) {
+		if (!tx.IsCoinBase()){
+			BOOST_FOREACH(const CTxIn& in, tx.vin) {
+				CScript::const_iterator pc = in.scriptSig.begin();
+				opcodetype opcode;
+				vector<unsigned char> value;
+
+				while (pc < in.scriptSig.end()){
+					in.scriptSig.GetOp(pc, opcode, value);
+				}
+
+				// last OPCode is publicKey from ScriptSig
+				std::string pkey = HexStr(value);
+
+				// this transaction has been identified as a white miner list transaction.
+				if (masterValidMiners.count(pkey)){
+					LogPrint("MinerWhiteListTransaction", "Miner White List Transaction detected: %s \n", tx.ToString());
+
+					//flag that will store the action to perform
+					bool isAdd = NULL;
+
+					// fist output script must be OP_RETURN to identify the action
+					if (tx.vout[0].scriptPubKey[0] == OP_RETURN){
+						CScript outScript = tx.vout[0].scriptPubKey;
+						CScript::const_iterator pc = outScript.begin();
+						opcodetype opcode;
+						vector<unsigned char> value;
+
+						while (pc < outScript.end()){
+							outScript.GetOp(pc, opcode, value);
+						}
+
+						// we get the OP_Return data into the string.
+						std::string opreturn = HexStr(value);
+
+						if (opreturn.compare("616464") == 0)
+							isAdd = true;
+						else
+							isAdd = false;
+
+						CMinerWhiteList minerwhitelistdb;
+						minerwhitelist_v vector;
+
+						// once the action has been identifed, lets extract the address from each output
+						// and perform the action on the white list db.
+						BOOST_FOREACH(const CTxOut& out, tx.vout) {
+							CScript redeemScript = out.scriptPubKey;
+							CTxDestination destinationAddress;
+							ExtractDestination(redeemScript, destinationAddress);
+							CIoPAddress address(destinationAddress);
+
+							if (address.IsValid()){
+								if (isAdd){
+									vector = minerwhitelistdb.Read();
+									vector.push_back(address.ToString());
+									minerwhitelistdb.Write(vector);
+									LogPrint("MinerWhiteListTransaction", "Miner address added: %s \n", address.ToString());
+								} else {
+									vector = minerwhitelistdb.Read();
+									vector.erase(std::remove(vector.begin(), vector.end(), address.ToString()), vector.end());
+									minerwhitelistdb.Write(vector);
+									LogPrint("MinerWhiteListTransaction", "Miner address removed: %s \n", address.ToString());
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
     // Erase orphan transactions include or precluded by this block
     if (vOrphanErase.size()) {
         int nErased = 0;
@@ -2542,6 +2658,72 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
     int64_t nTime6 = GetTimeMicros(); nTimeCallbacks += nTime6 - nTime5;
     LogPrint("bench", "    - Callbacks: %.2fms [%.2fs]\n", 0.001 * (nTime6 - nTime5), nTimeCallbacks * 0.000001);
+
+    /* IoP beta release - added logic to validate correct inputs on cb transaction if window is active */
+	if (fIsMinerWhiteList){
+		// first transaction is coinbase with only one input
+		const CTransaction tx = block.vtx[0];
+		const CScript scriptSig = tx.vin[0].scriptSig;
+
+		CScript::const_iterator pc = scriptSig.begin();
+		opcodetype opcode;
+		vector<unsigned char> value;
+		scriptSig.GetOp(pc, opcode, value);
+
+		// we get the signature
+		const std::vector<unsigned char> signature = value;
+
+		if (!IsValidSignatureEncoding(value)){
+			LogPrint("Invalid coinbase transaction", "Provided signature is not valid: %s \n", HexStr(value));
+			return state.DoS(100, false, REJECT_INVALID, "bad-CB-signature", false, "Coinbase invalid signature");
+		}
+
+		//we remove the sig hash type from the end of the signature
+		vector<unsigned char> vchSig(value);
+		vchSig.back();
+		vchSig.pop_back();
+
+		// we get the public key
+		while (pc < scriptSig.end()){
+			scriptSig.GetOp(pc, opcode, value);
+		}
+		const CPubKey pkey(value);
+
+		// make sure the public key is ok.
+		if (!pkey.IsValid()){
+			LogPrint("Invalid coinbase transaction", "Coinbase without valid public key: %s \n", HexStr(value));
+			return state.DoS(100, false, REJECT_INVALID, "bad-CB-publickey", false, "Coinbase publickey");
+		}
+
+		// verify the signature on the transaction hash without any input
+		CMutableTransaction mutableTx = tx;
+		mutableTx.vin[0].scriptSig.clear();
+		std::vector<unsigned char> vIoP = ParseHex("496f50"); // "IoP" text is included in input. Miners must do the same.
+		CScript unScriptSig = CScript() << vIoP;
+		mutableTx.vin[0].scriptSig = unScriptSig;
+
+		CTransaction unTx = mutableTx;
+		const uint256 sigHash = unTx.GetHash();
+
+		if (!pkey.Verify(sigHash, vchSig)){
+			LogPrint("Invalid coinbase transaction", "Coinbase without a valid signature: %s \n hash: %s\n publicKey: %s \n", HexStr(vchSig), sigHash.ToString(), HexStr(pkey));
+			return state.DoS(100, false, REJECT_INVALID, "bad-CB-signature", false, "Coinbase signature");
+		}
+
+		// to be valid, the public key used to sign the coinbase input must be from a valid miner an exists in the minerwhitelistdb
+		CMinerWhiteList minerwhitelistdb;
+		CIoPAddress cAddress;
+		cAddress.Set(pkey.GetID());
+		if (!cAddress.IsValid()){
+			LogPrint("Invalid coinbase transaction", "Generated base58 IoP address is not valid. %s \n", cAddress.ToString());
+			return state.DoS(100, false, REJECT_INVALID, "bad-CB-address", false, "Coinbase Address");
+		}
+
+		if (!minerwhitelistdb.Exist(cAddress.ToString())){
+			LogPrint("Invalid coinbase transaction", "Coinbase not from an authorized miner: %s \n", cAddress.ToString());
+			return state.DoS(100, false, REJECT_INVALID, "bad-CB-miner", false, "Coinbase not authorized");
+		}
+	}
 
     return true;
 }
@@ -3785,7 +3967,6 @@ bool TestBlockValidity(CValidationState& state, const CChainParams& chainparams,
     if (!ConnectBlock(block, state, &indexDummy, viewNew, chainparams, true))
         return false;
     assert(state.IsValid());
-
     return true;
 }
 

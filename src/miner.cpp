@@ -25,6 +25,14 @@
 #include "utilmoneystr.h"
 #include "validationinterface.h"
 
+/* IoP beta - added references */
+#include "base58.h"
+#include "key.h"
+#include <random>
+#include <stdlib.h>
+#include "utilstrencodings.h"
+
+
 #include <algorithm>
 #include <boost/thread.hpp>
 #include <boost/tuple/tuple.hpp>
@@ -46,6 +54,11 @@ using namespace std;
 uint64_t nLastBlockTx = 0;
 uint64_t nLastBlockSize = 0;
 uint64_t nLastBlockWeight = 0;
+/* IoP beta code - random int to generate op_return data */
+unsigned int randomData;
+/* IoP beta code - provided private key as string from parameter */
+std::string strPrivKey;
+
 
 class ScoreCompare
 {
@@ -168,7 +181,9 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn)
     nLastBlockTx = nBlockTx;
     nLastBlockSize = nBlockSize;
     nLastBlockWeight = nBlockWeight;
-    LogPrintf("CreateNewBlock(): total size %u txs: %u fees: %ld sigops %d\n", nBlockSize, nBlockTx, nFees, nBlockSigOpsCost);
+    
+// NOTE removed to avoid spamming the console while mining
+//    LogPrintf("CreateNewBlock(): total size %u txs: %u fees: %ld sigops %d\n", nBlockSize, nBlockTx, nFees, nBlockSigOpsCost);
 
     // Create coinbase transaction.
     CMutableTransaction coinbaseTx;
@@ -177,7 +192,28 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn)
     coinbaseTx.vout.resize(1);
     coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
     coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
-    coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
+
+
+    /* IoP beta release - If private key is provided, we sign the coinbase transaction */
+    strPrivKey = GetArg("-minerPKey", "");
+    if (strPrivKey.empty())
+    	// no private key provided, so we continue as always.
+    	coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
+    else {
+    	// I will add an OP_return output to the cb with random data to generate more randomness
+    	coinbaseTx.vout.resize(2);
+
+    	//generate random data.
+    	srand(std::random_device()());
+    	randomData = rand();
+
+    	// create op_return script.
+    	coinbaseTx.vout[1].scriptPubKey = CScript() << OP_RETURN << randomData;
+    	coinbaseTx.vout[1].nValue = COIN * 0;
+
+    	// Modify the scriptSig with the signature and public key.
+    	coinbaseTx = SignCoinbaseTransactionForWhiteList(coinbaseTx, strPrivKey);
+    }
     pblock->vtx[0] = coinbaseTx;
     pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
     pblocktemplate->vTxFees[0] = -nFees;
@@ -193,7 +229,6 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn)
     if (!TestBlockValidity(state, chainparams, *pblock, pindexPrev, false, false)) {
         throw std::runtime_error(strprintf("%s: TestBlockValidity failed: %s", __func__, FormatStateMessage(state)));
     }
-
     return pblocktemplate.release();
 }
 
@@ -587,6 +622,49 @@ void BlockAssembler::addPriorityTxs()
     fNeedSizeAccounting = fSizeAccounting;
 }
 
+/**
+ * Iop Beta release
+ * Modifies the scriptSig's coinbase script to include the signature and public key
+ * from the provided publish key. This coinbase format is the expected for the Miner White list control.
+ */
+CMutableTransaction SignCoinbaseTransactionForWhiteList(CMutableTransaction coinbaseTx, const string strPrivKey)
+{
+	if (strPrivKey.empty()) throw std::runtime_error(strprintf("Private key is empty.",strPrivKey));
+
+	// creates a private key from the secret passed.
+	CIoPSecret vchSecret;
+	bool fGood = vchSecret.SetString(strPrivKey);
+	if (!fGood) throw std::runtime_error(strprintf("Provided private key (%s) is not valid. Invalid private key encoding", strPrivKey));
+
+	CKey key = vchSecret.GetKey();
+	if (!key.IsValid()) throw std::runtime_error(strprintf("Provided private key (%s) is not valid. Private key outside allowed range.", strPrivKey));
+
+	// get the public key
+	CPubKey publicKey = key.GetPubKey();
+	if (!publicKey.IsValid()) throw std::runtime_error(strprintf("Provided private key (%s) is not valid. Derived public key not valid.", strPrivKey));
+	std::vector<unsigned char> vpkey (publicKey.begin(), publicKey.end());
+
+	// Prepare new transaction to hash and sign
+	CMutableTransaction cbDraft = coinbaseTx;
+	std::vector<unsigned char> vIoP = ParseHex("496f50");
+	CScript unScriptSig = CScript() << vIoP;
+	cbDraft.vin[0].scriptSig = unScriptSig;
+	CTransaction cbTx = cbDraft;
+
+	// this is the hash to sign
+	uint256 hash = cbTx.GetHash();
+
+	std::vector<unsigned char> signature;
+	key.Sign(hash, signature);
+	// add the SIGHASH_ALL byte
+	signature.push_back(0x01);
+
+	// I push into the scriptSig the signature and public key used.
+	coinbaseTx.vin[0].scriptSig = CScript() << signature << vpkey;
+
+	return coinbaseTx;
+}
+
 void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned int& nExtraNonce)
 {
     // Update nExtraNonce
@@ -596,11 +674,23 @@ void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned
         nExtraNonce = 0;
         hashPrevBlock = pblock->hashPrevBlock;
     }
+
     ++nExtraNonce;
     unsigned int nHeight = pindexPrev->nHeight+1; // Height first in coinbase required for block.version=2
     CMutableTransaction txCoinbase(pblock->vtx[0]);
-    txCoinbase.vin[0].scriptSig = (CScript() << nHeight << CScriptNum(nExtraNonce)) + COINBASE_FLAGS;
-    assert(txCoinbase.vin[0].scriptSig.size() <= 100);
+    // IoP beta change - if we are signing the coinbase, we have an output with random data. we use that to add the nonce and generate a new tx hash.
+    if (txCoinbase.vout.size() == 2){
+    	txCoinbase.vout[1].scriptPubKey = CScript() << OP_RETURN << randomData << nExtraNonce;
+
+    	//since we change the coinbase transaction, we need to generate a new signature
+    	txCoinbase = SignCoinbaseTransactionForWhiteList(txCoinbase, strPrivKey);
+    }
+    else
+    {
+    	txCoinbase.vin[0].scriptSig = (CScript() << nHeight << CScriptNum(nExtraNonce)) + COINBASE_FLAGS;
+    	assert(txCoinbase.vin[0].scriptSig.size() <= 100);
+    }
+
 
     pblock->vtx[0] = txCoinbase;
     pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);

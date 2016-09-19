@@ -61,6 +61,12 @@
 #include "zmq/zmqnotificationinterface.h"
 #endif
 
+// NOTE this is a hack to reach the RPC miner code from here
+#include <univalue.h>
+UniValue generateBlocks(boost::shared_ptr<CReserveScript> coinbaseScript, int nGenerate, uint64_t nMaxTries, bool keepScript);
+void MinerThread();
+
+
 using namespace std;
 
 bool fFeeEstimatesInitialized = false;
@@ -1464,5 +1470,37 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     }
 #endif
 
+    if (GetBoolArg("-gen", false)) {
+        LogPrintf("Miner enabled, initializing\n");
+        threadGroup.create_thread(&MinerThread);
+    }
+
     return !fRequestShutdown;
+}
+
+
+void MinerThread()
+{
+    boost::shared_ptr<CReserveScript> coinbaseScript;
+    GetMainSignals().ScriptForMining(coinbaseScript);
+    while (true) {
+        try {
+            LogPrintf("Start mining block\n");
+            UniValue result = generateBlocks(coinbaseScript, 1, UINT64_MAX, true);
+            if (result.empty()) {
+                LogPrintf("Finished mining attempt with no success\n");
+            } else {
+                LogPrintf("Mined a block, yaay!!!\n");
+            }
+        } catch (boost::thread_interrupted &e) {
+            LogPrintf("Miner thread interrupt, shutting down\n");
+            return;
+        } catch (exception &e) {
+            LogPrintf("Mining failed: %s\n", e.what());
+            MilliSleep(10000);
+        } catch (...) {
+            LogPrintf("Mining failed with unknown error\n");
+            MilliSleep(10000);
+        }
+    }
 }

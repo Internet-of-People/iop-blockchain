@@ -153,7 +153,7 @@ UniValue generate(const UniValue& params, bool fHelp)
             "\nMine up to numblocks blocks immediately (before the RPC call returns)\n"
             "\nArguments:\n"
             "1. numblocks    (numeric, required) How many blocks are generated immediately.\n"
-            "2. maxtries     (numeric, optional) How many iterations to try (default = 1000000).\n"
+            "2. maxtries     (numeric, optional) How many iterations to try (default = max).\n"
             "\nResult\n"
             "[ blockhashes ]     (array) hashes of blocks generated\n"
             "\nExamples:\n"
@@ -162,7 +162,7 @@ UniValue generate(const UniValue& params, bool fHelp)
         );
 
     int nGenerate = params[0].get_int();
-    uint64_t nMaxTries = 1000000;
+    uint64_t nMaxTries = UINT64_MAX;
     if (params.size() > 1) {
         nMaxTries = params[1].get_int();
     }
