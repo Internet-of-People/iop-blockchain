@@ -1097,7 +1097,7 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state)
     if (tx.IsCoinBase())
     {
     	/* IoP beta release - increase script size to be able to incorporate signature and pub key on cb input */
-        if (tx.vin[0].scriptSig.size() < 2 || tx.vin[0].scriptSig.size() > 300)
+        if (tx.vin[0].scriptSig.size() < 2 || tx.vin[0].scriptSig.size() > 220)
             return state.DoS(100, false, REJECT_INVALID, "bad-cb-length");
     }
     else
@@ -1715,7 +1715,7 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 	if (nHeight == 1)
 		nSubsidy = 2100000 * COIN;
 	else
-		if (nHeight > 105 && nHeight < 500)
+		if (nHeight > 105)
 			nSubsidy = 1 * COIN;
 		else
 			nSubsidy = 50 * COIN;
@@ -2561,7 +2561,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     hashPrevBestCoinBase = block.vtx[0].GetHash();
 
     /* IoP beta release - added window activation for WhiteList control */
-    if (pindex->nHeight > 105 && pindex->nHeight < 500){
+    if (pindex->nHeight > 105){
 		LogPrint("MinersWhiteList", "Miners white list control activated.\n");
 		fIsMinerWhiteList = true;
 	} else {
@@ -2690,7 +2690,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 		const CPubKey pkey(value);
 
 		// make sure the public key is ok.
-		if (!pkey.IsFullyValid()){
+		if (!pkey.IsValid()){
 			LogPrint("Invalid coinbase transaction", "Coinbase without valid public key: %s \n", HexStr(value));
 			return state.DoS(100, false, REJECT_INVALID, "bad-CB-publickey", false, "Coinbase publickey");
 		}
@@ -2712,10 +2712,15 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
 		// to be valid, the public key used to sign the coinbase input must be from a valid miner an exists in the minerwhitelistdb
 		CMinerWhiteList minerwhitelistdb;
+		CIoPAddress cAddress;
+		cAddress.Set(pkey.GetID());
+		if (!cAddress.IsValid()){
+			LogPrint("Invalid coinbase transaction", "Generated base58 IoP address is not valid. %s \n", cAddress.ToString());
+			return state.DoS(100, false, REJECT_INVALID, "bad-CB-address", false, "Coinbase Address");
+		}
 
-		std::string minerAddress = EncodeBase58(pkey.begin(), pkey.end());
-		if (!minerwhitelistdb.Exist(minerAddress)){
-			LogPrint("Invalid coinbase transaction", "Coinbase not from an authorized miner: %s \n", tx.ToString());
+		if (!minerwhitelistdb.Exist(cAddress.ToString())){
+			LogPrint("Invalid coinbase transaction", "Coinbase not from an authorized miner: %s \n", cAddress.ToString());
 			return state.DoS(100, false, REJECT_INVALID, "bad-CB-miner", false, "Coinbase not authorized");
 		}
 	}
@@ -3962,7 +3967,6 @@ bool TestBlockValidity(CValidationState& state, const CChainParams& chainparams,
     if (!ConnectBlock(block, state, &indexDummy, viewNew, chainparams, true))
         return false;
     assert(state.IsValid());
-
     return true;
 }
 
