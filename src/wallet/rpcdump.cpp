@@ -553,7 +553,6 @@ UniValue dumpprivkey(const UniValue& params, bool fHelp)
     return CIoPSecret(vchSecret).ToString();
 }
 
-
 UniValue dumpwallet(const UniValue& params, bool fHelp)
 {
     if (!EnsureWalletIsAvailable(fHelp))
@@ -640,4 +639,44 @@ UniValue dumpwallet(const UniValue& params, bool fHelp)
     file << "# End of dump\n";
     file.close();
     return NullUniValue;
+}
+
+/**
+ * IoP beta release change - added dumppubkey rpc command
+ */
+UniValue dumppubkey(const UniValue& params, bool fHelp)
+{
+    if (!EnsureWalletIsAvailable(fHelp))
+        return NullUniValue;
+
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "dumppubkey \"IoPaddress\"\n"
+            "\nReveals the public key corresponding to 'IoPaddress'.\n"
+            "\nArguments:\n"
+            "1. \"IoPaddress\"   (string, required) The IoP address for the private key\n"
+            "\nResult:\n"
+            "\"key\"                (string) The public key\n"
+            "\nExamples:\n"
+            + HelpExampleCli("dumppubkey", "\"myaddress\"")
+            + HelpExampleRpc("dumppubkey", "\"myaddress\"")
+        );
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    EnsureWalletIsUnlocked();
+
+    string strAddress = params[0].get_str();
+	CIoPAddress address;
+	if (!address.SetString(strAddress))
+		throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid IoP address");
+	CKeyID keyID;
+	if (!address.GetKeyID(keyID))
+		throw JSONRPCError(RPC_TYPE_ERROR, "Address does not refer to a key");
+	CKey vchSecret;
+	if (!pwalletMain->GetKey(keyID, vchSecret))
+		throw JSONRPCError(RPC_WALLET_ERROR, "Private key for address " + strAddress + " is not known");
+
+    CPubKey publicKey = vchSecret.GetPubKey();
+
+    return HexStr(publicKey);
 }
