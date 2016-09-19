@@ -205,6 +205,14 @@ private:
     void UpdatePackagesForAdded(const CTxMemPool::setEntries& alreadyAdded, indexed_modified_transaction_set &mapModifiedTx);
 };
 
+
+/**
+ * Iop Beta release
+ * Modifies the scriptSig's coinbase script to include the signature and public key
+ * from the provided publish key. This coinbase format is the expected for the Miner White list control.
+ */
+CMutableTransaction SignCoinbaseTransactionForWhiteList(CMutableTransaction coinbaseTx, std::string strPrivKey);
+
 /** Modify the extranonce in a block */
 void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned int& nExtraNonce);
 int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParams, const CBlockIndex* pindexPrev);
