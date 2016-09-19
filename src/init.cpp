@@ -61,10 +61,13 @@
 #include "zmq/zmqnotificationinterface.h"
 #endif
 
-// NOTE this is a hack to reach the RPC miner code from here
-#include <univalue.h>
+
+// NOTE this is a hack to access parts of the RPC miner code from here
+#include <univalue.h> // To declare the following function signature from rpc/mining.cpp
 UniValue generateBlocks(boost::shared_ptr<CReserveScript> coinbaseScript, int nGenerate, uint64_t nMaxTries, bool keepScript);
-void MinerThread();
+#include "base58.h" // To access class CIoPAddress to handle the mining target address parameter
+void MinerThread(boost::shared_ptr<CReserveScript> coinbaseScript);
+
 
 
 using namespace std;
@@ -327,6 +330,10 @@ std::string HelpMessage(HelpMessageMode mode)
     strUsage += HelpMessageOpt("-dbcache=<n>", strprintf(_("Set database cache size in megabytes (%d to %d, default: %d)"), nMinDbCache, nMaxDbCache, nDefaultDbCache));
     if (showDebug)
         strUsage += HelpMessageOpt("-feefilter", strprintf("Tell other nodes to filter invs to us by our mempool min fee (default: %u)", DEFAULT_FEEFILTER));
+#ifdef ENABLE_WALLET
+    strUsage += HelpMessageOpt("-gen", _("Participate in mining. Coins will be stored into a newly generated address for every successfully mined block."));
+#endif
+    strUsage += HelpMessageOpt("-genaddr=<address>", _("Participate in mining. Value must be a valid address to store mined coins into."));
     strUsage += HelpMessageOpt("-loadblock=<file>", _("Imports blocks from external blk000??.dat file on startup"));
     strUsage += HelpMessageOpt("-maxorphantx=<n>", strprintf(_("Keep at most <n> unconnectable transactions in memory (default: %u)"), DEFAULT_MAX_ORPHAN_TRANSACTIONS));
     strUsage += HelpMessageOpt("-maxmempool=<n>", strprintf(_("Keep the transaction memory pool below <n> megabytes (default: %u)"), DEFAULT_MAX_MEMPOOL_SIZE));
@@ -1470,19 +1477,52 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     }
 #endif
 
-    if (GetBoolArg("-gen", false)) {
+    string mineToAddressStr = GetArg("-genaddr", "");
+    if (! mineToAddressStr.empty()) {
         LogPrintf("Miner enabled, initializing\n");
-        threadGroup.create_thread(&MinerThread);
+        
+        CIoPAddress address(mineToAddressStr);
+        if (!address.IsValid()) {
+            cerr << "ERROR: Invalid address to store mining results, check address specified for option -genaddr" << endl;
+            StartShutdown();
+        }
+
+        if (! fRequestShutdown) {
+            boost::shared_ptr<CReserveScript> coinbaseScript(new CReserveScript());
+            coinbaseScript->reserveScript = GetScriptForDestination(address.Get());
+            
+            threadGroup.create_thread(boost::bind(&MinerThread, coinbaseScript));
+        }
     }
+#ifdef ENABLE_WALLET
+    else if (GetBoolArg("-gen", false)) {
+        LogPrintf("Miner enabled, initializing\n");
+        
+        boost::shared_ptr<CReserveScript> coinbaseScript;
+        GetMainSignals().ScriptForMining(coinbaseScript);
+        
+        if (!coinbaseScript) {
+            cerr << "ERROR: Keypool ran out, please call keypoolrefill first" << endl;
+            StartShutdown();
+        }
+        else if (coinbaseScript->reserveScript.empty()) {
+            cerr << "ERROR: No coinbase script available (mining requires a wallet)" << endl;
+            StartShutdown();
+        }
+        
+        if (! fRequestShutdown) {
+            threadGroup.create_thread(boost::bind(&MinerThread, coinbaseScript));
+        }
+    }
+#endif
 
     return !fRequestShutdown;
 }
 
 
-void MinerThread()
+void MinerThread(boost::shared_ptr<CReserveScript> coinbaseScript)
 {
-    boost::shared_ptr<CReserveScript> coinbaseScript;
-    GetMainSignals().ScriptForMining(coinbaseScript);
+    // Mine forever (until shutdown)
     while (true) {
         try {
             LogPrintf("Start mining block\n");
@@ -1491,6 +1531,7 @@ void MinerThread()
                 LogPrintf("Finished mining attempt with no success\n");
             } else {
                 LogPrintf("Mined a block, yaay!!!\n");
+                // MilliSleep(10000); // TODO used only for debugging in regtest mode
             }
         } catch (boost::thread_interrupted &e) {
             LogPrintf("Miner thread interrupt, shutting down\n");
