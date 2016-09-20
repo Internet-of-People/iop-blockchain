@@ -2561,19 +2561,14 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     hashPrevBestCoinBase = block.vtx[0].GetHash();
 
     /* IoP beta release - added window activation for WhiteList control */
-    if (pindex->nHeight > 110){
+    int minerWhiteListActivationHeight = Params().GetConsensus().minerWhiteListActivationHeight;
+    if (pindex->nHeight > minerWhiteListActivationHeight){
 		LogPrint("MinersWhiteList", "Miners white list control activated.\n");
 		fIsMinerWhiteList = true;
 	} else {
 		LogPrint("MinersWhiteList", "Miners white list control deactivated.\n");
 		fIsMinerWhiteList = false;
 	}
-
-    /* IoP beta release - added a list of public keys that are valid to detect miner white list transactions. */
-    std::set<std::string> masterValidMiners {
-    	"03760087582c5e225aea2a6781f4df8b12d7124e4f039fbd3e6d053fdcaacc60eb", //regTest
-		"03f331bdfe024cf106fa1dcedb8b78e084480fa665d91c50b61822d7830c9ea840", //testnet
-		"02627ad4e6382ac1602dde591c43cbb00ead41eaf9f64512ebf442edd5d094aa95"}; //mainnet
 
     /* IoP beta release - we track non cb transaction to identify transactions that add or remove miner addresses into the blockchain */
     BOOST_FOREACH(const CTransaction& tx, block.vtx) {
@@ -2591,7 +2586,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 				std::string pkey = HexStr(value);
 
 				// this transaction has been identified as a white miner list transaction.
-				if (masterValidMiners.count(pkey)){
+				if (Params().GetConsensus().minerWhiteListAdminPubKey.count(pkey)){
 					LogPrint("MinerWhiteListTransaction", "Miner White List Transaction detected: %s \n", tx.ToString());
 
 					//flag that will store the action to perform

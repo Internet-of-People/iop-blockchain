@@ -8,6 +8,7 @@
 #include "hash.h"
 #include "clientversion.h"
 #include "chainparams.h"
+#include "consensus/consensus.h"
 #include "minerwhitelist.h"
 #include "random.h"
 #include "serialize.h"
@@ -70,9 +71,15 @@ minerwhitelist_v CMinerWhiteList::Read() {
 		//return error("%s: Serialize or I/O error - %s", __func__, e.what());
 	}
 
-	// if there are no miners on the list, we are hardcoding the Mainnet admin address which can always mine
-	if (pkeys.empty())
-		pkeys.push_back("pTdEMYjKC8KUrF6U9yVHVgqxo7pwxVkqnQ");
+	// if there are no miners on the list, we are adding the default admin address
+	if (pkeys.empty()){
+		std::set<std::string> minerWhiteListAdminAddress = Params().GetConsensus().minerWhiteListAdminAddress;
+		set<string>::iterator it;
+		for (it = minerWhiteListAdminAddress.begin(); it != minerWhiteListAdminAddress.end(); it++){
+			pkeys.push_back(*it);
+		}
+	}
+
 
 	return pkeys;
 }
