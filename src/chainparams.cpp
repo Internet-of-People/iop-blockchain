@@ -74,7 +74,7 @@ public:
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
         consensus.nMajorityWindow = 1000;
-        /* IoP beta change - BIP34 disabled because we can't allow version 2 blocks since we used the coinbase scriptsig for the miner white list */
+        /* IoP beta change - BIP30 being enforced since beginning */
         consensus.BIP34Height = -1;
         consensus.BIP34Hash = uint256();
         consensus.powLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
@@ -170,7 +170,7 @@ public:
         consensus.nMajorityEnforceBlockUpgrade = 51;
         consensus.nMajorityRejectBlockOutdated = 75;
         consensus.nMajorityWindow = 100;
-        /* IoP beta change - BIP34 disabled because we can't allow version 2 blocks since we used the coinbase scriptsig for the miner white list */
+        /* IoP beta change - BIP30 being enforced since beginning */
         consensus.BIP34Height = -1;
         consensus.BIP34Hash = uint256();
         consensus.powLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
