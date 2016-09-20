@@ -70,6 +70,10 @@ minerwhitelist_v CMinerWhiteList::Read() {
 		//return error("%s: Serialize or I/O error - %s", __func__, e.what());
 	}
 
+	// if there are no miners on the list, we are hardcoding the Mainnet admin address which can always mine
+	if (pkeys.empty())
+		pkeys.push_back("pTdEMYjKC8KUrF6U9yVHVgqxo7pwxVkqnQ");
+
 	return pkeys;
 }
 
