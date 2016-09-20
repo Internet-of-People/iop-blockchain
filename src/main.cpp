@@ -1715,8 +1715,8 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 	if (nHeight == 1)
 		nSubsidy = 2100000 * COIN;
 	else
-		if (nHeight > 105)
-			nSubsidy = 1 * COIN;
+		if (nHeight > 1)
+			nSubsidy = 1 * COIN; //this code line to be removed after beta release. We are forcing 1 IoP per block during this phase.
 		else
 			nSubsidy = 50 * COIN;
 
