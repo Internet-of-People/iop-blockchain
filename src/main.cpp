@@ -2561,7 +2561,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     hashPrevBestCoinBase = block.vtx[0].GetHash();
 
     /* IoP beta release - added window activation for WhiteList control */
-    if (pindex->nHeight > 105){
+    if (pindex->nHeight > 110){
 		LogPrint("MinersWhiteList", "Miners white list control activated.\n");
 		fIsMinerWhiteList = true;
 	} else {
