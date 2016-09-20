@@ -2559,6 +2559,7 @@ UniValue fundrawtransaction(const UniValue& params, bool fHelp)
 }
 
 extern UniValue dumpprivkey(const UniValue& params, bool fHelp); // in rpcdump.cpp
+extern UniValue dumppubkey(const UniValue& params, bool fHelp); // in rpcdump.cpp
 extern UniValue importprivkey(const UniValue& params, bool fHelp);
 extern UniValue importaddress(const UniValue& params, bool fHelp);
 extern UniValue importpubkey(const UniValue& params, bool fHelp);
@@ -2577,6 +2578,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "addwitnessaddress",        &addwitnessaddress,        true  },
     { "wallet",             "backupwallet",             &backupwallet,             true  },
     { "wallet",             "dumpprivkey",              &dumpprivkey,              true  },
+	{ "wallet",             "dumppubkey",               &dumppubkey,               true  },
     { "wallet",             "dumpwallet",               &dumpwallet,               true  },
     { "wallet",             "encryptwallet",            &encryptwallet,            true  },
     { "wallet",             "getaccountaddress",        &getaccountaddress,        true  },
