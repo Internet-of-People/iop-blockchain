@@ -2,7 +2,7 @@ sudo checkinstall \
     --install=no \
     --fstrans=yes \
     --nodoc \
-    --maintainer="$USER\\<$USER@$HOSTNAME\\>" \
+    --maintainer="Fermat Developers \<fermat-developers.group@fermat.org\>" \
     --pkgsource="https://github.com/Fermat-ORG/iop-blockchain" \
     --pkglicense=GPLv3 \
     --pkggroup=net \
