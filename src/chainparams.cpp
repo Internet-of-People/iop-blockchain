@@ -124,14 +124,8 @@ public:
 
         vFixedSeeds.clear();
 		vSeeds.clear();
-		vSeeds.push_back(CDNSSeedData("ec2-52-27-68-19.us-west-2.compute.amazonaws.com", "52.27.68.19")); // BitcoinNode1
-		vSeeds.push_back(CDNSSeedData("ec2-52-34-251-168.us-west-2.compute.amazonaws.com", "52.34.251.168")); // BitcoinNode2
-		vSeeds.push_back(CDNSSeedData("ec2-52-32-106-35.us-west-2.compute.amazonaws.com", "52.32.106.35")); // BitcoinNode3
-		vSeeds.push_back(CDNSSeedData("ec2-52-34-184-168.us-west-2.compute.amazonaws.com", "52.34.184.168")); // BitcoinNode4
-		vSeeds.push_back(CDNSSeedData("ec2-52-34-0-33.us-west-2.compute.amazonaws.com", "52.34.0.33")); // BitcoinNode5
-		vSeeds.push_back(CDNSSeedData("ec2-52-26-116-72.us-west-2.compute.amazonaws.com", "52.26.116.72")); // BitcoinNode6
-		vSeeds.push_back(CDNSSeedData("ec2-52-24-215-209.us-west-2.compute.amazonaws.com", "52.24.215.209")); // BitcoinNode7
-		vSeeds.push_back(CDNSSeedData("ec2-52-11-159-154.us-west-2.compute.amazonaws.com", "52.11.159.154")); // BitcoinNode8
+		vSeeds.push_back(CDNSSeedData("148.251.193.16", "148.251.193.16")); // Markus server 1
+		vSeeds.push_back(CDNSSeedData("138.201.127.164", "138.201.127.164")); // Markus server 2
 
 		base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,117);
 		base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,174);
@@ -213,14 +207,8 @@ public:
 
         vFixedSeeds.clear();
 		vSeeds.clear();
-		vSeeds.push_back(CDNSSeedData("ec2-52-27-68-19.us-west-2.compute.amazonaws.com", "52.27.68.19")); // BitcoinNode1
-		vSeeds.push_back(CDNSSeedData("ec2-52-34-251-168.us-west-2.compute.amazonaws.com", "52.34.251.168")); // BitcoinNode2
-		vSeeds.push_back(CDNSSeedData("ec2-52-32-106-35.us-west-2.compute.amazonaws.com", "52.32.106.35")); // BitcoinNode3
-		vSeeds.push_back(CDNSSeedData("ec2-52-34-184-168.us-west-2.compute.amazonaws.com", "52.34.184.168")); // BitcoinNode4
-		vSeeds.push_back(CDNSSeedData("ec2-52-34-0-33.us-west-2.compute.amazonaws.com", "52.34.0.33")); // BitcoinNode5
-		vSeeds.push_back(CDNSSeedData("ec2-52-26-116-72.us-west-2.compute.amazonaws.com", "52.26.116.72")); // BitcoinNode6
-		vSeeds.push_back(CDNSSeedData("ec2-52-24-215-209.us-west-2.compute.amazonaws.com", "52.24.215.209")); // BitcoinNode7
-		vSeeds.push_back(CDNSSeedData("ec2-52-11-159-154.us-west-2.compute.amazonaws.com", "52.11.159.154")); // BitcoinNode8
+		vSeeds.push_back(CDNSSeedData("148.251.193.16", "148.251.193.16")); // Markus server 1
+		vSeeds.push_back(CDNSSeedData("138.201.127.164", "138.201.127.164")); // Markus server 2
 
 		base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,130);
 		base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,49);
