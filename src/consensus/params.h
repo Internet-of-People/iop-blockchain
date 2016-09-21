@@ -8,6 +8,7 @@
 
 #include "uint256.h"
 #include <map>
+#include <set>
 #include <string>
 
 namespace Consensus {
@@ -61,6 +62,11 @@ struct Params {
     int64_t nPowTargetSpacing;
     int64_t nPowTargetTimespan;
     int64_t DifficultyAdjustmentInterval() const { return nPowTargetTimespan / nPowTargetSpacing; }
+
+    /* IoP beta release - Miner White List params */
+    int minerWhiteListActivationHeight;
+    std::set<std::string> minerWhiteListAdminPubKey;
+    std::set<std::string> minerWhiteListAdminAddress;
 };
 } // namespace Consensus
 
