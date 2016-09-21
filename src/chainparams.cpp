@@ -74,8 +74,9 @@ public:
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
         consensus.nMajorityWindow = 1000;
-        consensus.BIP34Height = 227931;
-        consensus.BIP34Hash = uint256S("0x000000000000024b89b42a942fe0d9fea3bb44ab7bd1b19115dd6a759c0808b8");
+        /* IoP beta change - BIP30 being enforced since beginning */
+        consensus.BIP34Height = -1;
+        consensus.BIP34Hash = uint256();
         consensus.powLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
         consensus.nPowTargetSpacing = 10 * 60;
@@ -96,6 +97,13 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].bit = 1;
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime = 0;
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 0; // Never / undefined
+
+        // Miner White list params
+        consensus.minerWhiteListActivationHeight = 2; //block height that activates the white list.
+        consensus.minerWhiteListAdminPubKey.insert("02627ad4e6382ac1602dde591c43cbb00ead41eaf9f64512ebf442edd5d094aa95"); //pub key required to sign add / remove transactions
+        consensus.minerWhiteListAdminAddress.insert("pTdEMYjKC8KUrF6U9yVHVgqxo7pwxVkqnQ"); //default miner address
+
+
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -162,8 +170,9 @@ public:
         consensus.nMajorityEnforceBlockUpgrade = 51;
         consensus.nMajorityRejectBlockOutdated = 75;
         consensus.nMajorityWindow = 100;
-        consensus.BIP34Height = 21111;
-        consensus.BIP34Hash = uint256S("0x0000000023b3a96d3484e5abb3755c413e7d41500f8e2a5c3f0dd01299cd8ef8");
+        /* IoP beta change - BIP30 being enforced since beginning */
+        consensus.BIP34Height = -1;
+        consensus.BIP34Hash = uint256();
         consensus.powLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
         consensus.nPowTargetSpacing = 10 * 60;
@@ -184,6 +193,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].bit = 1;
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime = 1462060800; // May 1st 2016
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 1493596800; // May 1st 2017
+
+        // Miner White list params
+		consensus.minerWhiteListActivationHeight = 2; //block height that activates the white list.
+		consensus.minerWhiteListAdminPubKey.insert("03f331bdfe024cf106fa1dcedb8b78e084480fa665d91c50b61822d7830c9ea840"); //pub key required to sign add / remove transactions
+		consensus.minerWhiteListAdminAddress.insert("uh2SKjE6R1uw3b5smZ8i1G8rDoQv458Lsj"); //default miner address
 
         pchMessageStart[0] = 0xb1;
 		pchMessageStart[1] = 0xfc;
@@ -263,6 +277,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].bit = 1;
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime = 0;
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 999999999999ULL;
+
+        // Miner White list params
+		consensus.minerWhiteListActivationHeight = 2; //block height that activates the white list.
+		consensus.minerWhiteListAdminPubKey.insert("03760087582c5e225aea2a6781f4df8b12d7124e4f039fbd3e6d053fdcaacc60eb"); //pub key required to sign add / remove transactions
+		consensus.minerWhiteListAdminAddress.insert("ucNbB1K3BaHWY5tXrWiyWn11QB51vPDuVE"); //default miner address
 
         pchMessageStart[0] = 0x35;
 		pchMessageStart[1] = 0xb2;

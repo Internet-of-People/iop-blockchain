@@ -1715,8 +1715,8 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 	if (nHeight == 1)
 		nSubsidy = 2100000 * COIN;
 	else
-		if (nHeight > 105)
-			nSubsidy = 1 * COIN;
+		if (nHeight > 1)
+			nSubsidy = 1 * COIN; //this code line to be removed after beta release. We are forcing 1 IoP per block during this phase.
 		else
 			nSubsidy = 50 * COIN;
 
@@ -2561,19 +2561,14 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     hashPrevBestCoinBase = block.vtx[0].GetHash();
 
     /* IoP beta release - added window activation for WhiteList control */
-    if (pindex->nHeight > 105){
+    int minerWhiteListActivationHeight = Params().GetConsensus().minerWhiteListActivationHeight;
+    if (pindex->nHeight > minerWhiteListActivationHeight){
 		LogPrint("MinersWhiteList", "Miners white list control activated.\n");
 		fIsMinerWhiteList = true;
 	} else {
 		LogPrint("MinersWhiteList", "Miners white list control deactivated.\n");
 		fIsMinerWhiteList = false;
 	}
-
-    /* IoP beta release - added a list of public keys that are valid to detect miner white list transactions. */
-    std::set<std::string> masterValidMiners {
-    	"03760087582c5e225aea2a6781f4df8b12d7124e4f039fbd3e6d053fdcaacc60eb", //regTest
-		"03f331bdfe024cf106fa1dcedb8b78e084480fa665d91c50b61822d7830c9ea840", //testnet
-		"02627ad4e6382ac1602dde591c43cbb00ead41eaf9f64512ebf442edd5d094aa95"}; //mainnet
 
     /* IoP beta release - we track non cb transaction to identify transactions that add or remove miner addresses into the blockchain */
     BOOST_FOREACH(const CTransaction& tx, block.vtx) {
@@ -2591,7 +2586,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 				std::string pkey = HexStr(value);
 
 				// this transaction has been identified as a white miner list transaction.
-				if (masterValidMiners.count(pkey)){
+				if (Params().GetConsensus().minerWhiteListAdminPubKey.count(pkey)){
 					LogPrint("MinerWhiteListTransaction", "Miner White List Transaction detected: %s \n", tx.ToString());
 
 					//flag that will store the action to perform
@@ -3729,16 +3724,21 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
         }
     }
 
-    // Enforce block.nVersion=2 rule that the coinbase starts with serialized block height
-    // if 750 of the last 1,000 blocks are version 2 or greater (51/100 if testnet):
-    if (block.nVersion >= 2 && IsSuperMajority(2, pindexPrev, consensusParams.nMajorityEnforceBlockUpgrade, consensusParams))
-    {
-        CScript expect = CScript() << nHeight;
-        if (block.vtx[0].vin[0].scriptSig.size() < expect.size() ||
-            !std::equal(expect.begin(), expect.end(), block.vtx[0].vin[0].scriptSig.begin())) {
-            return state.DoS(100, false, REJECT_INVALID, "bad-cb-height", false, "block height mismatch in coinbase");
-        }
+
+    /* IoP beta change - we are only enforcing BIP34 with height in coinbase ScriptSig if Miner whitelist is not active */
+    if (!fIsMinerWhiteList){
+    	// Enforce block.nVersion=2 rule that the coinbase starts with serialized block height
+    	// if 750 of the last 1,000 blocks are version 2 or greater (51/100 if testnet):
+    	if (block.nVersion >= 2 && IsSuperMajority(2, pindexPrev, consensusParams.nMajorityEnforceBlockUpgrade, consensusParams))
+		{
+			CScript expect = CScript() << nHeight;
+			if (block.vtx[0].vin[0].scriptSig.size() < expect.size() ||
+				!std::equal(expect.begin(), expect.end(), block.vtx[0].vin[0].scriptSig.begin())) {
+				return state.DoS(100, false, REJECT_INVALID, "bad-cb-height", false, "block height mismatch in coinbase");
+			}
+		}
     }
+
 
     // Validation for witness commitments.
     // * We compute the witness hash (which is the hash including witnesses) of all the block's transactions, except the
