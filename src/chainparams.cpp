@@ -71,6 +71,7 @@ public:
     CMainParams() {
         strNetworkID = "main";
         consensus.nSubsidyHalvingInterval = 210000;
+        consensus.nPreminedBlocks = 42000; // 42000 blocks equals the Premined amount
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
         consensus.nMajorityWindow = 1000;
@@ -161,6 +162,7 @@ public:
     CTestNetParams() {
         strNetworkID = "test";
         consensus.nSubsidyHalvingInterval = 210000;
+        consensus.nPreminedBlocks = 42000; // 42000 blocks equals the Premined amount
         consensus.nMajorityEnforceBlockUpgrade = 51;
         consensus.nMajorityRejectBlockOutdated = 75;
         consensus.nMajorityWindow = 100;
@@ -243,7 +245,8 @@ class CRegTestParams : public CChainParams {
 public:
     CRegTestParams() {
         strNetworkID = "regtest";
-        consensus.nSubsidyHalvingInterval = 150;
+        consensus.nSubsidyHalvingInterval = 1000;
+        consensus.nPreminedBlocks = 500;
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
         consensus.nMajorityWindow = 1000;
@@ -267,7 +270,7 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 999999999999ULL;
 
         // Miner White list params
-		consensus.minerWhiteListActivationHeight = 2; //block height that activates the white list.
+		consensus.minerWhiteListActivationHeight = 2000; //block height that activates the white list.
 		consensus.minerWhiteListAdminPubKey.insert("03760087582c5e225aea2a6781f4df8b12d7124e4f039fbd3e6d053fdcaacc60eb"); //pub key required to sign add / remove transactions
 		consensus.minerWhiteListAdminAddress.insert("ucNbB1K3BaHWY5tXrWiyWn11QB51vPDuVE"); //default miner address
 
