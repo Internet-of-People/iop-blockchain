@@ -1705,7 +1705,9 @@ bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex, const Consensus
 
 CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 {
-    int halvings = nHeight / consensusParams.nSubsidyHalvingInterval;
+	/* IoP Change - since we are premining 42000 blocks, we are taking this into account for the halving calculation */
+	int halvings = (nHeight + consensusParams.nPreminedBlocks) / consensusParams.nSubsidyHalvingInterval;
+
     // Force block reward to zero when right shift is undefined.
     if (halvings >= 64)
         return 0;
@@ -1715,10 +1717,8 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 	if (nHeight == 1)
 		nSubsidy = 2100000 * COIN;
 	else
-		if (nHeight > 1)
-			nSubsidy = 1 * COIN; //this code line to be removed after beta release. We are forcing 1 IoP per block during this phase.
-		else
-			nSubsidy = 50 * COIN;
+		nSubsidy = 1 * COIN; //this code line to be removed after beta release. We are forcing 1 IoP per block during this phase. Then will be 50 coins per block.
+
 
     // Subsidy is cut in half every 210,000 blocks which will occur approximately every 4 years.
     nSubsidy >>= halvings;

@@ -71,6 +71,7 @@ public:
     CMainParams() {
         strNetworkID = "main";
         consensus.nSubsidyHalvingInterval = 210000;
+        consensus.nPreminedBlocks = 42000; // 42000 blocks equals the Premined amount
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
         consensus.nMajorityWindow = 1000;
@@ -124,14 +125,8 @@ public:
 
         vFixedSeeds.clear();
 		vSeeds.clear();
-		vSeeds.push_back(CDNSSeedData("ec2-52-27-68-19.us-west-2.compute.amazonaws.com", "52.27.68.19")); // BitcoinNode1
-		vSeeds.push_back(CDNSSeedData("ec2-52-34-251-168.us-west-2.compute.amazonaws.com", "52.34.251.168")); // BitcoinNode2
-		vSeeds.push_back(CDNSSeedData("ec2-52-32-106-35.us-west-2.compute.amazonaws.com", "52.32.106.35")); // BitcoinNode3
-		vSeeds.push_back(CDNSSeedData("ec2-52-34-184-168.us-west-2.compute.amazonaws.com", "52.34.184.168")); // BitcoinNode4
-		vSeeds.push_back(CDNSSeedData("ec2-52-34-0-33.us-west-2.compute.amazonaws.com", "52.34.0.33")); // BitcoinNode5
-		vSeeds.push_back(CDNSSeedData("ec2-52-26-116-72.us-west-2.compute.amazonaws.com", "52.26.116.72")); // BitcoinNode6
-		vSeeds.push_back(CDNSSeedData("ec2-52-24-215-209.us-west-2.compute.amazonaws.com", "52.24.215.209")); // BitcoinNode7
-		vSeeds.push_back(CDNSSeedData("ec2-52-11-159-154.us-west-2.compute.amazonaws.com", "52.11.159.154")); // BitcoinNode8
+		vSeeds.push_back(CDNSSeedData("148.251.193.16", "148.251.193.16")); // Markus server 1
+		vSeeds.push_back(CDNSSeedData("138.201.127.164", "138.201.127.164")); // Markus server 2
 
 		base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,117);
 		base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,174);
@@ -167,6 +162,7 @@ public:
     CTestNetParams() {
         strNetworkID = "test";
         consensus.nSubsidyHalvingInterval = 210000;
+        consensus.nPreminedBlocks = 42000; // 42000 blocks equals the Premined amount
         consensus.nMajorityEnforceBlockUpgrade = 51;
         consensus.nMajorityRejectBlockOutdated = 75;
         consensus.nMajorityWindow = 100;
@@ -213,14 +209,8 @@ public:
 
         vFixedSeeds.clear();
 		vSeeds.clear();
-		vSeeds.push_back(CDNSSeedData("ec2-52-27-68-19.us-west-2.compute.amazonaws.com", "52.27.68.19")); // BitcoinNode1
-		vSeeds.push_back(CDNSSeedData("ec2-52-34-251-168.us-west-2.compute.amazonaws.com", "52.34.251.168")); // BitcoinNode2
-		vSeeds.push_back(CDNSSeedData("ec2-52-32-106-35.us-west-2.compute.amazonaws.com", "52.32.106.35")); // BitcoinNode3
-		vSeeds.push_back(CDNSSeedData("ec2-52-34-184-168.us-west-2.compute.amazonaws.com", "52.34.184.168")); // BitcoinNode4
-		vSeeds.push_back(CDNSSeedData("ec2-52-34-0-33.us-west-2.compute.amazonaws.com", "52.34.0.33")); // BitcoinNode5
-		vSeeds.push_back(CDNSSeedData("ec2-52-26-116-72.us-west-2.compute.amazonaws.com", "52.26.116.72")); // BitcoinNode6
-		vSeeds.push_back(CDNSSeedData("ec2-52-24-215-209.us-west-2.compute.amazonaws.com", "52.24.215.209")); // BitcoinNode7
-		vSeeds.push_back(CDNSSeedData("ec2-52-11-159-154.us-west-2.compute.amazonaws.com", "52.11.159.154")); // BitcoinNode8
+		vSeeds.push_back(CDNSSeedData("148.251.193.16", "148.251.193.16")); // Markus server 1
+		vSeeds.push_back(CDNSSeedData("138.201.127.164", "138.201.127.164")); // Markus server 2
 
 		base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,130);
 		base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,49);
@@ -255,7 +245,8 @@ class CRegTestParams : public CChainParams {
 public:
     CRegTestParams() {
         strNetworkID = "regtest";
-        consensus.nSubsidyHalvingInterval = 150;
+        consensus.nSubsidyHalvingInterval = 1000;
+        consensus.nPreminedBlocks = 500;
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
         consensus.nMajorityWindow = 1000;
@@ -279,7 +270,7 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 999999999999ULL;
 
         // Miner White list params
-		consensus.minerWhiteListActivationHeight = 2; //block height that activates the white list.
+		consensus.minerWhiteListActivationHeight = 2000; //block height that activates the white list.
 		consensus.minerWhiteListAdminPubKey.insert("03760087582c5e225aea2a6781f4df8b12d7124e4f039fbd3e6d053fdcaacc60eb"); //pub key required to sign add / remove transactions
 		consensus.minerWhiteListAdminAddress.insert("ucNbB1K3BaHWY5tXrWiyWn11QB51vPDuVE"); //default miner address
 
