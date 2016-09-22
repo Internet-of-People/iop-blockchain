@@ -41,6 +41,10 @@ bool CMinerWhiteList::Write(minerwhitelist_v minerwhitelist) {
 	 * My original implementation using bitcoin code is not working properly. There is room for improvemente here.
 	 */
 	try{
+		//delete duplicates before storing
+		std::sort(minerwhitelist.begin(), minerwhitelist.end());
+		minerwhitelist.erase(std::unique(minerwhitelist.begin(), minerwhitelist.end()), minerwhitelist.end());
+
 		ofstream file(pathMinerWhiteList.string().c_str());
 		for (unsigned int i=0; i < minerwhitelist.size();i++){
 			file << minerwhitelist[i] << endl;
