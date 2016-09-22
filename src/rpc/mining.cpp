@@ -31,6 +31,8 @@
 
 using namespace std;
 
+
+
 /**
  * Return average network hashes per second based on the last 'lookup' blocks,
  * or from the last difficulty change if 'lookup' is nonpositive.
@@ -121,6 +123,8 @@ UniValue generateBlocks(boost::shared_ptr<CReserveScript> coinbaseScript, int nG
             IncrementExtraNonce(pblock, chainActive.Tip(), nExtraNonce);
         }
         while (nMaxTries > 0 && pblock->nNonce < nInnerLoopCount && !CheckProofOfWork(pblock->GetHash(), pblock->nBits, Params().GetConsensus())) {
+            if (ShutdownRequested())
+                { return blockHashes; } // Properly stop mining on app shutdown
             ++pblock->nNonce;
             --nMaxTries;
         }
