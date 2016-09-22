@@ -4,10 +4,10 @@ sudo checkinstall \
     --nodoc \
     --maintainer="Fermat Developers \<fermat-developers.group@fermat.org\>" \
     --pkgsource="https://github.com/Fermat-ORG/iop-blockchain" \
-    --pkglicense=GPLv3 \
+    --pkglicense=MIT \
     --pkggroup=net \
     --pkgname=iop-blockchain \
-    --pkgversion=0.1.beta1 \
+    --pkgversion=0.1.b2 \
     --pkgarch=$(dpkg \
         --print-architecture) \
     $@

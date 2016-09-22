@@ -1523,7 +1523,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 void MinerThread(boost::shared_ptr<CReserveScript> coinbaseScript)
 {
     // Mine forever (until shutdown)
-    while (true) {
+    while (!fRequestShutdown) {
         try {
             LogPrintf("Start mining block\n");
             UniValue result = generateBlocks(coinbaseScript, 1, UINT64_MAX, true);
