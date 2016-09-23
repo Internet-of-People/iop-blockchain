@@ -332,6 +332,7 @@ std::string HelpMessage(HelpMessageMode mode)
         strUsage += HelpMessageOpt("-feefilter", strprintf("Tell other nodes to filter invs to us by our mempool min fee (default: %u)", DEFAULT_FEEFILTER));
 #ifdef ENABLE_WALLET
     strUsage += HelpMessageOpt("-gen", _("Participate in mining. Coins will be stored into a newly generated address for every successfully mined block."));
+    strUsage += HelpMessageOpt("-minerPKey", _("If whitelisted, specify your private key to start mining. PKey is obtained from dumpprivkey [address]."));
 #endif
     strUsage += HelpMessageOpt("-genaddr=<address>", _("Participate in mining. Value must be a valid address to store mined coins into."));
     strUsage += HelpMessageOpt("-loadblock=<file>", _("Imports blocks from external blk000??.dat file on startup"));
