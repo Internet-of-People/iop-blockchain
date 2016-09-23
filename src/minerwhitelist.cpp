@@ -41,6 +41,10 @@ bool CMinerWhiteList::Write(minerwhitelist_v minerwhitelist) {
 	 * My original implementation using bitcoin code is not working properly. There is room for improvemente here.
 	 */
 	try{
+		//delete duplicates before storing
+		std::sort(minerwhitelist.begin(), minerwhitelist.end());
+		minerwhitelist.erase(std::unique(minerwhitelist.begin(), minerwhitelist.end()), minerwhitelist.end());
+
 		ofstream file(pathMinerWhiteList.string().c_str());
 		for (unsigned int i=0; i < minerwhitelist.size();i++){
 			file << minerwhitelist[i] << endl;
@@ -71,15 +75,12 @@ minerwhitelist_v CMinerWhiteList::Read() {
 		//return error("%s: Serialize or I/O error - %s", __func__, e.what());
 	}
 
-	// if there are no miners on the list, we are adding the default admin address
-	if (pkeys.empty()){
-		std::set<std::string> minerWhiteListAdminAddress = Params().GetConsensus().minerWhiteListAdminAddress;
-		set<string>::iterator it;
-		for (it = minerWhiteListAdminAddress.begin(); it != minerWhiteListAdminAddress.end(); it++){
-			pkeys.push_back(*it);
-		}
+	// we are always adding the admin white list addresses as part of the database.
+	std::set<std::string> minerWhiteListAdminAddress = Params().GetConsensus().minerWhiteListAdminAddress;
+	set<string>::iterator it;
+	for (it = minerWhiteListAdminAddress.begin(); it != minerWhiteListAdminAddress.end(); it++){
+		pkeys.push_back(*it);
 	}
-
 
 	return pkeys;
 }
