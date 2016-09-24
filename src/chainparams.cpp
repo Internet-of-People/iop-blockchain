@@ -127,6 +127,7 @@ public:
 		vSeeds.clear();
 		vSeeds.push_back(CDNSSeedData("148.251.193.16", "148.251.193.16")); // Markus server 1
 		vSeeds.push_back(CDNSSeedData("138.201.127.164", "138.201.127.164")); // Markus server 2
+		vSeeds.push_back(CDNSSeedData("130.211.203.7", "130.211.203.7")); // Markus server 3
 
 		base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,117);
 		base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,174);
