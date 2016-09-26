@@ -381,8 +381,10 @@ CNode* FindNode(const NodeId nodeid)
 CNode* ConnectNode(CAddress addrConnect, const char *pszDest, bool fCountFailure)
 {
     if (pszDest == NULL) {
-        if (IsLocal(addrConnect))
+        if (IsLocal(addrConnect)) {
+            LogPrintf(" *** DEBUG ignore connection to local node %s\n", addrConnect.ToString());
             return NULL;
+        }
 
         // Look for an existing connection
         CNode* pnode = FindNode((CService)addrConnect);
