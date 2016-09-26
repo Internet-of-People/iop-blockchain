@@ -128,6 +128,7 @@ public:
         vSeeds.push_back(CDNSSeedData("Markus seed1", "ham1.fermat.cloud"));
 		vSeeds.push_back(CDNSSeedData("Markus seed2", "ham2.fermat.cloud"));
         vSeeds.push_back(CDNSSeedData("Markus seed3", "ham3.fermat.cloud"));
+        vSeeds.push_back(CDNSSeedData("Amazon seed 1", "ec2-52-11-159-154.us-west-2.compute.amazonaws.com"));
 
 		base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,117);
 		base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,174);
