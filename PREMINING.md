@@ -12,8 +12,6 @@ After installation is complete, start the IoP wallet by running **IoP-qt** from 
 $ IoP-qt
 ```
 
-
-
 ### For Windows users
 Windows version will be available soon.
 
@@ -30,16 +28,21 @@ Next you need to save this address on the **Fermat Tokens** spreadsheet on Googl
 
 ## Securing your wallet
 
-Securing your address, funds and wallet must be a priority. In case of computer damage, reinstall or loss you must be able to get your tokens back.
+Securing your address, funds and wallet is a must and priority. In case of computer damage, reinstall or loss you must be able to get your tokens back.
+
+During this initial phase, new IoP Wallet versions will be launched regularly, so you will need to reinstall the wallet often.
+Means, **after each new version you must** make a *Wallet Backup*.
 
 ### Wallet backup
 You can create a backup of your wallet and all your keys by selecting *Backup Wallet* from the *File* menu in your wallet. 
-
 The file you specify, will be used in case you need to restore your wallet.
 
+
+To be on the safe site and really sure, we want you to make once in the beginning of the use of the IoP app a *Private Key Backup*. This you only need to do once.
+
 ### Private Key backup
-During this initial phase, new IoP Wallet version will be launched regularly, so you will need to reinstall the wallet often.
-You can just backup the address you generated for the premine stage, by exporting the private key.
+
+You backup the initial address you generated for the premine stage, by exporting the private key and put it away.
 
 In order to export the private key, follow these steps:
 
@@ -51,9 +54,9 @@ In order to export the private key, follow these steps:
 ```
 dumpprivkey [address]
 ```
-* The result will be a string that you must keep secure. Write it down and keep it safe.
+* The result will be a string that you must keep secure. Write it down and keep it safe. We warn you. You must do this!
 
-You can restore this private key in another wallet by following the same procedure, but executing the following command and replacing the privKeyString with the real private key you exported before:
+You can restore this private key in any other wallet by following the same procedure, but executing the following command and replacing the privKeyString with the real private key you exported before:
 
 ```
 importprivkey [privKeyString]
