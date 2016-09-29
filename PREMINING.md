@@ -59,7 +59,7 @@ You can restore this private key in another wallet by following the same procedu
 importprivkey [privKeyString]
 ```
 
-** You will only need to import your private key if you delete and uninstall the IoP wallet.**
+**You will only need to import your private key if you delete and uninstall the IoP wallet.**
 
 
 ### Time locked funds
@@ -76,7 +76,7 @@ The time constrains that are applied on the *Fermat Token* spreadsheet are:
 
 ---
 
-** Important: The constraint start from the date the distribution was executed, and it is up to the IoP owner to claim these funds after that date. **
+**Important: The constraint start from the date the distribution was executed, and it is up to the IoP owner to claim these funds after that date.**
 
 ---
 
@@ -108,5 +108,7 @@ The commands to execute would be:
 importaddress 2DHTYYgTDRWnKgEYZfJ4twBbxQeLNZ1rTY1 "1 year"
 importaddress 2DB9f5vMS4Eu8dJPEoy55nCZtmxRbrUoXjk "2 years"
 ```
+
+**The address of the tokens that are available *Now* is the one you provided in the spreadsheet, so you don't need to import that one.**
 
 (The RedeemScript will be discussed later.)
