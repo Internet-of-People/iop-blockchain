@@ -59,4 +59,54 @@ You can restore this private key in another wallet by following the same procedu
 importprivkey [privKeyString]
 ```
 
-*** You will only need to import your private key if you delete and uninstall the IoP wallet.***
+** You will only need to import your private key if you delete and uninstall the IoP wallet.**
+
+
+### Time locked funds
+
+Certain amount of shares will be send using a time constrained transaction. meaning that those **IoPs** won't be available to be spent after certain date.
+
+The time constrains that are applied on the *Fermat Token* spreadsheet are:
+
+* 6 months
+* 1 year
+* 2 years
+* 4 years
+* 5 years
+
+---
+
+** Important: The constraint start from the date the distribution was executed, and it is up to the IoP owner to claim these funds after that date. **
+
+---
+
+You can **Wath-only** this IoP coins in your wallet by importing a IoP address that was automatically generated during the execution of the distribution.
+
+You can view your addresses for each date in the [PreMining Distribution Output](https://docs.google.com/spreadsheets/d/1NafNFjKbBl-RCeh7wLoDGeZqSGnAFvIPciGbEdmmSZk/edit?usp=sharing) 
+
+
+In order to import your address, do the following:
+
+* Open your wallet.
+* Go to *Help* menu and *Debug Window*
+* Go to *Console* tab and execute the following command
+
+```
+importaddress [address from Columm B] [Label from column D]
+```
+
+For example, for this row:
+
+|Name|Address|IoPs|TimeConstraint|RedeemScript|
+|---|---|---|---|---|
+|Rodrigo Acosta |2DHTYYgTDRWnKgEYZfJ4twBbxQeLNZ1rTY1|1465,930962|1 year|0800000157768bdce6b17576a914460eb1ec408c4c3a204eb04841cd9f86f1936f4c88ac|
+|Rodrigo Acosta |2DB9f5vMS4Eu8dJPEoy55nCZtmxRbrUoXjk|1465,930962|2 years|080000015776c2cb66b17576a914460eb1ec408c4c3a204eb04841cd9f86f1936f4c88ac|
+
+The commands to execute would be:
+
+```
+importaddress 2DHTYYgTDRWnKgEYZfJ4twBbxQeLNZ1rTY1 "1 year"
+importaddress 2DB9f5vMS4Eu8dJPEoy55nCZtmxRbrUoXjk "2 years"
+```
+
+(The RedeemScript will be discussed later.)
