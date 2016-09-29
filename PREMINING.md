@@ -1,16 +1,46 @@
 #IoP Blockchain
 
-## Wallet Instalation
+## Wallet Installation
 In order to install the IoP Wallet that will allow you to send and recieve IoPs you need to follow this procedure:
 
 ### For Ubuntu users
 Follow the instructions to install here http://repo.fermat.community/index.html
 
+To install IoP, add new repository to /etc/apt/sources.list.d/IoP.list with your editor (here "nano"):
+
+    $ sudo nano /etc/apt/sources.list.d/IoP.list
+
+In the editor:
+
+*for Ubuntu 14.04:*
+
+    $ deb http://repo.fermat.community/ 14.04 main  
+
+*for Ubuntu 16.04:*  
+
+    $ deb   http://repo.fermat.community/ 16.04 main  
+
+Save and exit editor.  
+
+Import the key that is used to sign the packages:  
+
+    $ gpg --keyserver keys.gnupg.net --recv-keys 0CC9EB6DA69C84F4  
+    $ gpg -a --export A69C84F4 | sudo apt-key add -
+
+After that you can install IoP tools as any other software package:  
+
+    $ apt-get update  
+    $ apt-cache search iop  
+    $ apt-get install iop-blockchain  
+  
+If you have Ubuntu 16.04 running, you might need to
+
+    $ apt install libboost-filesystem1.58.0
+as well.
+
 After installation is complete, start the IoP wallet by running **IoP-qt** from the command line.
 
-```
-$ IoP-qt
-```
+    $ IoP-qt
 
 
 
