@@ -1,46 +1,16 @@
 #IoP Blockchain
 
-## Wallet Installation
+## Wallet Instalation
 In order to install the IoP Wallet that will allow you to send and recieve IoPs you need to follow this procedure:
 
 ### For Ubuntu users
 Follow the instructions to install here http://repo.fermat.community/index.html
 
-To install IoP, add new repository to /etc/apt/sources.list.d/IoP.list with your editor (here "nano"):
-
-    $ sudo nano /etc/apt/sources.list.d/IoP.list
-
-In the editor:
-
-*for Ubuntu 14.04:*
-
-    $ deb http://repo.fermat.community/ 14.04 main  
-
-*for Ubuntu 16.04:*  
-
-    $ deb   http://repo.fermat.community/ 16.04 main  
-
-Save and exit editor.  
-
-Import the key that is used to sign the packages:  
-
-    $ gpg --keyserver keys.gnupg.net --recv-keys 0CC9EB6DA69C84F4  
-    $ gpg -a --export A69C84F4 | sudo apt-key add -
-
-After that you can install IoP tools as any other software package:  
-
-    $ apt-get update  
-    $ apt-cache search iop  
-    $ apt-get install iop-blockchain  
-  
-If you have Ubuntu 16.04 running, you might need to
-
-    $ apt install libboost-filesystem1.58.0
-as well.
-
 After installation is complete, start the IoP wallet by running **IoP-qt** from the command line.
 
-    $ IoP-qt
+```
+$ IoP-qt
+```
 
 
 
@@ -94,7 +64,7 @@ importprivkey [privKeyString]
 
 ### Time locked funds
 
-Certain amount of shares will be send using a time constrained transaction. meaning that those **IoPs** won't be available to be spent after certain date.
+Certain amount of shares will be send using a time constrained transaction. meaning that those **IoPs** will be available to be spent after certain date.
 
 The time constrains that are applied on the *Fermat Token* spreadsheet are:
 
@@ -106,7 +76,7 @@ The time constrains that are applied on the *Fermat Token* spreadsheet are:
 
 ---
 
-**Important: The constraint start from the date the distribution was executed, and it is up to the IoP owner to claim these funds after that date.**
+**Important: The constraint starts from the date the distribution was executed, and it is up to the IoP owner to claim these funds after that date.**
 
 ---
 
@@ -141,4 +111,40 @@ importaddress 2DB9f5vMS4Eu8dJPEoy55nCZtmxRbrUoXjk "2 years"
 
 **The address of the tokens that are available *Now* is the one you provided in the spreadsheet, so you don't need to import that one.**
 
-(The RedeemScript will be discussed later.)
+
+
+## Blockchain Reset
+
+Blockchain reset refers to the action of reseting the blockchain, which is starting a new set of connected blocks and swtiching your wallet to start using this new blockchain.
+
+**Important:** you only need to reset the blockchain If you were previously running the wallet and the Admin tell you there is going to be a blockchain reset.
+
+To swtich your wallet to the new blockchain you must delete your local copy of the blockchain by following these steps:
+
+1. open your wallet
+2. Go to *Help* and *debug window*
+3. On the *Information* tab, search for the path your data directory is. (label *datadir*). In ubuntu, most common path is ~/.IoP and is a hidden directory so you may need to press Ctrl+H to see it.
+4. Close your wallet.
+5. Go to the *datadir* directory. You should be able to see files and folders like *blocks*, *database*, *db.log*, **wallet.dat**, etc.
+6. Delete everything including files and directories, **except** the **wallet.dat** file
+7. Open your wallet again.
+
+Once the wallet is running, it should connect to the seeds nodes which already are in the new blockchain and syncronize with the new blocks.
+
+
+### Testnet blockchain
+
+The testnet blockchain works exactly as the Main blockchain, but the IoP sent and received have no value. 
+This is the perfect environment to test new functionality we will be incorporating to the wallet.
+
+In order to start your wallet in the TestNet mode, you need to specify it when you start your wallet in the following way.
+
+```
+$ IoP-qt -testnet
+```
+
+The splash screen of your wallet will let you know that is running on TestNet.
+
+**Remember that the coins have zero value on testnet.**
+
+To open your wallet back in the Main or production blockchain, execute it as always without any parameter.
