@@ -103,6 +103,7 @@ public:
         consensus.minerWhiteListActivationHeight = 110; //block height that activates the white list.
         consensus.minerWhiteListAdminPubKey.insert("03d676b8f4058c522c35f26c451436066e78ae986e2831a96d1673c9d40acacb14"); //pub key required to sign add / remove transactions
         consensus.minerWhiteListAdminAddress.insert("pFgsa8BiHp4zHsyp4fbD1YzmFm2YzKtJuZ"); //default miner address
+        consensus.minerWhiteListAdminAddress.insert("pGNcLNCavQLGXwXkVDwoHPCuQUBoXzJtPh"); //default miner address
 
 
 
@@ -212,6 +213,7 @@ public:
 		vSeeds.clear();
 		vSeeds.push_back(CDNSSeedData("Markus seed1", "ham1.fermat.cloud"));
         vSeeds.push_back(CDNSSeedData("Markus seed2", "ham2.fermat.cloud"));
+        vSeeds.push_back(CDNSSeedData("Markus seed3", "ham3.fermat.cloud"));
 
 		base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,130);
 		base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,49);
