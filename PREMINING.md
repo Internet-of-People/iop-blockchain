@@ -131,6 +131,17 @@ To swtich your wallet to the new blockchain you must delete your local copy of t
 
 Once the wallet is running, it should connect to the seeds nodes which already are in the new blockchain and syncronize with the new blocks.
 
+####How Can I validate that I'm in sync with the blockchain?
+
+In order to validate that your wallet is syncronized with the general consensus you need to findout how many blocks you have downloaded and compare it with the block explorer.
+
+To know how many blocks you have locally, perform the following actions:
+
+* Open your wallet.
+* Go to *Help* and *debug window*
+* On the *Information* tab search for the *Current number of blocks*.
+
+Then compare it with our block explorer at [http://explorer.fermat.community/](http://explorer.fermat.community/) . The numbers should be the same.
 
 ### Testnet blockchain
 
