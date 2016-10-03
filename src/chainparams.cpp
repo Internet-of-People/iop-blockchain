@@ -101,8 +101,9 @@ public:
 
         // Miner White list params
         consensus.minerWhiteListActivationHeight = 110; //block height that activates the white list.
-        consensus.minerWhiteListAdminPubKey.insert("024b82b39ae9479593f528ec58430db034d6576324ab48b6adcac42cc36b1b5f80"); //pub key required to sign add / remove transactions
-        consensus.minerWhiteListAdminAddress.insert("p8LccTJjEZ2wts3CLhWmTHZSgVnvxn9pm7"); //default miner address
+        consensus.minerWhiteListAdminPubKey.insert("03902b311c298f7d32eb2ccb71abde7afd39745f505e6e677cabc3964eea7960dc"); //pub key required to sign add / remove transactions
+        consensus.minerWhiteListAdminPubKey.insert("038f21c88b0d7f60e736cc447a3a6716c81a7b403b27bede2b67522d7c29b6e608"); //pub key required to sign add / remove transactions
+        consensus.minerWhiteListAdminAddress.insert("pUSydiLr9kFjtL7VbtfMYXMz7GLV413coQ"); //default miner address
         consensus.minerWhiteListAdminAddress.insert("pGNcLNCavQLGXwXkVDwoHPCuQUBoXzJtPh"); //default miner address
 
 
