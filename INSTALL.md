@@ -43,7 +43,7 @@ After installation is complete, start the IoP wallet by running IoP-qt from the 
 
 Now you should have a working IoP blockchain deployment.
 
-### Upgrading
+# Upgrading Ubuntu
 
 If you have already installed and want to upgrade to the latest, please follow this way:
 
@@ -51,7 +51,7 @@ If you have already installed and want to upgrade to the latest, please follow t
 
 `sudo apt-get upgrade`
 
-## Troubleshooting
+# Troubleshooting in case of IoP Package error
 
 If you run into problems with the package versions, then you could try following:
 `sudo apt-get remove iop-blockchain`
