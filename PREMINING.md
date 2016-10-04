@@ -4,7 +4,7 @@
 In order to install the IoP Wallet that will allow you to send and recieve IoPs you need to follow this procedure:
 
 ### For Ubuntu users
-Follow the instructions to install here http://repo.fermat.community/index.html
+Follow the instructions to install here http://repo.fermat.community/index.html under the ubuntu section.
 
 After installation is complete, start the IoP wallet by running **IoP-qt** from the command line.
 
@@ -13,9 +13,9 @@ $ IoP-qt
 ```
 
 
-
 ### For Windows users
-Windows version will be available soon.
+Follow the instructions to install here http://repo.fermat.community/index.html under Windows section.
+
 
 ## Address Generation
 In order to recevie tokens from the Premined stage, you need to generate an IoP address. Follow this simple steps:
