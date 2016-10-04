@@ -82,6 +82,10 @@ Translators should also subscribe to the [mailing list](https://groups.google.co
 
 # Installing
 
+You can find installer Packages on the [community repositories](http://repo.fermat.community)
+
+We will provide Windows, MacOSX and other Packages after the beta phase.
+
 ## Ubuntu Packages
 
 To install IoP the first time, add new repository to /etc/apt/sources.list.d/IoP.list with your editor (here "nano"):
@@ -99,11 +103,13 @@ Save and exit editor.
 Import the key that is used to sign the packages:
 
 `gpg --keyserver keys.gnupg.net --recv-keys 0CC9EB6DA69C84F4`
+
 `gpg -a --export A69C84F4 | sudo apt-key add -`
 
 After that you can install IoP tools as any other software package:
 
 `sudo apt-get update`
+
 `sudo apt-get install iop-blockchain`
 
 After installation is complete, start the IoP wallet by running IoP-qt from the command line.
@@ -114,13 +120,18 @@ After installation is complete, start the IoP wallet by running IoP-qt from the 
 If you have already installed and want to upgrade to the latest, please follow this way:
 
 `sudo apt-get update`
+
 `sudo apt-get upgrade`
 
 If you run into problems with the package versions, then you could try following:
 `sudo apt-get remove iop-blockchain`
+
 `sudo rm -fr /var/cache/apt/archives/*`
+
 `sudo apt-get clean`
+
 `sudo apt-get update`
+
 `sudo apt-get install iop-blockchain`
 
 ** if you are in trouble you always should backup your wallet.dat file!**
