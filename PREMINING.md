@@ -4,13 +4,14 @@
 In order to install the IoP Wallet that will allow you to send and recieve IoPs you need to follow this procedure:
 
 ### For Ubuntu users
-Follow the instructions to install here http://repo.fermat.community/index.html under the ubuntu section.
+Follow the instructions to install here http://repo.fermat.community/index.html under the Ubuntu section.
 
 After installation is complete, start the IoP wallet by running **IoP-qt** from the command line.
 
 ```
 $ IoP-qt
 ```
+
 
 
 ### For Windows users
@@ -62,7 +63,7 @@ importprivkey [privKeyString]
 **You will only need to import your private key if you delete and uninstall the IoP wallet.**
 
 
-### Time locked funds
+### Time locked funds (current status: no tokens have been sent yet in this way. wait for announcement on slack)
 
 Certain amount of tokens will be send using a time constrained transaction. meaning that those **IoPs** will be available to be spent after certain date.
 
@@ -80,7 +81,7 @@ The time constrains that are applied on the *Fermat Token* spreadsheet are:
 
 ---
 
-You can **Wath-only** this IoP coins in your wallet by importing a IoP address that was automatically generated during the execution of the distribution.
+You can **Watch-only** this IoP coins in your wallet by importing a IoP address that was automatically generated during the execution of the distribution.
 
 You can view your addresses for each date in the [PreMining Distribution Output](https://docs.google.com/spreadsheets/d/1NafNFjKbBl-RCeh7wLoDGeZqSGnAFvIPciGbEdmmSZk/edit?usp=sharing) 
 
@@ -113,7 +114,11 @@ importaddress 2DB9f5vMS4Eu8dJPEoy55nCZtmxRbrUoXjk "2 years"
 
 
 
-## Blockchain Reset
+## Blockchain Reset 
+
+**WARNING: The tokens that have been distributed might not be final. The blockchain might need to be reset at any time, so please, do not sell you tokens now. 
+
+**CURRENT STATUS: The current blockchain in mainnet is intended to be definitive. If during October 2016 there is no blockchain reset, we will all consider it irreversible. Do not sell your tokens before that.
 
 Blockchain reset refers to the action of reseting the blockchain, which is starting a new set of connected blocks and swtiching your wallet to start using this new blockchain.
 
