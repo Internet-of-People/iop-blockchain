@@ -91,11 +91,14 @@ We will provide Windows, MacOSX and other Packages after the beta phase.
 To install IoP the first time, add new repository to /etc/apt/sources.list.d/IoP.list with your editor (here "nano"):
 
 sudo nano /etc/apt/sources.list.d/IoP.list
-In the editor:
+In the editor you do this
+
 for Ubuntu 14.04:
+
 `deb [arch=amd64] http://repo.fermat.community/ 14.04 main`
 
 for Ubuntu 16.04:
+
 `deb [arch=amd64] http://repo.fermat.community/ 16.04 main`
 
 Save and exit editor.
