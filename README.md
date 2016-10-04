@@ -82,9 +82,11 @@ Translators should also subscribe to the [mailing list](https://groups.google.co
 
 # Installing
 
-You can find installer Packages on the [community repositories](http://repo.fermat.community)
+At this stage we dont provide other packages than for Ubuntu Linux.
 
-We will provide Windows, MacOSX and other Packages after the beta phase.
+But you can find other community packages on the [community repositories](http://repo.fermat.community)
+
+We will provide Windows, MacOSX and other Packages after the beta phase, please be patient.
 
 ## Ubuntu Packages
 
