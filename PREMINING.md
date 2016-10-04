@@ -64,7 +64,7 @@ importprivkey [privKeyString]
 
 ### Time locked funds
 
-Certain amount of shares will be send using a time constrained transaction. meaning that those **IoPs** will be available to be spent after certain date.
+Certain amount of tokens will be send using a time constrained transaction. meaning that those **IoPs** will be available to be spent after certain date.
 
 The time constrains that are applied on the *Fermat Token* spreadsheet are:
 
