@@ -7,7 +7,7 @@ sudo checkinstall \
     --pkglicense=MIT \
     --pkggroup=net \
     --pkgname=iop-blockchain \
-    --pkgversion=1.0.1-beta1 \
+    --pkgversion=1.0.2-beta \
     --pkgarch=$(dpkg \
     --print-architecture) \
     $@
