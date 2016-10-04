@@ -116,9 +116,9 @@ importaddress 2DB9f5vMS4Eu8dJPEoy55nCZtmxRbrUoXjk "2 years"
 
 ## Blockchain Reset 
 
-**WARNING: The tokens that have been distributed might not be final. The blockchain might need to be reset at any time, so please, do not sell you tokens now. 
+**WARNING:** The tokens that have been distributed might not be final. The blockchain might need to be reset at any time, so please, do not sell you tokens now. 
 
-**CURRENT STATUS: The current blockchain in mainnet is intended to be definitive. If during October 2016 there is no blockchain reset, we will all consider it irreversible. Do not sell your tokens before that.
+**CURRENT STATUS:** The current blockchain in mainnet is intended to be definitive. If during October 2016 there is no blockchain reset, we will all consider it irreversible. Do not sell your tokens before that.
 
 Blockchain reset refers to the action of reseting the blockchain, which is starting a new set of connected blocks and swtiching your wallet to start using this new blockchain.
 
