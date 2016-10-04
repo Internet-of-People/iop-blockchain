@@ -72,7 +72,7 @@ After that empty the .IoP folder despite the wallet.dat - then start the IoP-qt 
 Compiling from source
 =====================
 
-First you have to grab the source code, you can just clone our GitHub repository. Assuming you work on Ubuntu and don't have git installed yet, you can have our initial release (tagged version 0.13) with:
+First you have to grab the source code, you can just clone our GitHub repository. Assuming you work on Ubuntu and don't have git installed yet, you can have our initial release (tagged version beta-1.0.0) with:
 
 sudo apt-get install git
 git clone https://github.com/Fermat-ORG/iop-blockchain.git
@@ -109,3 +109,5 @@ Using the blockchain tool
 =========================
 
 TODO by Rodrigo
+
+You can follow until we have official documentation the [Fermat IoP Wallet Guide](http://repo.fermat.community/Fermat_Wallet_Tutorial/FermatWalletTutorialEN.html) on the community site.
