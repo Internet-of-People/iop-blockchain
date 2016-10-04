@@ -54,6 +54,7 @@ If you have already installed and want to upgrade to the latest, please follow t
 # Troubleshooting in case of IoP Package error
 
 If you run into problems with the package versions, then you could try following:
+
 `sudo apt-get remove iop-blockchain`
 
 `sudo rm -fr /var/cache/apt/archives/*`
