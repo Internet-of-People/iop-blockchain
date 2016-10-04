@@ -32,12 +32,12 @@ Next you need to save this address on the **Fermat Tokens** spreadsheet on Googl
 
 Securing your address, funds and wallet must be a priority. In case of computer damage, reinstall or loss you must be able to get your tokens back.
 
-### Wallet backup
+### Wallet backup (this is the easiest way to secure your IoP tokens)
 You can create a backup of your wallet and all your keys by selecting *Backup Wallet* from the *File* menu in your wallet. 
 
 The file you specify, will be used in case you need to restore your wallet.
 
-### Private Key backup
+### Private Key backup (this is a secondary way to secure your IoP tokens)
 During this initial phase, new IoP Wallet version will be launched regularly, so you will need to reinstall the wallet often.
 You can just backup the address you generated for the premine stage, by exporting the private key.
 
