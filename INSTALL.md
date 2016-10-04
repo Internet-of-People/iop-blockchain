@@ -103,8 +103,17 @@ If you want to run the compiled binaries directly, you can find them in director
 
 `make install`
 
+Other Packages
+========================
+We don't support offically other packages (yet).
+Nevertheless, there are [unsopported community build packages](http://repo.fermat.community) where you can even find Windows packages.
 
 Using the blockchain tool
 =========================
 
-Until we have official documentation you can follow the [Fermat IoP Wallet Guide](http://repo.fermat.community/Fermat_Wallet_Tutorial/FermatWalletTutorialEN.html) on the community site.
+Until we have official documentation you can follow the Fermat IoP Wallet Guide:
+
+[English](http://repo.fermat.community/Fermat_Wallet_Tutorial/FermatWalletTutorialEN.html)
+
+[Spanish](https://docs.google.com/document/d/1_RkGVSKEz42Sh9NgGdt9WKrKcvi6jhdhtlxxHqgpZxA)
+
