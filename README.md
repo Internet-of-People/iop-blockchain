@@ -98,29 +98,30 @@ Save and exit editor.
 
 Import the key that is used to sign the packages:
 
-`gpg --keyserver keys.gnupg.net --recv-keys 0CC9EB6DA69C84F4
-gpg -a --export A69C84F4 | sudo apt-key add -`
+`gpg --keyserver keys.gnupg.net --recv-keys 0CC9EB6DA69C84F4`
+`gpg -a --export A69C84F4 | sudo apt-key add -`
 
 After that you can install IoP tools as any other software package:
 
-`sudo apt-get update
-sudo apt-get install iop-blockchain`
+`sudo apt-get update`
+`sudo apt-get install iop-blockchain`
 
 After installation is complete, start the IoP wallet by running IoP-qt from the command line.
 
-IoP-qt ... and have fun! :-)
+`IoP-qt` 
+... and have fun! :-)
 
 If you have already installed and want to upgrade to the latest, please follow this way:
 
-`sudo apt-get update
-sudo apt-get upgrade`
+`sudo apt-get update`
+`sudo apt-get upgrade`
 
 If you run into problems with the package versions, then you could try following:
-`sudo apt-get remove iop-blockchain
-sudo rm -fr /var/cache/apt/archives/*
-sudo apt-get clean
-sudo apt-get update
-sudo apt-get install iop-blockchain`
+`sudo apt-get remove iop-blockchain`
+`sudo rm -fr /var/cache/apt/archives/*`
+`sudo apt-get clean`
+`sudo apt-get update`
+`sudo apt-get install iop-blockchain`
 
 ** if you are in trouble you always should backup your wallet.dat file!**
 After that empty the .IoP folder despite the wallet.dat - then start the IoP-qt again.
