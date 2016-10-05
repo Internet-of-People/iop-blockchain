@@ -65,7 +65,7 @@ If you run into problems with the package versions, then you could try following
 
 `sudo apt-get install iop-blockchain`
 
-** if you are in trouble you always should backup your wallet.dat file!**
+** if you are in trouble you should always backup your wallet.dat file!**
 After that empty the .IoP folder despite the wallet.dat - then start the IoP-qt again.
 
 
