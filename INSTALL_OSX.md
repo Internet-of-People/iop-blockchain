@@ -1,11 +1,11 @@
-#Installing IoP Core on OS X
+<!-- #Installing IoP Core on OS X
 
 Download the binary file from 
 ```
 http://link.here
 ```
 and extract. Move the .app file to your Applications folder. Your wallet and all data will be stored in `~/Library/Application Support/IoP/`. To backup your wallet, copy 
-`~/Library/Application Support/IoP/wallet.dat` to a secure location.
+`~/Library/Application Support/IoP/wallet.dat` to a secure location. -->
 
 #Building IoP Core on Mac
 
