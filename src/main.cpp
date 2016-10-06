@@ -3726,7 +3726,7 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
 
 
     /* IoP beta change - we are only enforcing BIP34 with height in coinbase ScriptSig if Miner whitelist is not active */
-    if (!fIsMinerWhiteList){
+    if (nHeight < Params().GetConsensus().minerWhiteListActivationHeight){
     	// Enforce block.nVersion=2 rule that the coinbase starts with serialized block height
     	// if 750 of the last 1,000 blocks are version 2 or greater (51/100 if testnet):
     	if (block.nVersion >= 2 && IsSuperMajority(2, pindexPrev, consensusParams.nMajorityEnforceBlockUpgrade, consensusParams))
