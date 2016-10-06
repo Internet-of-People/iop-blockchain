@@ -9,7 +9,7 @@ and extract. Move the .app file to your Applications folder. Your wallet and all
 
 #Building IoP Core on Mac
 
-* Install the latest XCode Package from the Mac App Store (Command Line Tools are not sufficient).
+* Install the latest XCode Package from the Mac App Store (Command Line Tools are not sufficient) and run it.
 
 * Install homebrew (http://brew.sh) via the command prompt with
 ```
