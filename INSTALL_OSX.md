@@ -1,4 +1,4 @@
-# Installing IoP Core on OS X
+# Installing IoP Core on Mac OS X
 
 Download the binary file from [here](http://) and extract. Move the .app file to your Applications folder.
 
@@ -6,7 +6,7 @@ At the moment, the GUI does not show or generate QR Codes.
 
 Your wallet and all data will be stored in `~/Library/Application Support/IoP/`. To backup your wallet, copy `~/Library/Application Support/IoP/wallet.dat` to a secure location.
 
-# Building IoP Core on Mac
+# Building IoP Core on Mac OS X
 
 - Install the latest XCode Package from the Mac App Store (Command Line Tools are not sufficient) and run it. Accept the License Agreement and let it install components.
 
@@ -39,7 +39,7 @@ Your wallet and all data will be stored in `~/Library/Application Support/IoP/`.
 
 - Run `./autogen.sh`
 
-- Run `./configure`.
+- Run `./configure`
 
 - Run `make && make deploy`. Ignore the warnings about deprecated functions for now.
 
