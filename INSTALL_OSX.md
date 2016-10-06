@@ -60,6 +60,7 @@ For now, to get qt5 to compile, open `/usr/local/Homebrew/Library/Taps/homebrew/
 to the end of the lists of arguments here (should be line 80-96)
 
 ```
+...
 def install
     args = %W[
       -verbose
@@ -74,6 +75,7 @@ def install
       -nomake tests
       -no-rpath
       ]
+...
 ```
 
 Save, close and continue as normal. Thanks for this solution to user [UdjinM6](https://github.com/UdjinM6), who posted it [here](https://github.com/Homebrew/homebrew-core/issues/4841#issuecomment-249177609).
