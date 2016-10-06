@@ -16,17 +16,17 @@ and extract. Move the .app file to your Applications folder. Your wallet and all
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 ```
 3. Install dependencies with
- ```
- brew install automake berkeley-db4 libtool boost --c++11 miniupnpc openssl pkg-config homebrew/versions/protobuf260 --c++11 libevent qt5
- ``` 
+```
+brew install automake berkeley-db4 libtool boost --c++11 miniupnpc openssl pkg-config homebrew/versions/protobuf260 --c++11 libevent qt5
+``` 
 This will take a while. WARNING: For macOS 10.12 users, see below.
 4. Use the command line to clone the git repository to your favorite location with 
 ```
-git clone https://github.com/Anfauglith/iop-blockchain.git /path/to/favorite/location
+git clone https://github.com/Fermat-ORG/iop-blockchain.git /path/to/favorite/location
 ```
 e.g. 
 ```
-git clone https://github.com/Anfauglith/iop-blockchain.git ~/GitHub/iop-blockchain
+git clone https://github.com/Fermat-ORG/iop-blockchain.git ~/GitHub/iop-blockchain
 ```
 5. Change to this location using `cd ~/GitHub/iop-blockchain` or equivalent.
 
