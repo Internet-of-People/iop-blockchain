@@ -9,8 +9,7 @@ and extract. Move the .app file to your Applications folder. Your wallet and all
 1. Install the latest XCode Package from the Mac App Store (Command Line Tools are not sufficient).
 
 2. Install homebrew (http://brew.sh) via the command prompt with
-```/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-```
+`/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
 3. Install dependencies with 
 `brew install automake berkeley-db4 libtool boost --c++11 miniupnpc openssl pkg-config homebrew/versions/protobuf260 --c++11 libevent qt5` 
 This will take a while. WARNING: For macOS 10.12 users, see below.
