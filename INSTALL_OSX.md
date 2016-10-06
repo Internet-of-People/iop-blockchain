@@ -42,7 +42,7 @@ git clone https://github.com/Fermat-ORG/iop-blockchain.git ~/GitHub/iop-blockcha
 `~/Library/Application Support/IoP/wallet.dat` to a secure location. 
 
 # WARNING
-If you are on macOS 10.12, qt5 is broken and will not `brew install`. To work around this, open `/usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/qt5.rb` and add 
+If you are on macOS 10.12, qt5 is broken and as of today (2016/10/06) will not `brew install`. To work around this, open `/usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/qt5.rb` and add 
 
 ```
 -skip qtconnectivity
@@ -69,4 +69,4 @@ def install
       ]
 ```
 
-Then save and close. Continue as normal.
+Then save and close. Continue as normal. Thanks for this solution to user [UdjinM6](https://github.com/UdjinM6), who posted this [here](https://github.com/Homebrew/homebrew-core/issues/4841#issuecomment-249177609).
