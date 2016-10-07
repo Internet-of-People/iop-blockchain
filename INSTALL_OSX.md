@@ -1,6 +1,6 @@
 # Installing IoP Core on Mac OS X
 
-Download the .dmg file from [here](http://) and mount it. Move the .app file to your Applications folder.
+Download the .dmg file from our [repository](http://repo.fermat.community) and mount it. Move the .app file to your Applications folder.
 
 At the moment, the GUI does not show or generate QR Codes.
 
