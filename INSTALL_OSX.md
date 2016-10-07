@@ -41,13 +41,12 @@ Your wallet and all data will be stored in `~/Library/Application Support/IoP/`.
 
 - Run `./configure`
 
-- Run `make && make deploy`. Ignore the warnings about deprecated functions for now.
+- Run `make && make deploy`. On macOS 10.12 you will get some warnings about deprecated functions. Ignore them for now. If everything goes well, you will now have two options. The binary `IoP-Qt.app` is linked to external libraries and will only run on macs with the same build environment. The `IoP-Qt.dmg` file contains another version of the application, which contains all necessary libraries and should be usable on all your Macs. The daemon and other tools are available at `src/IoPd`.
 
-- Move the .app to your Applications Folder with `mv ./IoP-Qt.app /Applications/`
 
 ## Problems with macOS 10.12
 
-If you are on macOS 10.12, qt5 (v5.6.1) is broken and at the moment (2016/10/7) will not `brew install`. Upstream should release a fixed version soon and the brew team will then update the formula.
+If you are on macOS 10.12, homebrews qt5 (v5.6.1) is broken and at the moment (2016/10/7) will not `brew install`. Upstream should release a fixed version soon and the brew team will then update the formula.
 
 For now, to get qt5 to compile, open `/usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/qt5.rb` with your favorite editor and add
 
