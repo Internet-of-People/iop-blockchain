@@ -4,7 +4,9 @@ Download the .dmg file from our [repository](http://repo.fermat.community) and m
 
 At the moment, the GUI does not show or generate QR Codes.
 
-Your wallet and all data will be stored in `~/Library/Application Support/IoP/`. To backup your wallet, copy `~/Library/Application Support/IoP/wallet.dat` to a secure location.
+Your wallet and all data will be stored in `~/Library/Application Support/IoP/`. To backup your wallet, copy `~/Library/Application Support/IoP/wallet.dat` to a secure location. 
+
+Although everything seems to work fine, you should use this wallet file only with the Mac OS X version of IoP Core, as the Mac version is compiled against Berkeley DB 4 instead of Berkeley DB 5 and data files might be incompatible. To migrate your wallet between Operating Systems, we recommend using `dumpprivkey`.
 
 # Building IoP Core on Mac OS X
 
@@ -23,6 +25,9 @@ Your wallet and all data will be stored in `~/Library/Application Support/IoP/`.
   ```
 
   This will take a while. WARNING: macOS 10.12 users, see below.
+- Only for experienced users: You can use  `berkeley-db` (v6.1.26 as of 2016/10/08) instead of `berkeley-db4` to compile IoP Core, but data files might not be fully compatible between different versions of BDB, so it is recommended to migrate wallets between versions and/or operating systems via `dumpprivkey`. You also need to `configure` with `./configure CPPFLAGS="-I/usr/local/Cellar/berkeley-db/6.1.26/include -O2" LDFLAGS="-L/usr/local/Cellar/berkeley-db/6.1.26/lib" --with-incompatible-bdb`
+  
+  
 - Use the command line to clone the git repository to your favorite location with 
 
   ```
@@ -41,7 +46,7 @@ Your wallet and all data will be stored in `~/Library/Application Support/IoP/`.
 
 - Run `./configure`
 
-- Run `make && make deploy`. On macOS 10.12 you will get some warnings about deprecated functions. Ignore them for now. If everything goes well, you will now have two options. The binary `IoP-Qt.app` is linked to external libraries and will only run on macs with the same build environment. The `IoP-Qt.dmg` file contains another version of the application, which contains all necessary libraries and should be usable on all your Macs. The daemon and other tools are available at `src/IoPd`.
+- Run `make && make deploy`. On macOS 10.12 you will get some warnings about deprecated functions. Ignore them for now. If everything goes well, you will now have two options. The binary `IoP-Qt.app` is linked to external libraries and will only run on macs with the same build environment. The `IoP-Qt.dmg` file contains another version of the application, which contains all necessary libraries and should be usable on all your Macs. The daemon and other tools are available at `src/IoPd`. 
 
 
 ## Problems with macOS 10.12
