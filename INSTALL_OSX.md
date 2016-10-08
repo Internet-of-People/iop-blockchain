@@ -4,9 +4,7 @@ Download the .dmg file from our [repository](http://repo.fermat.community) and m
 
 At the moment, the GUI does not show or generate QR Codes.
 
-Your wallet and all data will be stored in `~/Library/Application Support/IoP/`. To backup your wallet, copy `~/Library/Application Support/IoP/wallet.dat` to a secure location. 
-
-Although everything seems to work fine, you should use this wallet file only with the Mac OS X version of IoP Core, as the Mac version is compiled against Berkeley DB 4 instead of Berkeley DB 5 and data files might be incompatible. To migrate your wallet between Operating Systems, we recommend using `dumpprivkey`.
+Your wallet and all data will be stored in `~/Library/Application Support/IoP/`. To backup your wallet, copy `~/Library/Application Support/IoP/wallet.dat` to a secure location. Although there seem to be no problems, you should use this wallet file only with the Mac OS X version of IoP Core, as the Mac version is compiled against Berkeley DB 4 instead of Berkeley DB 5 and data files might be incompatible. To migrate your wallet between Operating Systems, we recommend using `dumpprivkey`.
 
 # Building IoP Core on Mac OS X
 
