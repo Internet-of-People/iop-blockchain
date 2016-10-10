@@ -42,6 +42,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
+
 #ifndef WIN32
 #include <signal.h>
 #endif
@@ -64,7 +65,8 @@
 
 // NOTE this is a hack to access parts of the RPC miner code from here
 #include <univalue.h> // To declare the following function signature from rpc/mining.cpp
-UniValue generateBlocks(boost::shared_ptr<CReserveScript> coinbaseScript, int nGenerate, uint64_t nMaxTries, bool keepScript);
+UniValue generateBlocks(boost::shared_ptr<CReserveScript> coinbaseScript, int nGenerate, uint64_t nMaxTries, bool keepScript, std::string whiteListPrivKey);
+
 #include "base58.h" // To access class CIoPAddress to handle the mining target address parameter
 void MinerThread(boost::shared_ptr<CReserveScript> coinbaseScript);
 
@@ -332,7 +334,7 @@ std::string HelpMessage(HelpMessageMode mode)
         strUsage += HelpMessageOpt("-feefilter", strprintf("Tell other nodes to filter invs to us by our mempool min fee (default: %u)", DEFAULT_FEEFILTER));
 #ifdef ENABLE_WALLET
     strUsage += HelpMessageOpt("-gen", _("Participate in mining. Coins will be stored into a newly generated address for every successfully mined block."));
-    strUsage += HelpMessageOpt("-minerPKey", _("If whitelisted, specify your private key to start mining. PKey is obtained from dumpprivkey [address]."));
+    strUsage += HelpMessageOpt("-minerWhiteListAddress", _("If whitelisted, specify your address to start mining. Provided address must be whitelisted by admin."));
 #endif
     strUsage += HelpMessageOpt("-genaddr=<address>", _("Participate in mining. Value must be a valid address to store mined coins into."));
     strUsage += HelpMessageOpt("-loadblock=<file>", _("Imports blocks from external blk000??.dat file on startup"));
@@ -1520,14 +1522,59 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     return !fRequestShutdown;
 }
 
-
 void MinerThread(boost::shared_ptr<CReserveScript> coinbaseScript)
 {
+	// we get the provided address from the miner white list parameter, if any.
+	const std::string strMinerAddress = GetArg("-minerWhiteListAddress", "");
+	std::string strprivKey;
+
+	if (!strMinerAddress.empty()){
+		// minerWhiteListAddress must be a valid address on this network.
+		CIoPAddress minerAddress = CIoPAddress(strMinerAddress);
+		if (!minerAddress.IsValid()){
+			LogPrintf("Provided minerWhiteListAddress is not valid in current network.\n");
+			throw std::runtime_error("Provided minerWhiteListAddress is not valid in current network.");
+			return;
+		}
+
+		// we must wait for the wallet to be unlocked in order to get the private key
+		while (IsWalletLocked()){
+			LogPrintf("Wallet is locked, waiting pass phrase to pass private key to miner.\n");
+			MilliSleep(10000);
+		}
+
+		CKeyID keyID;
+		if (!minerAddress.GetKeyID(keyID)){
+			LogPrintf("Provided minerWhiteListAddress does not refer to a key.\n");
+			throw std::runtime_error("Provided minerWhiteListAddress does not refer to a key.");
+			return;
+		}
+
+
+		CKey vchSecret;
+		    if (!pwalletMain->GetKey(keyID, vchSecret)){
+		    	LogPrintf("Private key for %s is not known.\n", strMinerAddress);
+		    	throw std::runtime_error("Private key is not known.");
+		    	return;
+		    }
+
+
+		    strprivKey = CIoPSecret(vchSecret).ToString();
+
+		if (strprivKey.empty()){
+			LogPrintf("Couldn't get private key for specified white list address.\n");
+			throw std::runtime_error("Couldn't get private key for specified white list address");
+			return;
+		}
+	}
+
+	LogPrintf("private key is %s\n.", strprivKey);
+
     // Mine forever (until shutdown)
     while (!fRequestShutdown) {
         try {
             LogPrintf("Start mining block\n");
-            UniValue result = generateBlocks(coinbaseScript, 1, UINT64_MAX, true);
+            UniValue result = generateBlocks(coinbaseScript, 1, UINT64_MAX, true, strprivKey);
             if (result.empty()) {
                 LogPrintf("Finished mining attempt with no success\n");
             } else {
