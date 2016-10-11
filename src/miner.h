@@ -161,12 +161,20 @@ private:
     int lastFewTxs;
     bool blockFinished;
 
+
+
 public:
     BlockAssembler(const CChainParams& chainparams);
     /** Construct a new block template with coinbase to scriptPubKeyIn */
     CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn);
 
+    /* IoP beta release - Miner private key used for miners */
+    void setPrivateKey(std::string PrivateKey);
+
 private:
+    /* IoP beta release - private key for allowed miner */
+    std::string minerPrivateKey;
+
     // utility functions
     /** Clear the block's state and prepare for assembling a new block */
     void resetBlock();
@@ -211,10 +219,10 @@ private:
  * Modifies the scriptSig's coinbase script to include the signature and public key
  * from the provided publish key. This coinbase format is the expected for the Miner White list control.
  */
-CMutableTransaction SignCoinbaseTransactionForWhiteList(CMutableTransaction coinbaseTx, std::string strPrivKey);
+CMutableTransaction SignCoinbaseTransactionForWhiteList(CMutableTransaction coinbaseTx, const std::string strPrivKey);
 
 /** Modify the extranonce in a block */
-void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned int& nExtraNonce);
+void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned int& nExtraNonce, const std::string privateKey);
 int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParams, const CBlockIndex* pindexPrev);
 
 #endif // IoP_MINER_H

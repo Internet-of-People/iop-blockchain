@@ -56,9 +56,6 @@ uint64_t nLastBlockSize = 0;
 uint64_t nLastBlockWeight = 0;
 /* IoP beta code - random int to generate op_return data */
 unsigned int randomData;
-/* IoP beta code - provided private key as string from parameter */
-std::string strPrivKey;
-
 
 class ScoreCompare
 {
@@ -70,6 +67,11 @@ public:
         return CompareTxMemPoolEntryByScore()(*b,*a); // Convert to less than
     }
 };
+
+std::string minerPrivateKey;
+void BlockAssembler::setPrivateKey(std::string PrivateKey){
+	minerPrivateKey = PrivateKey;
+}
 
 int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParams, const CBlockIndex* pindexPrev)
 {
@@ -182,8 +184,8 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn)
     nLastBlockSize = nBlockSize;
     nLastBlockWeight = nBlockWeight;
     
-// NOTE removed to avoid spamming the console while mining
-//    LogPrintf("CreateNewBlock(): total size %u txs: %u fees: %ld sigops %d\n", nBlockSize, nBlockTx, nFees, nBlockSigOpsCost);
+    // NOTE removed to avoid spamming the console while mining
+     LogPrintf("CreateNewBlock(): total size %u txs: %u fees: %ld sigops %d\n", nBlockSize, nBlockTx, nFees, nBlockSigOpsCost);
 
     // Create coinbase transaction.
     CMutableTransaction coinbaseTx;
@@ -193,10 +195,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn)
     coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
     coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
 
-
-    /* IoP beta release - If private key is provided, we sign the coinbase transaction */
-    strPrivKey = GetArg("-minerPKey", "");
-    if (strPrivKey.empty())
+    if (minerPrivateKey.empty())
     	// no private key provided, so we continue as always.
     	coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
     else {
@@ -212,8 +211,9 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn)
     	coinbaseTx.vout[1].nValue = COIN * 0;
 
     	// Modify the scriptSig with the signature and public key.
-    	coinbaseTx = SignCoinbaseTransactionForWhiteList(coinbaseTx, strPrivKey);
+    	coinbaseTx = SignCoinbaseTransactionForWhiteList(coinbaseTx, minerPrivateKey);
     }
+
     pblock->vtx[0] = coinbaseTx;
     pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
     pblocktemplate->vTxFees[0] = -nFees;
@@ -627,22 +627,35 @@ void BlockAssembler::addPriorityTxs()
  * Modifies the scriptSig's coinbase script to include the signature and public key
  * from the provided publish key. This coinbase format is the expected for the Miner White list control.
  */
-CMutableTransaction SignCoinbaseTransactionForWhiteList(CMutableTransaction coinbaseTx, const string strPrivKey)
+CMutableTransaction SignCoinbaseTransactionForWhiteList(CMutableTransaction coinbaseTx, const std::string strPrivKey)
 {
-	if (strPrivKey.empty()) throw std::runtime_error(strprintf("Private key is empty.",strPrivKey));
+	if (strPrivKey.empty()){
+		LogPrintf("Can't sign coinbase transaction. Private key is empty.\n");
+		throw std::runtime_error(strprintf("Provided private key is empty.", strPrivKey));
+	}
 
 	// creates a private key from the secret passed.
 	CIoPSecret vchSecret;
-	bool fGood = vchSecret.SetString(strPrivKey);
-	if (!fGood) throw std::runtime_error(strprintf("Provided private key (%s) is not valid. Invalid private key encoding", strPrivKey));
+	bool fGood = vchSecret.SetString(strPrivKey.data());
+	if (!fGood) {
+		LogPrintf("Can't sign coinbase transaction. Provided private key '%s' is not valid\n", strPrivKey);
+		throw std::runtime_error(strprintf("Provided private key (%s) is not valid. Invalid private key encoding", strPrivKey));
+	}
 
 	CKey key = vchSecret.GetKey();
-	if (!key.IsValid()) throw std::runtime_error(strprintf("Provided private key (%s) is not valid. Private key outside allowed range.", strPrivKey));
+	if (!key.IsValid()) {
+		LogPrintf("Provided private key (%s) is not valid. Private key outside allowed range.\n", strPrivKey);
+		throw std::runtime_error(strprintf("Provided private key (%s) is not valid. Private key outside allowed range.", strPrivKey));
+	}
 
 	// get the public key
 	CPubKey publicKey = key.GetPubKey();
-	if (!publicKey.IsValid()) throw std::runtime_error(strprintf("Provided private key (%s) is not valid. Derived public key not valid.", strPrivKey));
+	if (!publicKey.IsValid()) {
+		LogPrintf("Provided private key (%s) is not valid. Derived public key not valid.\n", strPrivKey);
+		throw std::runtime_error(strprintf("Provided private key (%s) is not valid. Derived public key not valid.", strPrivKey));
+	}
 	std::vector<unsigned char> vpkey (publicKey.begin(), publicKey.end());
+
 
 	// Prepare new transaction to hash and sign
 	CMutableTransaction cbDraft = coinbaseTx;
@@ -665,7 +678,7 @@ CMutableTransaction SignCoinbaseTransactionForWhiteList(CMutableTransaction coin
 	return coinbaseTx;
 }
 
-void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned int& nExtraNonce)
+void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned int& nExtraNonce, const std::string privateKey = "")
 {
     // Update nExtraNonce
     static uint256 hashPrevBlock;
@@ -680,10 +693,13 @@ void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned
     CMutableTransaction txCoinbase(pblock->vtx[0]);
     // IoP beta change - if we are signing the coinbase, we have an output with random data. we use that to add the nonce and generate a new tx hash.
     if (txCoinbase.vout.size() == 2){
+    	// we must make sure we have a private key.
+    	if (privateKey.empty()) throw std::runtime_error(strprintf("Provided private key is empty.", privateKey));
+
     	txCoinbase.vout[1].scriptPubKey = CScript() << OP_RETURN << randomData << nExtraNonce;
 
     	//since we change the coinbase transaction, we need to generate a new signature
-    	txCoinbase = SignCoinbaseTransactionForWhiteList(txCoinbase, strPrivKey);
+    	txCoinbase = SignCoinbaseTransactionForWhiteList(txCoinbase, privateKey);
     }
     else
     {
