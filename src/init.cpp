@@ -1568,8 +1568,6 @@ void MinerThread(boost::shared_ptr<CReserveScript> coinbaseScript)
 		}
 	}
 
-	LogPrintf("private key is %s\n.", strprivKey);
-
     // Mine forever (until shutdown)
     while (!fRequestShutdown) {
         try {
