@@ -21,6 +21,9 @@ class CMinerWhiteList {
 private:
 	boost::filesystem::path pathMinerWhiteList;
 public:
+	// possible actions enum
+	enum WhiteListAction {ADD_MINER, REMOVE_MINER, ENABLE_CAP, DISABLE_CAP};
+
 	CMinerWhiteList();
 	bool Write(minerwhitelist_v minerwhitelist);
 	minerwhitelist_v Read();
