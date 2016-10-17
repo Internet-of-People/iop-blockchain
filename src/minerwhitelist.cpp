@@ -79,7 +79,8 @@ minerwhitelist_v CMinerWhiteList::Read() {
 	std::set<std::string> minerWhiteListAdminAddress = Params().GetConsensus().minerWhiteListAdminAddress;
 	set<string>::iterator it;
 	for (it = minerWhiteListAdminAddress.begin(); it != minerWhiteListAdminAddress.end(); it++){
-		pkeys.push_back(*it);
+		if (std::find(pkeys.begin(), pkeys.end(), *it) == pkeys.end())
+			pkeys.push_back(*it);
 	}
 
 	return pkeys;
