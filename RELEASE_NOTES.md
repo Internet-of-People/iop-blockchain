@@ -26,9 +26,9 @@ Security improvements which include:
 New functionality called Miner Cap introduced on the client.
 
 * The blockchain now supports to new types of transaction:
-	* **enable_cap**: used to enable the miner cap control.
+	* **enable_cap:n**: used to enable the miner cap control and set the n factor used to calculate the minerCap.
 	* **disable_cap**: used to disable the miner cap control.
 
 The miner Cap control is used to limit the amount of blocks each miner can submit to the network.
 
-* New RPC command called **dumpMinerStats use** to generate a JSON output with the amount of blocks each miner has mined since the white list control has been activated.	
+* New RPC command called **dumpMinerStats** use to generate a JSON output with the amount of blocks each miner has mined since the white list control has been activated.	
