@@ -2666,7 +2666,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 						if (opreturn.compare("72656d") == 0) //rem
 							action = CMinerWhiteList::REMOVE_MINER;
 
-						if (opreturn.compare("656e61626c655f636170") == 0) //enable_cap
+						// enable_cap command includes the factor that sets the cap in the form of enable_cap:n where n can be 1, 2, 3, etc.
+						// cap for miners is stablished like (2016 / amount of miners) * n
+						// the factor is a 1 byte size, or 2 characters, so we compare the enable_cap: string to identify the action.
+						if (opreturn.substr(0, opreturn.size()-2).compare("656e61626c655f6361703a") == 0) //enable_cap:
 						action = CMinerWhiteList::ENABLE_CAP;
 
 						if (opreturn.compare("64697361626c655f636170") == 0) //disable_cap
@@ -2704,7 +2707,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 										break;
 									case CMinerWhiteList::ENABLE_CAP:
 										LogPrint("MinerWhiteListTransaction", "Miner Cap enabled.\n");
-										minerCap.enable();
+										// the last two characters of the opreturn are the factor for the cap calculation.
+										minerCap.enable(opreturn.substr(opreturn.size()-2)); //we are enabling with the factor passed.
 										break;
 									case CMinerWhiteList::DISABLE_CAP:
 										LogPrint("MinerWhiteListTransaction", "Miner Cap disabled.\n");

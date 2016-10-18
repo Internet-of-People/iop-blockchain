@@ -18,8 +18,8 @@ private:
 public:
 	CMinerCap();
 
-	// enables the miner cap
-	void enable();
+	// enables the miner cap. The passed factor is used to set the mining cap
+	void enable(std::string factor);
 
 	// disables miner cap
 	void disable();

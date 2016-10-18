@@ -6,29 +6,43 @@
  */
 
 
+#include <boost/algorithm/string.hpp>
 #include "main.h"
 #include "minerwhitelist.h"
 #include "minerCap.h"
+#include <string>
+
 
 
 
 // String used to identify the enabled status.
-const std::string ENABLED = "enabled";
-// the miner is allowed to mine this times the average
-const int capMultiplier = 3;
+const std::string ENABLED = "enabled:";
 
-/* constructor with directory to save the file */
+
+/* constructor  */
 CMinerCap::CMinerCap() {
 
 }
 
+// utility function that translate into text from hexadecimal string.
+std::string HexText(const std::string in){
+	int len = in.length();
+	std::string newString;
+	for(int i=0; i< len; i+=2)
+	{
+	    std::string byte = in.substr(i,2);
+	    char chr = (char) (int)strtol(byte.c_str(), NULL, 16);
+	    newString.push_back(chr);
+	}
+	return newString;
+}
+
 // enables the miner cap
-void CMinerCap::enable(){
+void CMinerCap::enable(std::string factor){
 	CMinerWhiteList minerWhiteList;
 	minerwhitelist_v minerVector = minerWhiteList.Read();
-
-	if (std::find(minerVector.begin(), minerVector.end(), ENABLED) == minerVector.end())
-		minerVector.push_back(ENABLED);
+	std::string enabled = ENABLED + HexText(factor);
+	minerVector.push_back(enabled);
 
 	minerWhiteList.Write(minerVector);
 }
@@ -38,7 +52,8 @@ void CMinerCap::disable(){
 	CMinerWhiteList minerWhiteList;
 	minerwhitelist_v minerVector = minerWhiteList.Read();
 
-	minerVector.erase(std::remove(minerVector.begin(), minerVector.end(), ENABLED), minerVector.end());
+	std::string enabled = ENABLED + std::to_string(getMinerMultiplier());
+	minerVector.erase(std::remove(minerVector.begin(), minerVector.end(), enabled), minerVector.end());
 
 	minerWhiteList.Write(minerVector);
 }
@@ -48,7 +63,8 @@ bool CMinerCap::isEnabled(){
 	CMinerWhiteList minerWhiteList;
 	minerwhitelist_v minerVector = minerWhiteList.Read();
 
-	return (std::find(minerVector.begin(), minerVector.end(), ENABLED) != minerVector.end());
+	std::string enabled = ENABLED + std::to_string(getMinerMultiplier());
+	return (std::find(minerVector.begin(), minerVector.end(), enabled) != minerVector.end());
 }
 
 // gets the average blocks per miner (2016 / amount of miners)
@@ -73,6 +89,18 @@ int CMinerCap::getWindowStart(int currentHeight){
 }
 
 int CMinerCap::getMinerMultiplier(){
-	return capMultiplier;
+	CMinerWhiteList minerWhiteList;
+	minerwhitelist_v minerVector = minerWhiteList.Read();
+	minerwhitelist_v::iterator it;
+
+	for (it = minerVector.begin(); it < minerVector.end(); it++){
+		std::vector<std::string> strs;
+		boost::split(strs, *it, boost::is_any_of(":"));
+		// I have found the enable:n string
+		if (strs.size() > 1){
+			return  atoi(strs[1].c_str());
+		}
+	}
+	return 0;
 }
 
