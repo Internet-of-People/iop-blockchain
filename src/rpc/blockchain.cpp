@@ -10,6 +10,7 @@
 #include "coins.h"
 #include "consensus/validation.h"
 #include "main.h"
+#include "minerCap.h"
 #include "policy/policy.h"
 #include "primitives/transaction.h"
 #include "rpc/server.h"
@@ -19,6 +20,9 @@
 #include "util.h"
 #include "utilstrencodings.h"
 #include "hash.h"
+
+#include <tr1/unordered_map>
+#include "base58.h"
 
 #include <stdint.h>
 
@@ -616,6 +620,119 @@ UniValue getblock(const UniValue& params, bool fHelp)
     return blockToJSON(block, pblockindex);
 }
 
+/**
+ * IoP beta release - scans the blockchain identifying blocks from whitelisted miners and showing the stats of how much they mined.
+ */
+UniValue dumpminerstats(const UniValue& params, bool fHelp){
+	if (fHelp || params.size() > 1)
+		throw runtime_error(
+			"dumpminerstats [minerAddress]\n"
+			"\nReturns the statistics of blocks mined by the specified miner. If no miner address is specified, then stats from all miners is retrieved.\n"
+			"\nArguments:\n"
+			"1. mineraddress         (string, optional) The whitelisted address of a miner\n"
+			"\nResult:\n"
+			"{\n"
+			"  \"currentheight\" : n,     			(int) the actual blockchain height.\n"
+			"  \"minercapenabled\" : bool,			(int) the actual status of the cap limitation.\n"
+			"  \"currentavgblocksperminer\" : n, 			(int) the current amount of blocks per miner expected.\n"
+			"  \"currentcap\" : n,     				(int) the current max. of blocks per miner.\n"
+			"		{\n"
+			"  		\"window\" : n	         (int) the miner Cap window starting at 1\n"
+			"  		\"blockstart\" : n,     	  	(int) the block height that starts the window\n"
+			"  		\"blockend\" : n,          		(int) the block height that ends the window\n"
+			"  		\"details\" : \n"
+			"			{\n"
+			"    			\"mineraddress\" : n 	(int) the block count that the miner mined on the window.\n"
+			"			}\n"
+			"		}\n"
+		    "}\n"
+		);
+
+	std::string minerParamater;
+	if (params.size()== 1)
+		minerParamater = params[0].getValStr();
+
+	UniValue result(UniValue::VOBJ);
+	typedef std::tr1::unordered_map <std::string, uint32_t> minerCapMap;
+
+	CMinerCap minerCap;
+	minerCapMap minerMap;
+	int window = 1;
+
+	result.push_back(Pair("currentheight", chainActive.Height()));
+	result.push_back(Pair("minercapenabled", minerCap.isEnabled()));
+	result.push_back(Pair("currentavgblocksperminer", minerCap.getAvgBlocksPerMiner()));
+	result.push_back(Pair("currentcap", minerCap.getMinerMultiplier() * minerCap.getAvgBlocksPerMiner()));
+
+	UniValue windowResult(UniValue::VOBJ);
+	windowResult.push_back(Pair("window", window));
+	windowResult.push_back(Pair("blockstart", 1));
+	windowResult.push_back(Pair("blockend", 2016));
+
+	// get each block since the beginning to the current height.
+	for (int i = 1; i < chainActive.Height(); i++){
+		CBlockIndex* pblockindex = chainActive[i];
+		CBlock block;
+		ReadBlockFromDisk(block, pblockindex, Params().GetConsensus());
+
+		CScript coinbaseScriptSig = block.vtx[0].vin[0].scriptSig;
+
+		vector<unsigned char> value;
+		CScript::const_iterator pc = coinbaseScriptSig.begin();
+		opcodetype opcode;
+
+		// we get the public key
+		while (pc < coinbaseScriptSig.end()){
+			coinbaseScriptSig.GetOp(pc, opcode, value);
+		}
+		const CPubKey pkey(value);
+
+		// make sure the public key is ok.
+		if (pkey.IsValid()){
+			CIoPAddress cAddress;
+			cAddress.Set(pkey.GetID());
+			if (cAddress.IsValid()){
+				// update the counter for this miner
+				if (minerParamater.empty() || minerParamater.compare(cAddress.ToString()) == 0)
+				minerMap[cAddress.ToString()]++;
+			}
+		}
+
+		//if we are at the end of a window, reset the minerCapMap
+		if (i % 2016 == 0){
+			UniValue innerResult(UniValue::VOBJ);
+			minerCapMap::iterator it;
+			std::string key;
+			int value;
+			for (it = minerMap.begin(); it != minerMap.end(); it++){
+				key = it ->first;
+				value = it->second;
+				innerResult.push_back(Pair(key, value));
+
+			}
+			windowResult.push_back(Pair("details", innerResult));
+			window++;
+			windowResult.push_back(Pair("window", window));
+			windowResult.push_back(Pair("blockstart", i));
+			windowResult.push_back(Pair("blockend", i + 2016));
+			minerMap.clear();
+		}
+	}
+	// add any results from the last window
+	UniValue lastResult(UniValue::VOBJ);
+	minerCapMap::iterator it;
+	std::string key;
+	int value;
+	for (it = minerMap.begin(); it != minerMap.end(); it++){
+		key = it ->first;
+		value = it->second;
+		lastResult.push_back(Pair(key, value));
+	}
+	windowResult.push_back(Pair("details", lastResult));
+	result.push_back(Pair("stats", windowResult));
+	return result;
+}
+
 struct CCoinsStats
 {
     int nHeight;
@@ -1203,6 +1320,7 @@ static const CRPCCommand commands[] =
     { "blockchain",         "gettxout",               &gettxout,               true  },
     { "blockchain",         "gettxoutsetinfo",        &gettxoutsetinfo,        true  },
     { "blockchain",         "verifychain",            &verifychain,            true  },
+	{ "mining",             "dumpminerstats",         &dumpminerstats,         true  },
 
     /* Not shown in help */
     { "hidden",             "invalidateblock",        &invalidateblock,        true  },
