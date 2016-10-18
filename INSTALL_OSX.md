@@ -28,7 +28,7 @@ If everything goes well, you can find the application `IoP Core.app` in your Doc
 
 # Building IoP Core on Mac OS X 
 
-- Install the latest XCode Package from the Mac App Store and run it. Accept the License Agreement and let it install components. 
+- Install XCode and run it. Accept the License Agreement and let it install components. 
 
 - Install [homebrew](http://brew.sh) via the terminal (**Terminal.app**) with
 
