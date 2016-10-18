@@ -45,13 +45,7 @@ If everything goes well, you can find the application `IoP Core.app` in your Doc
   This will take a while.
 
   
-- Use the terminal to clone the git repository to your favorite location with 
-
-  ```
-  git clone https://github.com/Fermat-ORG/iop-blockchain.git /path/to/favorite/location
-  ```
-
-  e.g. 
+- Use the terminal to clone the git repository to your favorite location with e.g.
 
   ```
   git clone https://github.com/Fermat-ORG/iop-blockchain.git ~/GitHub/iop-blockchain
