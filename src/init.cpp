@@ -42,6 +42,9 @@
 #include <stdint.h>
 #include <stdio.h>
 
+/* IoP beta release Miner Cap */
+#include "minerCap.h"
+
 
 #ifndef WIN32
 #include <signal.h>
@@ -1568,11 +1571,19 @@ void MinerThread(boost::shared_ptr<CReserveScript> coinbaseScript)
 		}
 	}
 
-	LogPrintf("private key is %s\n.", strprivKey);
-
     // Mine forever (until shutdown)
     while (!fRequestShutdown) {
         try {
+        	/* before we start mining, let's make sure we witing the cap if the Miner Cap is enabled */
+        	CMinerCap minerCap;
+        	if (minerCap.isEnabled()){
+        		while (isMinerCapReached(strMinerAddress)){
+					LogPrintf("Miner cap reached. Waiting a minute to retry...\n");
+					MilliSleep(1000 * 60);
+				}
+        	}
+
+
             LogPrintf("Start mining block\n");
             UniValue result = generateBlocks(coinbaseScript, 1, UINT64_MAX, true, strprivKey);
             if (result.empty()) {

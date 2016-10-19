@@ -41,6 +41,7 @@
 /* IoP beta release added references */
 #include "base58.h"
 #include "minerwhitelist.h"
+#include "minerCap.h"
 #include "pubkey.h"
 #include "script/interpreter.h"
 #include <script/interpreter.cpp>
@@ -2306,6 +2307,60 @@ public:
     }
 };
 
+
+/**
+ * IoP beta release
+ * For every blocks on the current window, we search for blocks mined from the specified miner address.
+ * If the amount of blocks mined by this miner exceeds the allowed, then we won't accept the block.
+ */
+bool isMinerCapReached(std::string minerAddress){
+	// if the address is from the admin, no cap is forced.
+	if (Params().GetConsensus().minerWhiteListAdminAddress.count(minerAddress))
+		return false;
+
+	CMinerCap minerCap;
+	int minedBlockscounter = 0;
+
+	// we get the start of the window. The start if the previous multiple of 2016 before the current height.
+	// possible windows ares from 1 to 2016, from 2016 to 4032, from 4032 to 6048 and so on...
+	int windowStart = minerCap.getWindowStart(chainActive.Height());
+	LogPrint("MinerCap", "MinerCap - WindowStart: %s. Current Height: %s\n", windowStart, chainActive.Height());
+
+	// get each block since the beginning of the window to the current height.
+	for (int i = windowStart; i < chainActive.Height(); i++){
+		CBlockIndex* pblockindex = chainActive[i];
+		CBlock block;
+		ReadBlockFromDisk(block, pblockindex, Params().GetConsensus());
+
+		CScript coinbaseScriptSig = block.vtx[0].vin[0].scriptSig;
+
+		vector<unsigned char> value;
+		CScript::const_iterator pc = coinbaseScriptSig.begin();
+		opcodetype opcode;
+
+		// we get the public key
+		while (pc < coinbaseScriptSig.end()){
+			coinbaseScriptSig.GetOp(pc, opcode, value);
+		}
+		const CPubKey pkey(value);
+
+		// make sure the public key is ok.
+		if (pkey.IsValid()){
+			CIoPAddress cAddress;
+			cAddress.Set(pkey.GetID());
+			if (cAddress.IsValid()){
+				// if the block was mined by the current Miner, we increase the counter.
+				if(cAddress.ToString().compare(minerAddress) == 0){
+					minedBlockscounter ++;
+				}
+			}
+		}
+	}
+	LogPrint("MinerCap", "Is Miner cap exceeded: %s > (%s * %s)\n", minedBlockscounter, minerCap.getAvgBlocksPerMiner(), minerCap.getMinerMultiplier());
+	return (minedBlockscounter > (minerCap.getAvgBlocksPerMiner() * minerCap.getMinerMultiplier()));
+}
+
+
 // Protected by cs_main
 static ThresholdConditionCache warningcache[VERSIONBITS_NUM_BITS];
 
@@ -2589,9 +2644,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 				if (Params().GetConsensus().minerWhiteListAdminPubKey.count(pkey)){
 					LogPrint("MinerWhiteListTransaction", "Miner White List Transaction detected: %s \n", tx.ToString());
 
-					//flag that will store the action to perform
-					bool isAdd = NULL;
-
 					// fist output script must be OP_RETURN to identify the action
 					if (tx.vout[0].scriptPubKey[0] == OP_RETURN){
 						CScript outScript = tx.vout[0].scriptPubKey;
@@ -2606,12 +2658,25 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 						// we get the OP_Return data into the string.
 						std::string opreturn = HexStr(value);
 
-						if (opreturn.compare("616464") == 0)
-							isAdd = true;
-						else
-							isAdd = false;
+						CMinerWhiteList::WhiteListAction action;
+
+						if (opreturn.compare("616464") == 0) //add
+							action = CMinerWhiteList::ADD_MINER;
+
+						if (opreturn.compare("72656d") == 0) //rem
+							action = CMinerWhiteList::REMOVE_MINER;
+
+						// enable_cap command includes the factor that sets the cap in the form of enable_cap:n where n can be 1, 2, 3, etc.
+						// cap for miners is stablished like (2016 / amount of miners) * n
+						// the factor is a 1 byte size, or 2 characters, so we compare the enable_cap: string to identify the action.
+						if (opreturn.substr(0, opreturn.size()-2).compare("656e61626c655f6361703a") == 0) //enable_cap:
+						action = CMinerWhiteList::ENABLE_CAP;
+
+						if (opreturn.compare("64697361626c655f636170") == 0) //disable_cap
+						action = CMinerWhiteList::DISABLE_CAP;
 
 						CMinerWhiteList minerwhitelistdb;
+						CMinerCap minerCap;
 						minerwhitelist_v vector;
 
 						// once the action has been identifed, lets extract the address from each output
@@ -2623,16 +2688,36 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 							CIoPAddress address(destinationAddress);
 
 							if (address.IsValid()){
-								if (isAdd){
-									vector = minerwhitelistdb.Read();
-									vector.push_back(address.ToString());
-									minerwhitelistdb.Write(vector);
-									LogPrint("MinerWhiteListTransaction", "Miner address added: %s \n", address.ToString());
-								} else {
-									vector = minerwhitelistdb.Read();
-									vector.erase(std::remove(vector.begin(), vector.end(), address.ToString()), vector.end());
-									minerwhitelistdb.Write(vector);
-									LogPrint("MinerWhiteListTransaction", "Miner address removed: %s \n", address.ToString());
+								switch(action)
+								{
+									case CMinerWhiteList::ADD_MINER:
+										vector = minerwhitelistdb.Read();
+										vector.push_back(address.ToString());
+										minerwhitelistdb.Write(vector);
+										LogPrint("MinerWhiteListTransaction", "Miner address added: %s \n", address.ToString());
+										break;
+									case CMinerWhiteList::REMOVE_MINER:
+										// will remove the address only if is not the admin.
+										if (!Params().GetConsensus().minerWhiteListAdminAddress.count(address.ToString())){
+											vector = minerwhitelistdb.Read();
+											vector.erase(std::remove(vector.begin(), vector.end(), address.ToString()), vector.end());
+											minerwhitelistdb.Write(vector);
+											LogPrint("MinerWhiteListTransaction", "Miner address removed: %s \n", address.ToString());
+										}
+										break;
+									case CMinerWhiteList::ENABLE_CAP:
+										LogPrint("MinerWhiteListTransaction", "Miner Cap enabled.\n");
+										// the last two characters of the opreturn are the factor for the cap calculation.
+										minerCap.enable(opreturn.substr(opreturn.size()-2)); //we are enabling with the factor passed.
+										break;
+									case CMinerWhiteList::DISABLE_CAP:
+										LogPrint("MinerWhiteListTransaction", "Miner Cap disabled.\n");
+										minerCap.disable();
+										break;
+									default:
+										// do nothing
+										LogPrint("MinerWhiteListTransaction", "Unrecognize action from admin.");
+										break;
 								}
 							}
 						}
@@ -2718,10 +2803,21 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 			LogPrint("Invalid coinbase transaction", "Coinbase not from an authorized miner: %s \n", cAddress.ToString());
 			return state.DoS(100, false, REJECT_INVALID, "bad-CB-miner", false, "Coinbase not authorized");
 		}
-	}
 
+		// If the cap is active, we will validate the stats
+		CMinerCap minerCap;
+		if (minerCap.isEnabled()){
+			if (isMinerCapReached(cAddress.ToString())){
+				LogPrint("Miner Cap", "Miner %s reached his cap for this period.\n", cAddress.ToString());
+				return state.DoS(100, false, REJECT_INVALID, "bad-CAP-miner", false, "Miner Cap reached.");
+			}
+		}
+	}
     return true;
 }
+
+
+
 
 enum FlushStateMode {
     FLUSH_STATE_NONE,
