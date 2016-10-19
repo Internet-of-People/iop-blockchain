@@ -91,9 +91,13 @@ Compiling from source
 First you have to grab the source code, you can just clone our GitHub repository. Assuming you work on Ubuntu and don't have git installed yet, you can have our initial release (tagged version beta-1.0.0) with:
 
 `sudo apt-get install git`
+
 `git clone https://github.com/Fermat-ORG/iop-blockchain.git`
+
 `cd iop-blockchain`
+
 `git checkout beta-1.0.0`
+
 
 Now comes the hard part, you will have to install the whole build environment which means an awful lot of tools, libraries and headers.
 
