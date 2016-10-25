@@ -2658,7 +2658,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 						// we get the OP_Return data into the string.
 						std::string opreturn = HexStr(value);
 
-						CMinerWhiteList::WhiteListAction action;
+						CMinerWhiteList::WhiteListAction action = CMinerWhiteList::NONE;
 
 						if (opreturn.compare("616464") == 0) //add
 							action = CMinerWhiteList::ADD_MINER;

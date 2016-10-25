@@ -22,7 +22,7 @@ private:
 	boost::filesystem::path pathMinerWhiteList;
 public:
 	// possible actions enum
-	enum WhiteListAction {ADD_MINER, REMOVE_MINER, ENABLE_CAP, DISABLE_CAP};
+	enum WhiteListAction {ADD_MINER, REMOVE_MINER, ENABLE_CAP, DISABLE_CAP, NONE};
 
 	CMinerWhiteList();
 	bool Write(minerwhitelist_v minerwhitelist);
