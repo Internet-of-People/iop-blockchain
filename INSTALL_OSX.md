@@ -20,7 +20,7 @@ You will need Apple's **XCode** (Command Line Tools are not sufficient). For Mac
   
   ```git checkout beta-1.0.0```
   
-  ```./autogen.sh && ./configure```
+  ```./autogen.sh && export CXXFLAGS=-std=c++11 && ./configure```
   
   ```make && make deploy```
 
