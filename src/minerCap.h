@@ -10,7 +10,7 @@
 
 #include "pubkey.h"
 #include <boost/filesystem/path.hpp>
-#include <tr1/unordered_map>
+#include <unordered_map>
 
 class CMinerCap {
 private:
