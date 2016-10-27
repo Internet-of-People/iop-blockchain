@@ -10,11 +10,11 @@
 
 #include "pubkey.h"
 #include <boost/filesystem/path.hpp>
-#include <tr1/unordered_map>
+#include <unordered_map>
 
 class CMinerCap {
 private:
-	typedef std::tr1::unordered_map <std::string, uint32_t> minerCapMap;
+	typedef std::unordered_map <std::string, uint32_t> minerCapMap;
 public:
 	CMinerCap();
 

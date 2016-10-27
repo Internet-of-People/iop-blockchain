@@ -21,7 +21,7 @@
 #include "utilstrencodings.h"
 #include "hash.h"
 
-#include <tr1/unordered_map>
+#include <unordered_map>
 #include "base58.h"
 
 #include <stdint.h>
@@ -655,7 +655,7 @@ UniValue dumpminerstats(const UniValue& params, bool fHelp){
 		minerParamater = params[0].getValStr();
 
 	UniValue result(UniValue::VOBJ);
-	typedef std::tr1::unordered_map <std::string, uint32_t> minerCapMap;
+	typedef std::unordered_map <std::string, uint32_t> minerCapMap;
 
 	CMinerCap minerCap;
 	minerCapMap minerMap;
