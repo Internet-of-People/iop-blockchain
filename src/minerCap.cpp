@@ -104,3 +104,9 @@ int CMinerCap::getMinerMultiplier(){
 	return 0;
 }
 
+int CMinerCap::getWhiteListedMiners(){
+	CMinerWhiteList minerWhiteList;
+	minerwhitelist_v minerVector = minerWhiteList.Read();
+	return (minerVector.size() -1); // removing the enable line from the size
+}
+

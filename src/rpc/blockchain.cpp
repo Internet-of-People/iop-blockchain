@@ -636,6 +636,7 @@ UniValue dumpminerstats(const UniValue& params, bool fHelp){
 			"  \"minercapenabled\" : bool,			(int) the actual status of the cap limitation.\n"
 			"  \"currentavgblocksperminer\" : n, 			(int) the current amount of blocks per miner expected.\n"
 			"  \"currentfactor\" : n,     			(int) the current multiplying factor defined by the admin.\n"
+			"  \"currentwhitelisted\" : n,     			(int) the current numbers of whitelisted miners.\n"
 			"  \"currentcap\" : n,     				(int) the current max. of blocks per miner.\n"
 			"		{\n"
 			"  		\"window\" : n	         (int) the miner Cap window starting at 1\n"
@@ -664,6 +665,7 @@ UniValue dumpminerstats(const UniValue& params, bool fHelp){
 	result.push_back(Pair("minercapenabled", minerCap.isEnabled()));
 	result.push_back(Pair("currentavgblocksperminer", minerCap.getAvgBlocksPerMiner()));
 	result.push_back(Pair("currentfactor", minerCap.getMinerMultiplier()));
+	result.push_back(Pair("currentwhitelisted", minerCap.getWhiteListedMiners()));
 	result.push_back(Pair("currentcap", minerCap.getMinerMultiplier() * minerCap.getAvgBlocksPerMiner()));
 
 	UniValue windowResult(UniValue::VOBJ);
