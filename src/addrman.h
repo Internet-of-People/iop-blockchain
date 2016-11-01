@@ -524,7 +524,7 @@ public:
             Check();
             for (std::vector<CAddress>::const_iterator it = vAddr.begin(); it != vAddr.end(); it++) {
                 nAdd += Add_(*it, source, nTimePenalty) ? 1 : 0;
-                LogPrintf(" *** DEBUG     Address manager got address: %s\n", it->ToString());
+                //LogPrintf(" *** DEBUG     Address manager got address: %s\n", it->ToString());
             }
             Check();
         }

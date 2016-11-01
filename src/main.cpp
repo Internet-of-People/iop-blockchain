@@ -2658,7 +2658,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 						// we get the OP_Return data into the string.
 						std::string opreturn = HexStr(value);
 
-						CMinerWhiteList::WhiteListAction action;
+						CMinerWhiteList::WhiteListAction action = CMinerWhiteList::NONE;
 
 						if (opreturn.compare("616464") == 0) //add
 							action = CMinerWhiteList::ADD_MINER;
@@ -5308,7 +5308,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             // Get recent addresses
             if (pfrom->fOneShot || pfrom->nVersion >= CADDR_TIME_VERSION || addrman.size() < 1000)
             {
-                LogPrintf(" *** DEBUG Requesting addresses from server\n");
+                //LogPrintf(" *** DEBUG Requesting addresses from server\n");
                 pfrom->PushMessage(NetMsgType::GETADDR);
                 pfrom->fGetAddr = true;
             }
@@ -5382,7 +5382,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         vector<CAddress> vAddr;
         vRecv >> vAddr;
 
-        LogPrintf(" *** DEBUG received %d addresses\n", vAddr.size());
+        //LogPrintf(" *** DEBUG received %d addresses\n", vAddr.size());
         
         // Don't want addr from older versions unless seeding
         if (pfrom->nVersion < CADDR_TIME_VERSION && addrman.size() > 1000)
@@ -5430,14 +5430,14 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
                     }
                     int nRelayNodes = fReachable ? 2 : 1; // limited relaying of addresses outside our network(s)
                     for (multimap<uint64_t, CNode*>::iterator mi = mapMix.begin(); mi != mapMix.end() && nRelayNodes-- > 0; ++mi) {
-                        LogPrintf(" *** DEBUG   Relaying address %s\n", addr.ToString());
+                        //LogPrintf(" *** DEBUG   Relaying address %s\n", addr.ToString());
                         ((*mi).second)->PushAddress(addr);
                     }
                 }
             }
             // Do not store addresses outside our network
             if (fReachable) {
-                LogPrintf(" *** DEBUG   storing address %s\n", addr.ToString());
+                //LogPrintf(" *** DEBUG   storing address %s\n", addr.ToString());
                 vAddrOk.push_back(addr);
             }
         }
@@ -6212,7 +6212,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
 
     else if (strCommand == NetMsgType::GETADDR)
     {
-        LogPrintf(" *** DEBUG Received \"getaddr\" request from peer=%d\n", pfrom->id);
+        //LogPrintf(" *** DEBUG Received \"getaddr\" request from peer=%d\n", pfrom->id);
         
         // This asymmetric behavior for inbound and outbound connections was introduced
         // to prevent a fingerprinting attack: an attacker can send specific fake addresses
@@ -6235,7 +6235,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         pfrom->vAddrToSend.clear();
         vector<CAddress> vAddr = addrman.GetAddr();
         BOOST_FOREACH(const CAddress &addr, vAddr) {
-            LogPrintf(" *** DEBUG   Sending address %s\n", addr.ToString());
+            //LogPrintf(" *** DEBUG   Sending address %s\n", addr.ToString());
             pfrom->PushAddress(addr);
         }
     }

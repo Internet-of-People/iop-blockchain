@@ -32,3 +32,11 @@ New functionality called Miner Cap introduced on the client.
 The miner Cap control is used to limit the amount of blocks each miner can submit to the network.
 
 * New RPC command called **dumpMinerStats** use to generate a JSON output with the amount of blocks each miner has mined since the white list control has been activated.	
+
+## version 2.0.1
+
+Small improvements:
+
+* fixed compilation warning for enum not initilized in main.cpp
+* added new information to output of dumpminerstats: currentWhitelisted miners.
+* removed tr1 prefixes from code to avoid compilation errors in OS X.

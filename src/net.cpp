@@ -382,7 +382,7 @@ CNode* ConnectNode(CAddress addrConnect, const char *pszDest, bool fCountFailure
 {
     if (pszDest == NULL) {
         if (IsLocal(addrConnect)) {
-            LogPrintf(" *** DEBUG ignore connection to local node %s\n", addrConnect.ToString());
+            //LogPrintf(" *** DEBUG ignore connection to local node %s\n", addrConnect.ToString());
             return NULL;
         }
 
