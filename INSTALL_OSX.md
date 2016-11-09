@@ -54,6 +54,8 @@ If everything goes well, you can find the disk image `IoP Core.dmg` in your Docu
 
 - Change to this location using `cd ~/GitHub/iop-token` or equivalent.
 
+- Make sure you are on the `beta` branch: `git checkout beta`
+
 - Run `./autogen.sh`
 
 - Add compiler flags via `export CXXFLAGS=-std=c++11`
