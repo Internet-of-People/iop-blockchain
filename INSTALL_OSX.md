@@ -62,7 +62,7 @@ If everything goes well, you can find the disk image `IoP Core.dmg` in your Docu
 
 - Run `./configure`
 
-- Run `make && make deploy`. You might get some warnings about deprecated functions. Ignore them. If everything goes well, you can find the disk image `IoP Core.dmg` in `~/GitHub/iop-token`. Drag this to your Applications Folder.
+- Run `make && make deploy`. You might get some warnings about deprecated functions. Ignore them. If everything goes well, you can find the disk image `IoP Core.dmg` in `~/GitHub/iop-token`. Mount it by double-clicking and drag the Application `IoP Core` onto your Applications Folder.
 
 ## Some Notes
 
