@@ -342,7 +342,7 @@ std::string HelpMessage(HelpMessageMode mode)
 #ifdef ENABLE_WALLET
     strUsage += HelpMessageOpt("-genaddr=<address>", _("Participate in mining. Mined coins will be sent to this specified address."));
     strUsage += HelpMessageOpt("-gen", _("Participate in mining. Mined coins will be sent to the whitelisted miner address."));
-    strUsage += HelpMessageOpt("-minerWhiteListAddress", _("If whitelisted, specify your address to start mining. Provided address must be whitelisted by admin."));
+    strUsage += HelpMessageOpt("-whitelistaddr=<address>", _("To properly sign mined blocks, you have to specify your whitelisted miner address that was approved by an administrator."));
 #endif
     strUsage += HelpMessageOpt("-loadblock=<file>", _("Imports blocks from external blk000??.dat file on startup"));
     strUsage += HelpMessageOpt("-maxorphantx=<n>", strprintf(_("Keep at most <n> unconnectable transactions in memory (default: %u)"), DEFAULT_MAX_ORPHAN_TRANSACTIONS));
@@ -1493,7 +1493,14 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     {
         LogPrintf("Miner enabled, initializing\n");
      
-        string whitelistAddressStr = GetArg("-minerWhiteListAddress", "");
+        // Changed option name
+        string whitelistAddressStr = GetArg("-whitelistaddr", "");
+        if ( whitelistAddressStr.empty() ) {
+            whitelistAddressStr = GetArg("-minerWhiteListAddress", "");
+            if (! whitelistAddressStr.empty() ) {
+                InitWarning("Name of option 'minerWhiteListAddress' was changed to 'whitelistaddr' to be consistent with other options, please update your config.");
+            }
+        }
         if ( whitelistAddressStr.empty() ) {
             return InitError("Mining enabled but whitelisted miner address is not specified");
         }
