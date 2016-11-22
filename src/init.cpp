@@ -77,7 +77,7 @@ UniValue generateBlocks(boost::shared_ptr<CReserveScript> coinbaseScript,
 
 #include "base58.h" // To access class CIoPAddress to handle the mining target address parameter
 void MinerThread(boost::shared_ptr<CReserveScript> coinbaseScript,
-    const string &whitelistAddress);
+    const string &whitelistAddress, const CIoPAddress &minerAddress);
 
 
 
@@ -1497,6 +1497,12 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
         if ( whitelistAddressStr.empty() ) {
             return InitError("Mining enabled but whitelisted miner address is not specified");
         }
+        
+        // minerWhiteListAddress must be a valid address on this network.
+        CIoPAddress whitelistAddress = CIoPAddress(whitelistAddressStr);
+        if ( ! whitelistAddress.IsValid() ){
+            return InitError("Invalid whitelisted miner address: " + whitelistAddressStr);
+        }
 
         // Use whitelisted address for mining if only "-gen=1" is given instead of "-genaddr=xxx"
         string mineToAddressStr = GetArg("-genaddr", "");
@@ -1513,7 +1519,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
             boost::shared_ptr<CReserveScript> coinbaseScript( new CReserveScript() );
             coinbaseScript->reserveScript = GetScriptForDestination( mineToAddress.Get() );
             
-            threadGroup.create_thread(boost::bind(&MinerThread, coinbaseScript, whitelistAddressStr));
+            threadGroup.create_thread(boost::bind(&MinerThread, coinbaseScript, whitelistAddressStr, mineToAddress));
         }
     }
 #endif
@@ -1522,51 +1528,39 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 }
 
 void MinerThread( boost::shared_ptr<CReserveScript> coinbaseScript,
-                  const string &whitelistAddress )
+                  const string &whitelistAddress, const CIoPAddress &minerAddress )
 {
-    // we get the provided address from the miner white list parameter, if any.
-    std::string strprivKey;
+    // TODO
+    // we must wait for the wallet to be unlocked in order to get the private key
+    while (IsWalletLocked()) {
+        // TODO this calls "ThreadSafeMessageBox", but still segfaults from this separate thread.
+        // InitWarning("Wallet is locked");
+        LogPrintf("Wallet is locked, waiting pass phrase to pass private key to miner.\n");
+        MilliSleep(10000);
+    }
 
-    if (!whitelistAddress.empty()){
-        // minerWhiteListAddress must be a valid address on this network.
-        CIoPAddress minerAddress = CIoPAddress(whitelistAddress);
-        if (!minerAddress.IsValid()){
-            LogPrintf("Provided minerWhiteListAddress is not valid in current network.\n");
-            throw std::runtime_error("Provided minerWhiteListAddress is not valid in current network.");
-            return;
-        }
+    CKeyID keyID;
+    if (!minerAddress.GetKeyID(keyID)){
+        LogPrintf("Provided minerWhiteListAddress does not refer to a key.\n");
+        throw std::runtime_error("Provided minerWhiteListAddress does not refer to a key.");
+        return;
+    }
 
-        // we must wait for the wallet to be unlocked in order to get the private key
-        while (IsWalletLocked()){
-            LogPrintf("Wallet is locked, waiting pass phrase to pass private key to miner.\n");
-            MilliSleep(10000);
-        }
+    CKey vchSecret;
+    if (!pwalletMain->GetKey(keyID, vchSecret)){
+        LogPrintf("Private key for %s is not known.\n", whitelistAddress.c_str());
+        throw std::runtime_error("Private key is not known.");
+        return;
+    }
 
-        CKeyID keyID;
-        if (!minerAddress.GetKeyID(keyID)){
-            LogPrintf("Provided minerWhiteListAddress does not refer to a key.\n");
-            throw std::runtime_error("Provided minerWhiteListAddress does not refer to a key.");
-            return;
-        }
-
-
-        CKey vchSecret;
-        if (!pwalletMain->GetKey(keyID, vchSecret)){
-            LogPrintf("Private key for %s is not known.\n", whitelistAddress.c_str());
-            throw std::runtime_error("Private key is not known.");
-            return;
-        }
-
-
-        strprivKey = CIoPSecret(vchSecret).ToString();
-
-        if (strprivKey.empty()){
-            LogPrintf("Couldn't get private key for specified white list address.\n");
-            throw std::runtime_error("Couldn't get private key for specified white list address");
-            return;
-        }
-	}
-
+    string privateKeyStr = CIoPSecret(vchSecret).ToString();
+    if (privateKeyStr.empty()){
+        LogPrintf("Couldn't get private key for specified white list address.\n");
+        throw std::runtime_error("Couldn't get private key for specified white list address");
+        return;
+    }
+    
+    
     // Mine forever (until shutdown)
     while (!fRequestShutdown) {
         try {
@@ -1581,7 +1575,7 @@ void MinerThread( boost::shared_ptr<CReserveScript> coinbaseScript,
 
 
             LogPrintf("Start mining block\n");
-            UniValue result = generateBlocks(coinbaseScript, 1, UINT64_MAX, true, strprivKey);
+            UniValue result = generateBlocks(coinbaseScript, 1, UINT64_MAX, true, privateKeyStr);
             if (result.empty()) {
                 LogPrintf("Finished mining attempt with no success\n");
             } else {
