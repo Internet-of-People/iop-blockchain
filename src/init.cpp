@@ -340,9 +340,9 @@ std::string HelpMessage(HelpMessageMode mode)
     if (showDebug)
         strUsage += HelpMessageOpt("-feefilter", strprintf("Tell other nodes to filter invs to us by our mempool min fee (default: %u)", DEFAULT_FEEFILTER));
 #ifdef ENABLE_WALLET
-    strUsage += HelpMessageOpt("-genaddr=<address>", _("Participate in mining. Mined coins will be sent to this specified address."));
-    strUsage += HelpMessageOpt("-gen", _("Participate in mining. Mined coins will be sent to the whitelisted miner address."));
-    strUsage += HelpMessageOpt("-whitelistaddr=<address>", _("To properly sign mined blocks, you have to specify your whitelisted miner address that was approved by an administrator."));
+    strUsage += HelpMessageOpt("-mine", _("Enable running the coin miner."));
+    strUsage += HelpMessageOpt("-minewhitelistaddr=<address>", _("To sign mined blocks you have to specify a whitelisted miner address approved by an admin. By default, mined coins will also be sent to this whitelisted address."));
+    strUsage += HelpMessageOpt("-minetoaddr=<address>", _("Send mined coins to this specified address instead of the default whitelisted address."));
 #endif
     strUsage += HelpMessageOpt("-loadblock=<file>", _("Imports blocks from external blk000??.dat file on startup"));
     strUsage += HelpMessageOpt("-maxorphantx=<n>", strprintf(_("Keep at most <n> unconnectable transactions in memory (default: %u)"), DEFAULT_MAX_ORPHAN_TRANSACTIONS));
@@ -1487,22 +1487,20 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     }
 #endif
 
-    #ifdef ENABLE_WALLET
-    bool miningEnabled = mapArgs.count("-gen") || mapArgs.count("-genaddr");
-    if (miningEnabled)
+#ifdef ENABLE_WALLET
+    if ( mapArgs.count("-gen") || mapArgs.count("-genaddr") || mapArgs.count("-minerWhiteListAddress") )
+    {
+        return InitError("Name of mining options were changed to clarify their meaning, please update your configuration accordingly.\n"
+                         "Change 'gen' to 'mine', 'minerWhiteListAddress' to 'minewhitelistaddr' and 'genaddr' to 'minetoaddr'");
+    }
+    if ( GetBoolArg("-mine", false) )
     {
         LogPrintf("Miner enabled, initializing\n");
      
         // Changed option name
-        string whitelistAddressStr = GetArg("-whitelistaddr", "");
+        string whitelistAddressStr = GetArg("-minewhitelistaddr", "");
         if ( whitelistAddressStr.empty() ) {
-            whitelistAddressStr = GetArg("-minerWhiteListAddress", "");
-            if (! whitelistAddressStr.empty() ) {
-                InitWarning("Name of option 'minerWhiteListAddress' was changed to 'whitelistaddr' to be consistent with other options, please update your config.");
-            }
-        }
-        if ( whitelistAddressStr.empty() ) {
-            return InitError("Mining enabled but whitelisted miner address is not specified");
+            return InitError("Mining was enabled but whitelisted miner address is not specified");
         }
         
         // minerWhiteListAddress must be a valid address on this network.
@@ -1512,7 +1510,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
         }
 
         // Use whitelisted address for mining if only "-gen=1" is given instead of "-genaddr=xxx"
-        string mineToAddressStr = GetArg("-genaddr", "");
+        string mineToAddressStr = GetArg("-minetoaddr", "");
         if ( mineToAddressStr.empty() ) {
             mineToAddressStr = whitelistAddressStr;
         }
@@ -1522,6 +1520,12 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
             return InitError("Invalid address to store mining results: " + mineToAddressStr);
         }
 
+        if ( IsWalletLocked() ) {
+            InitWarning("Wallet is locked. Mining cannot start until you unlock it.\n"
+                        "E.g. you can release in menu option Help/Debug Window, tab Console by issuing command:'n"
+                        "walletpassphrase your_password_here 1000");
+        }
+        
         if (! fRequestShutdown) {
             boost::shared_ptr<CReserveScript> coinbaseScript( new CReserveScript() );
             coinbaseScript->reserveScript = GetScriptForDestination( mineToAddress.Get() );
@@ -1537,7 +1541,6 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 void MinerThread( boost::shared_ptr<CReserveScript> coinbaseScript,
                   const string &whitelistAddress, const CIoPAddress &minerAddress )
 {
-    // TODO
     // we must wait for the wallet to be unlocked in order to get the private key
     while (IsWalletLocked()) {
         // TODO this calls "ThreadSafeMessageBox", but still segfaults from this separate thread.
