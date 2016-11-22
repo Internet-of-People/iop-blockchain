@@ -1489,8 +1489,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
         
         CIoPAddress address(mineToAddressStr);
         if (!address.IsValid()) {
-            cerr << "ERROR: Invalid address to store mining results, check address specified for option -genaddr" << endl;
-            StartShutdown();
+            return InitError("Invalid address to store mining results, check address specified for option -genaddr");
         }
 
         if (! fRequestShutdown) {
@@ -1508,12 +1507,10 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
         GetMainSignals().ScriptForMining(coinbaseScript);
         
         if (!coinbaseScript) {
-            cerr << "ERROR: Keypool ran out, please call keypoolrefill first" << endl;
-            StartShutdown();
+            return InitError("ERROR: Keypool ran out, please call keypoolrefill first");
         }
         else if (coinbaseScript->reserveScript.empty()) {
-            cerr << "ERROR: No coinbase script available (mining requires a wallet)" << endl;
-            StartShutdown();
+            return InitError("ERROR: No coinbase script available (mining requires a wallet)");
         }
         
         if (! fRequestShutdown) {
@@ -1527,61 +1524,61 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 
 void MinerThread(boost::shared_ptr<CReserveScript> coinbaseScript)
 {
-	// we get the provided address from the miner white list parameter, if any.
-	const std::string strMinerAddress = GetArg("-minerWhiteListAddress", "");
-	std::string strprivKey;
+    // we get the provided address from the miner white list parameter, if any.
+    const std::string strMinerAddress = GetArg("-minerWhiteListAddress", "");
+    std::string strprivKey;
 
-	if (!strMinerAddress.empty()){
-		// minerWhiteListAddress must be a valid address on this network.
-		CIoPAddress minerAddress = CIoPAddress(strMinerAddress);
-		if (!minerAddress.IsValid()){
-			LogPrintf("Provided minerWhiteListAddress is not valid in current network.\n");
-			throw std::runtime_error("Provided minerWhiteListAddress is not valid in current network.");
-			return;
-		}
+    if (!strMinerAddress.empty()){
+        // minerWhiteListAddress must be a valid address on this network.
+        CIoPAddress minerAddress = CIoPAddress(strMinerAddress);
+        if (!minerAddress.IsValid()){
+            LogPrintf("Provided minerWhiteListAddress is not valid in current network.\n");
+            throw std::runtime_error("Provided minerWhiteListAddress is not valid in current network.");
+            return;
+        }
 
-		// we must wait for the wallet to be unlocked in order to get the private key
-		while (IsWalletLocked()){
-			LogPrintf("Wallet is locked, waiting pass phrase to pass private key to miner.\n");
-			MilliSleep(10000);
-		}
+        // we must wait for the wallet to be unlocked in order to get the private key
+        while (IsWalletLocked()){
+            LogPrintf("Wallet is locked, waiting pass phrase to pass private key to miner.\n");
+            MilliSleep(10000);
+        }
 
-		CKeyID keyID;
-		if (!minerAddress.GetKeyID(keyID)){
-			LogPrintf("Provided minerWhiteListAddress does not refer to a key.\n");
-			throw std::runtime_error("Provided minerWhiteListAddress does not refer to a key.");
-			return;
-		}
-
-
-		CKey vchSecret;
-		    if (!pwalletMain->GetKey(keyID, vchSecret)){
-		    	LogPrintf("Private key for %s is not known.\n", strMinerAddress);
-		    	throw std::runtime_error("Private key is not known.");
-		    	return;
-		    }
+        CKeyID keyID;
+        if (!minerAddress.GetKeyID(keyID)){
+            LogPrintf("Provided minerWhiteListAddress does not refer to a key.\n");
+            throw std::runtime_error("Provided minerWhiteListAddress does not refer to a key.");
+            return;
+        }
 
 
-		    strprivKey = CIoPSecret(vchSecret).ToString();
+        CKey vchSecret;
+        if (!pwalletMain->GetKey(keyID, vchSecret)){
+            LogPrintf("Private key for %s is not known.\n", strMinerAddress);
+            throw std::runtime_error("Private key is not known.");
+            return;
+        }
 
-		if (strprivKey.empty()){
-			LogPrintf("Couldn't get private key for specified white list address.\n");
-			throw std::runtime_error("Couldn't get private key for specified white list address");
-			return;
-		}
+
+        strprivKey = CIoPSecret(vchSecret).ToString();
+
+        if (strprivKey.empty()){
+            LogPrintf("Couldn't get private key for specified white list address.\n");
+            throw std::runtime_error("Couldn't get private key for specified white list address");
+            return;
+        }
 	}
 
     // Mine forever (until shutdown)
     while (!fRequestShutdown) {
         try {
-        	/* before we start mining, let's make sure we witing the cap if the Miner Cap is enabled */
-        	CMinerCap minerCap;
-        	if (minerCap.isEnabled()){
-        		while (isMinerCapReached(strMinerAddress)){
-					LogPrintf("Miner cap reached. Waiting a minute to retry...\n");
-					MilliSleep(1000 * 60);
-				}
-        	}
+            /* before we start mining, let's make sure we witing the cap if the Miner Cap is enabled */
+            CMinerCap minerCap;
+            if (minerCap.isEnabled()){
+                while (isMinerCapReached(strMinerAddress)){
+                    LogPrintf("Miner cap reached. Waiting a minute to retry...\n");
+                    MilliSleep(1000 * 60);
+                }
+            }
 
 
             LogPrintf("Start mining block\n");
