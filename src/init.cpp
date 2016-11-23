@@ -66,16 +66,20 @@
 #endif
 
 
+using namespace std;
+
+
+
 // NOTE this is a hack to access parts of the RPC miner code from here
 #include <univalue.h> // To declare the following function signature from rpc/mining.cpp
-UniValue generateBlocks(boost::shared_ptr<CReserveScript> coinbaseScript, int nGenerate, uint64_t nMaxTries, bool keepScript, std::string whiteListPrivKey);
+UniValue generateBlocks(boost::shared_ptr<CReserveScript> coinbaseScript,
+    int nGenerate, uint64_t nMaxTries, bool keepScript, const string &whiteListPrivKey);
 
 #include "base58.h" // To access class CIoPAddress to handle the mining target address parameter
-void MinerThread(boost::shared_ptr<CReserveScript> coinbaseScript);
+void MinerThread(boost::shared_ptr<CReserveScript> coinbaseScript,
+    const string &whitelistAddress, const CIoPAddress &minerAddress);
 
 
-
-using namespace std;
 
 bool fFeeEstimatesInitialized = false;
 static const bool DEFAULT_PROXYRANDOMIZE = true;
@@ -336,10 +340,10 @@ std::string HelpMessage(HelpMessageMode mode)
     if (showDebug)
         strUsage += HelpMessageOpt("-feefilter", strprintf("Tell other nodes to filter invs to us by our mempool min fee (default: %u)", DEFAULT_FEEFILTER));
 #ifdef ENABLE_WALLET
-    strUsage += HelpMessageOpt("-gen", _("Participate in mining. Coins will be stored into a newly generated address for every successfully mined block."));
-    strUsage += HelpMessageOpt("-minerWhiteListAddress", _("If whitelisted, specify your address to start mining. Provided address must be whitelisted by admin."));
+    strUsage += HelpMessageOpt("-mine", _("Enable running the coin miner."));
+    strUsage += HelpMessageOpt("-minewhitelistaddr=<address>", _("To sign mined blocks you have to specify a whitelisted miner address approved by an admin. By default, mined coins will also be sent to this whitelisted address."));
+    strUsage += HelpMessageOpt("-minetoaddr=<address>", _("Send mined coins to this specified address instead of the default whitelisted address."));
 #endif
-    strUsage += HelpMessageOpt("-genaddr=<address>", _("Participate in mining. Value must be a valid address to store mined coins into."));
     strUsage += HelpMessageOpt("-loadblock=<file>", _("Imports blocks from external blk000??.dat file on startup"));
     strUsage += HelpMessageOpt("-maxorphantx=<n>", strprintf(_("Keep at most <n> unconnectable transactions in memory (default: %u)"), DEFAULT_MAX_ORPHAN_TRANSACTIONS));
     strUsage += HelpMessageOpt("-maxmempool=<n>", strprintf(_("Keep the transaction memory pool below <n> megabytes (default: %u)"), DEFAULT_MAX_MEMPOOL_SIZE));
@@ -1483,41 +1487,50 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     }
 #endif
 
-    string mineToAddressStr = GetArg("-genaddr", "");
-    if (! mineToAddressStr.empty()) {
+#ifdef ENABLE_WALLET
+    if ( mapArgs.count("-gen") || mapArgs.count("-genaddr") || mapArgs.count("-minerWhiteListAddress") )
+    {
+        return InitError("Name of mining options were changed to clarify their meaning, please update your configuration accordingly.\n"
+                         "Change 'gen' to 'mine', 'minerWhiteListAddress' to 'minewhitelistaddr' and 'genaddr' to 'minetoaddr'");
+    }
+    if ( GetBoolArg("-mine", false) )
+    {
         LogPrintf("Miner enabled, initializing\n");
+     
+        // Changed option name
+        string whitelistAddressStr = GetArg("-minewhitelistaddr", "");
+        if ( whitelistAddressStr.empty() ) {
+            return InitError("Mining was enabled but whitelisted miner address is not specified");
+        }
         
-        CIoPAddress address(mineToAddressStr);
-        if (!address.IsValid()) {
-            cerr << "ERROR: Invalid address to store mining results, check address specified for option -genaddr" << endl;
-            StartShutdown();
+        // minerWhiteListAddress must be a valid address on this network.
+        CIoPAddress whitelistAddress = CIoPAddress(whitelistAddressStr);
+        if ( ! whitelistAddress.IsValid() ){
+            return InitError("Invalid whitelisted miner address: " + whitelistAddressStr);
         }
 
+        // Use whitelisted address for mining if only "-gen=1" is given instead of "-genaddr=xxx"
+        string mineToAddressStr = GetArg("-minetoaddr", "");
+        if ( mineToAddressStr.empty() ) {
+            mineToAddressStr = whitelistAddressStr;
+        }
+        
+        CIoPAddress mineToAddress(mineToAddressStr);
+        if ( ! mineToAddress.IsValid() ) {
+            return InitError("Invalid address to store mining results: " + mineToAddressStr);
+        }
+
+        if ( IsWalletLocked() ) {
+            InitWarning("Wallet is locked. Mining cannot start until you unlock it.\n"
+                        "E.g. you can release in menu option Help/Debug Window, tab Console by issuing command:\n"
+                        "walletpassphrase your_password_here 100");
+        }
+        
         if (! fRequestShutdown) {
-            boost::shared_ptr<CReserveScript> coinbaseScript(new CReserveScript());
-            coinbaseScript->reserveScript = GetScriptForDestination(address.Get());
+            boost::shared_ptr<CReserveScript> coinbaseScript( new CReserveScript() );
+            coinbaseScript->reserveScript = GetScriptForDestination( mineToAddress.Get() );
             
-            threadGroup.create_thread(boost::bind(&MinerThread, coinbaseScript));
-        }
-    }
-#ifdef ENABLE_WALLET
-    else if (GetBoolArg("-gen", false)) {
-        LogPrintf("Miner enabled, initializing\n");
-        
-        boost::shared_ptr<CReserveScript> coinbaseScript;
-        GetMainSignals().ScriptForMining(coinbaseScript);
-        
-        if (!coinbaseScript) {
-            cerr << "ERROR: Keypool ran out, please call keypoolrefill first" << endl;
-            StartShutdown();
-        }
-        else if (coinbaseScript->reserveScript.empty()) {
-            cerr << "ERROR: No coinbase script available (mining requires a wallet)" << endl;
-            StartShutdown();
-        }
-        
-        if (! fRequestShutdown) {
-            threadGroup.create_thread(boost::bind(&MinerThread, coinbaseScript));
+            threadGroup.create_thread(boost::bind(&MinerThread, coinbaseScript, whitelistAddressStr, mineToAddress));
         }
     }
 #endif
@@ -1525,67 +1538,50 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     return !fRequestShutdown;
 }
 
-void MinerThread(boost::shared_ptr<CReserveScript> coinbaseScript)
+void MinerThread( boost::shared_ptr<CReserveScript> coinbaseScript,
+                  const string &whitelistAddress, const CIoPAddress &minerAddress )
 {
-	// we get the provided address from the miner white list parameter, if any.
-	const std::string strMinerAddress = GetArg("-minerWhiteListAddress", "");
-	std::string strprivKey;
+    // we must wait for the wallet to be unlocked in order to get the private key
+    while (IsWalletLocked()) {
+        // TODO this calls "ThreadSafeMessageBox", but still segfaults from this separate thread.
+        // InitWarning("Wallet is locked");
+        LogPrintf("Wallet is locked, waiting pass phrase to pass private key to miner.\n");
+        MilliSleep(10000);
+    }
 
-	if (!strMinerAddress.empty()){
-		// minerWhiteListAddress must be a valid address on this network.
-		CIoPAddress minerAddress = CIoPAddress(strMinerAddress);
-		if (!minerAddress.IsValid()){
-			LogPrintf("Provided minerWhiteListAddress is not valid in current network.\n");
-			throw std::runtime_error("Provided minerWhiteListAddress is not valid in current network.");
-			return;
-		}
+    CKeyID keyID;
+    if (!minerAddress.GetKeyID(keyID)){
+        LogPrintf("Provided minerWhiteListAddress does not refer to a key.\n");
+        return;
+    }
 
-		// we must wait for the wallet to be unlocked in order to get the private key
-		while (IsWalletLocked()){
-			LogPrintf("Wallet is locked, waiting pass phrase to pass private key to miner.\n");
-			MilliSleep(10000);
-		}
+    CKey vchSecret;
+    if (!pwalletMain->GetKey(keyID, vchSecret)){
+        LogPrintf("Private key for %s is not known.\n", whitelistAddress.c_str());
+        return;
+    }
 
-		CKeyID keyID;
-		if (!minerAddress.GetKeyID(keyID)){
-			LogPrintf("Provided minerWhiteListAddress does not refer to a key.\n");
-			throw std::runtime_error("Provided minerWhiteListAddress does not refer to a key.");
-			return;
-		}
-
-
-		CKey vchSecret;
-		    if (!pwalletMain->GetKey(keyID, vchSecret)){
-		    	LogPrintf("Private key for %s is not known.\n", strMinerAddress);
-		    	throw std::runtime_error("Private key is not known.");
-		    	return;
-		    }
-
-
-		    strprivKey = CIoPSecret(vchSecret).ToString();
-
-		if (strprivKey.empty()){
-			LogPrintf("Couldn't get private key for specified white list address.\n");
-			throw std::runtime_error("Couldn't get private key for specified white list address");
-			return;
-		}
-	}
-
+    string privateKeyStr = CIoPSecret(vchSecret).ToString();
+    if (privateKeyStr.empty()){
+        LogPrintf("Couldn't get private key for specified white list address.\n");
+        return;
+    }
+    
+    
     // Mine forever (until shutdown)
     while (!fRequestShutdown) {
         try {
-        	/* before we start mining, let's make sure we witing the cap if the Miner Cap is enabled */
-        	CMinerCap minerCap;
-        	if (minerCap.isEnabled()){
-        		while (isMinerCapReached(strMinerAddress)){
-					LogPrintf("Miner cap reached. Waiting a minute to retry...\n");
-					MilliSleep(1000 * 60);
-				}
-        	}
-
+            /* before we start mining, let's make sure we witing the cap if the Miner Cap is enabled */
+            CMinerCap minerCap;
+            if (minerCap.isEnabled()){
+                while (isMinerCapReached(whitelistAddress)){
+                    LogPrintf("Miner cap reached. Waiting a minute to retry...\n");
+                    MilliSleep(1000 * 60);
+                }
+            }
 
             LogPrintf("Start mining block\n");
-            UniValue result = generateBlocks(coinbaseScript, 1, UINT64_MAX, true, strprivKey);
+            UniValue result = generateBlocks(coinbaseScript, 1, UINT64_MAX, true, privateKeyStr);
             if (result.empty()) {
                 LogPrintf("Finished mining attempt with no success\n");
             } else {
