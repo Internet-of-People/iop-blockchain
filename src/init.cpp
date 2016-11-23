@@ -1552,21 +1552,18 @@ void MinerThread( boost::shared_ptr<CReserveScript> coinbaseScript,
     CKeyID keyID;
     if (!minerAddress.GetKeyID(keyID)){
         LogPrintf("Provided minerWhiteListAddress does not refer to a key.\n");
-        throw std::runtime_error("Provided minerWhiteListAddress does not refer to a key.");
         return;
     }
 
     CKey vchSecret;
     if (!pwalletMain->GetKey(keyID, vchSecret)){
         LogPrintf("Private key for %s is not known.\n", whitelistAddress.c_str());
-        throw std::runtime_error("Private key is not known.");
         return;
     }
 
     string privateKeyStr = CIoPSecret(vchSecret).ToString();
     if (privateKeyStr.empty()){
         LogPrintf("Couldn't get private key for specified white list address.\n");
-        throw std::runtime_error("Couldn't get private key for specified white list address");
         return;
     }
     
@@ -1582,7 +1579,6 @@ void MinerThread( boost::shared_ptr<CReserveScript> coinbaseScript,
                     MilliSleep(1000 * 60);
                 }
             }
-
 
             LogPrintf("Start mining block\n");
             UniValue result = generateBlocks(coinbaseScript, 1, UINT64_MAX, true, privateKeyStr);
