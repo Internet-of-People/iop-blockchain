@@ -1522,8 +1522,8 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 
         if ( IsWalletLocked() ) {
             InitWarning("Wallet is locked. Mining cannot start until you unlock it.\n"
-                        "E.g. you can release in menu option Help/Debug Window, tab Console by issuing command:'n"
-                        "walletpassphrase your_password_here 1000");
+                        "E.g. you can release in menu option Help/Debug Window, tab Console by issuing command:\n"
+                        "walletpassphrase your_password_here 100");
         }
         
         if (! fRequestShutdown) {

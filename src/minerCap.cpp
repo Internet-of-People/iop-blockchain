@@ -41,6 +41,11 @@ std::string HexText(const std::string in){
 void CMinerCap::enable(std::string factor){
 	CMinerWhiteList minerWhiteList;
 	minerwhitelist_v minerVector = minerWhiteList.Read();
+    
+    // Remove factor entries from vector if any exist already
+    minerVector.erase( std::remove_if( minerVector.begin(), minerVector.end(),
+        [](const std::string &entry) { return entry.find(ENABLED) == 0; } ) );
+    
 	std::string enabled = ENABLED + HexText(factor);
 	minerVector.push_back(enabled);
 
@@ -52,9 +57,10 @@ void CMinerCap::disable(){
 	CMinerWhiteList minerWhiteList;
 	minerwhitelist_v minerVector = minerWhiteList.Read();
 
-	std::string enabled = ENABLED + std::to_string(getMinerMultiplier());
-	minerVector.erase(std::remove(minerVector.begin(), minerVector.end(), enabled), minerVector.end());
-
+    // Remove factor entries from vector if any exist already
+    minerVector.erase( std::remove_if( minerVector.begin(), minerVector.end(),
+        [](const std::string &entry) { return entry.find(ENABLED) == 0; } ) );
+    
 	minerWhiteList.Write(minerVector);
 }
 
@@ -98,10 +104,12 @@ int CMinerCap::getMinerMultiplier(){
 		boost::split(strs, *it, boost::is_any_of(":"));
 		// I have found the enable:n string
 		if (strs.size() > 1){
-			return  atoi(strs[1].c_str());
+			int result = atoi(strs[1].c_str());
+            if (result > 0)
+                { return result; }
 		}
 	}
-	return 0;
+	return INT_MAX;
 }
 
 int CMinerCap::getWhiteListedMiners(){
