@@ -42,7 +42,7 @@ void CMinerCap::enable(std::string factor){
 	CMinerWhiteList minerWhiteList;
 	minerwhitelist_v minerVector = minerWhiteList.Read();
     
-    // Remove factor entries from vector if any exist already
+    // Remove cap entries from vector if any exist already
     minerVector.erase( std::remove_if( minerVector.begin(), minerVector.end(),
         [](const std::string &entry) { return entry.find(ENABLED) == 0; } ) );
     
@@ -57,7 +57,7 @@ void CMinerCap::disable(){
 	CMinerWhiteList minerWhiteList;
 	minerwhitelist_v minerVector = minerWhiteList.Read();
 
-    // Remove factor entries from vector if any exist already
+    // Remove cap entries from vector if any exist already
     minerVector.erase( std::remove_if( minerVector.begin(), minerVector.end(),
         [](const std::string &entry) { return entry.find(ENABLED) == 0; } ) );
     
@@ -68,9 +68,8 @@ void CMinerCap::disable(){
 bool CMinerCap::isEnabled(){
 	CMinerWhiteList minerWhiteList;
 	minerwhitelist_v minerVector = minerWhiteList.Read();
-
-	std::string enabled = ENABLED + std::to_string(getMinerMultiplier());
-	return (std::find(minerVector.begin(), minerVector.end(), enabled) != minerVector.end());
+	return ( std::find_if( minerVector.begin(), minerVector.end(),
+	    [](const std::string &entry) { return entry.find(ENABLED) == 0; } ) != minerVector.end() );
 }
 
 // gets the average blocks per miner (2016 / amount of miners)
@@ -109,7 +108,8 @@ int CMinerCap::getMinerMultiplier(){
                 { return result; }
 		}
 	}
-	return INT_MAX;
+	// return a reasonable value to avoid both int overflows and unnecessary caps
+	return 2016;
 }
 
 int CMinerCap::getWhiteListedMiners(){
