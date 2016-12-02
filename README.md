@@ -82,6 +82,6 @@ Translators should also subscribe to the [mailing list](https://groups.google.co
 
 # Installing
 
-Please read the [installation](INSTALL.txt) Document.
+Please read the [installation](INSTALL.md) Document.
 
 
