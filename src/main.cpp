@@ -47,6 +47,9 @@
 #include <script/interpreter.cpp>
 #include "uint256.h"
 
+/* IoP Voting System */
+#include <votingSystem.h>
+
 
 #include <atomic>
 #include <sstream>
@@ -1704,6 +1707,41 @@ bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex, const Consensus
     return true;
 }
 
+
+/* Voting System gets the beneficiaries addresses and amounts for coinbase creation at miner */
+map<CIoPAddress,CAmount> getCCBeneficiaries()
+{
+	map<CIoPAddress,CAmount> mbb;
+
+	std::vector<ContributionContract> vcc;
+	ContributionContract::getActiveContracts(chainActive.Height(), vcc);
+
+	BOOST_FOREACH(ContributionContract cc, vcc){
+		BOOST_FOREACH(CCBeneficiary ccb, cc.beneficiaries){
+			mbb.insert(std::pair<CIoPAddress,CAmount>(ccb.getAddress(), ccb.getAmount()));
+		}
+	}
+
+
+	return mbb;
+}
+
+
+/**
+ * Gets the active Contribution Contracts lists and the sumatory of rewards for each contract
+ */
+CAmount getCCSubsidy(int nHeight){
+	CAmount subsidy = 0;
+	std::vector<ContributionContract> vcc;
+	ContributionContract::getActiveContracts(nHeight, vcc);
+
+	BOOST_FOREACH(ContributionContract cc, vcc){
+		subsidy = subsidy + cc.blockReward;
+	}
+
+	return subsidy;
+}
+
 CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 {
 	/* IoP Change - since we are premining 42000 blocks, we are taking this into account for the halving calculation */
@@ -1723,6 +1761,7 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 
     // Subsidy is cut in half every 210,000 blocks which will occur approximately every 4 years.
     nSubsidy >>= halvings;
+
     return nSubsidy;
 }
 
@@ -2564,12 +2603,20 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 // NOTE removed to avoid spamming the console while mining
 //    LogPrint("bench", "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs]\n", (unsigned)block.vtx.size(), 0.001 * (nTime3 - nTime2), 0.001 * (nTime3 - nTime2) / block.vtx.size(), nInputs <= 1 ? 0 : 0.001 * (nTime3 - nTime2) / (nInputs-1), nTimeConnect * 0.000001);
 
-    CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus());
+    /* Voting System blockreward might include subsidy from Contribution Contracts */
+    CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus()) + getCCSubsidy(pindex->nHeight);
     if (block.vtx[0].GetValueOut() > blockReward)
         return state.DoS(100,
                          error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
                                block.vtx[0].GetValueOut(), blockReward),
                                REJECT_INVALID, "bad-cb-amount");
+
+    /* IoP Voting System - we added this control to make sure the coinbase includes actives CC payments */
+    if (block.vtx[0].GetValueOut() < blockReward)
+            return state.DoS(100,
+                             error("ConnectBlock(): coinbase pays too less (actual=%d vs limit=%d)",
+                                   block.vtx[0].GetValueOut(), blockReward),
+                                   REJECT_INVALID, "bad-cb-amount");
 
     if (!control.Wait())
         return state.DoS(100, false);
@@ -2726,6 +2773,81 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 			}
 		}
 	}
+
+    /**
+     * IoP Voting System.
+     * Searchs for a contribution contract transaction in all non-coinbase transactions of the block
+     * If we found one and is valid, we will store it.
+     */
+    LogPrint("VotingSystem", "Voting system validation started...\n");
+    BOOST_FOREACH(const CTransaction& tx, block.vtx) {
+    	if (!tx.IsCoinBase()){
+    		BOOST_FOREACH(const CTxOut& out, tx.vout) {
+				if (ContributionContract::isContributionContract(out.scriptPubKey)){
+					ContributionContract cc;
+					if (ContributionContract::getContributionContract(tx, cc)){
+						if (cc.isValid()){
+								// we found a valid contribution contract, lets persist it.
+								cc.persist(chainActive.Height() + 1, tx.GetHash());
+								LogPrint("VotingSystem", "Contract Proposal detected and stored: %s\n", cc.ToString());
+						} else
+							LogPrint("VotingSystem", "Contract Proposal detected but is not valid: %s\n", cc.ToString());
+					}
+				}
+			}
+    	}
+    }
+
+
+    /**
+     * IoP Voting System
+     * For each active Contribution Contract we get the amount of Coins that are being sent to the benefitiaries.
+     * The Coinbase transaction must send that total to the benefitiaries of the contract, plus the miner coin-
+     */
+    CTransaction cb = CTransaction(block.vtx[0]);
+    // for each Active Contribution Contract
+    std::vector<ContributionContract> vcc;
+    ContributionContract::getActiveContracts(chainActive.Height(), vcc);
+
+    BOOST_FOREACH(ContributionContract cc, vcc) {
+    	// For each beneficiary of the contract
+    	if (cc.isValid()){
+
+    		// we must found for each beneficiary of the Contribution contract, an output that send the coins to the right address
+    		BOOST_FOREACH(CCBeneficiary beneficiary, cc.beneficiaries){
+    			CIoPAddress benAddress = beneficiary.getAddress();
+				CAmount benAmount = beneficiary.getAmount();
+				bool addressExists = false;
+
+				// we search for an output that sends the contract reward to the beneficiary
+				BOOST_FOREACH(const CTxOut& out, cb.vout){
+					CScript redeemScript = out.scriptPubKey;
+					CTxDestination destinationAddress;
+					ExtractDestination(redeemScript, destinationAddress);
+					CIoPAddress address(destinationAddress);
+
+					if (address.CompareTo(benAddress) == 0 && out.nValue == benAmount )
+						addressExists = true; // we find it!
+				}
+
+				// we didn't find it. Is not a valid CB.
+				if (addressExists == false){
+					LogPrint("Invalid coinbase transaction", "CB don't pay to Contribution Contract: %s \n%s\n", cc.ToString(), cb.ToString());
+					return state.DoS(100, false, REJECT_INVALID, "bad-CB-CC", false, "Coinbase invalid payment");
+				}
+    		}
+
+    	}
+    }
+
+
+
+    /**
+     * IoP Voting System.
+     * If we have open contribution contracts, we must validate the coinbase is distributing the IoPs to the contract before accepting it.
+     */
+    //active contracts
+     //get coinbase and validate is ok.
 
     // Erase orphan transactions include or precluded by this block
     if (vOrphanErase.size()) {
