@@ -143,6 +143,7 @@ IoP_CORE_H = \
   utiltime.h \
   validationinterface.h \
   versionbits.h \
+  votingSystem.h \
   wallet/crypter.h \
   wallet/db.h \
   wallet/rpcwallet.h \
@@ -199,6 +200,7 @@ libIoP_server_a_SOURCES = \
   ui_interface.cpp \
   validationinterface.cpp \
   versionbits.cpp \
+  votingSystem.cpp \
   $(IoP_CORE_H)
 
 if ENABLE_ZMQ
