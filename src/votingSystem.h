@@ -64,15 +64,16 @@ public:
 class ContributionContract {
 private:
 	boost::filesystem::path pathContributionContract;
+
+public:
 	int blockStart;
 	std::string version;
 	int blockEnd;
 	int genesisBlockHeight;
 	CTransaction genesisTx;
 	uint256 genesisTxHash;
+	std::vector<int> votes;
 
-
-public:
 	// possible ContributionContract states
 	enum CCState {
 		SUBMITTED, 				// Transaction confirmed on blockchain. No votes yet.
@@ -94,7 +95,18 @@ public:
 		this->state = UNKNOWN;
 	}
 
-
+	static std::string getState(CCState state){
+		switch (state){
+		case SUBMITTED: return "SUBMITTED";
+		case APPROVED: return "APPROVED";
+		case NOT_APPROVED: return "NOT_APPROVED";
+		case QUEUED_FOR_EXECUTION: return "QUEUED_FOR_EXECUTION";
+		case IN_EXECUTION: return "IN_EXECUTION";
+		case EXECUTION_CANCELLED: return "EXECUTION_CANCELLED";
+		case EXECUTED: return "EXECUTED";
+		default: return "UNKNOWN";
+		}
+	}
 
 	/**
 	 * Validates if the passed script is from a contribution contract.
@@ -357,6 +369,7 @@ public:
 								if (getContributionContract(ccGenesisTx, cc)){
 									cc.genesisBlockHeight = atoi(strs[0]); //I set the block height
 									if (cc.isValid()){
+											cc.votes = cc.getCCVotes(currentHeight);
 											cc.state = cc.getCCState(currentHeight);
 											found = true;
 											ccOut.push_back(cc);
@@ -393,8 +406,8 @@ public:
 
 
 			// possible states are NOT_APPROVED and QUEUED_FOR_EXECUTION depending on the votes count
-			if (currentHeight > this->blockStart + this->genesisBlockHeight + Params().GetConsensus().ccBlockStartAdditionalHeight &&
-					currentHeight < this->blockStart + this->genesisBlockHeight){
+			if (currentHeight > this->blockStart + this->genesisBlockHeight  &&
+					currentHeight < this->blockStart + this->genesisBlockHeight + Params().GetConsensus().ccBlockStartAdditionalHeight){
 				std::vector<int> votes;
 				votes.push_back(0);
 				votes.push_back(0);
@@ -410,7 +423,7 @@ public:
 
 			}
 
-			// possible states are IN_EXECUTION and EXECUTION_CANCELLED depending on the votes count
+			// possible states are NOT_APPROVED, IN_EXECUTION and EXECUTION_CANCELLED depending on the votes count
 			if (currentHeight > this->blockStart + this->genesisBlockHeight + Params().GetConsensus().ccBlockStartAdditionalHeight &&
 					currentHeight < this->blockEnd + this->blockStart + this->genesisBlockHeight+Params().GetConsensus().ccBlockStartAdditionalHeight){
 				std::vector<int> votes;
@@ -418,6 +431,13 @@ public:
 				votes.push_back(0);
 
 				votes = getCCVotes(currentHeight);
+				LogPrint("VotingSystem", "Votes yes/no:%s/%s \n", votes[0], votes[1]);
+
+				if (votes[0] == 0 && votes[1] == 0){
+					return NOT_APPROVED;
+				}
+
+
 				if (votes[0] > votes[1]){
 					return IN_EXECUTION;
 				}
@@ -474,7 +494,7 @@ public:
 			votes.push_back(0);
 
 			votes = getCCVotes(currentHeight);
-			if (votes[0] > votes[1]){
+			if (votes[0] > votes[1] || (votes[0] == 0 && votes[1] == 0)){
 				return false;
 			}
 
