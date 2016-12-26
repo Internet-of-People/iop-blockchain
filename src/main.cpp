@@ -47,8 +47,10 @@
 #include <script/interpreter.cpp>
 #include "uint256.h"
 
+
 /* IoP Voting System */
 #include <votingSystem.h>
+#include <univalue.h>
 
 
 #include <atomic>
@@ -1724,6 +1726,47 @@ map<CIoPAddress,CAmount> getCCBeneficiaries()
 
 
 	return mbb;
+}
+
+UniValue jsonContributionContracts(const UniValue& params){
+	uint256 ccGenesisHash = uint256();
+	ccGenesisHash.SetNull();
+
+	if (params.size() == 1)
+		ccGenesisHash = uint256S(params[0].get_str());
+
+	UniValue json(UniValue::VOBJ);
+
+
+	std::vector<ContributionContract> vcc;
+	ContributionContract::getContributionContracts(chainActive.Height(), vcc);
+
+	BOOST_FOREACH(ContributionContract cc, vcc){
+		UniValue result(UniValue::VOBJ);
+
+		//todo ya lo voy a mejorar Mati
+		if (ccGenesisHash.IsNull() || ccGenesisHash.Compare(cc.genesisTxHash) == 0){
+			result.push_back(Pair("genesistxhash", cc.genesisTxHash.ToString()));
+			result.push_back(Pair("blockstart", cc.blockStart + cc.genesisBlockHeight + Params().GetConsensus().ccBlockStartAdditionalHeight));
+			result.push_back(Pair("blockend", cc.blockStart + cc.genesisBlockHeight + Params().GetConsensus().ccBlockStartAdditionalHeight + cc.blockEnd));
+			result.push_back(Pair("blockreward", cc.blockReward));
+			result.push_back(Pair("state", ContributionContract::getState(cc.state)));
+			result.push_back(Pair("voteyes", cc.votes[0]));
+			result.push_back(Pair("voteno", cc.votes[1]));
+
+			UniValue resultBeneficiary(UniValue::VOBJ);
+			BOOST_FOREACH(CCBeneficiary ccb, cc.beneficiaries){
+				resultBeneficiary.push_back(Pair("address", ccb.getAddress().ToString()));
+				resultBeneficiary.push_back(Pair("amount", ccb.getAmount()));
+			}
+			result.push_back(Pair("beneficiaries", resultBeneficiary));
+		}
+
+		json.push_back(Pair("contributioncontract", result));
+	}
+
+
+	return json;
 }
 
 

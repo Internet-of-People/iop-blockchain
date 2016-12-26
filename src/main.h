@@ -19,6 +19,9 @@
 #include "sync.h"
 #include "versionbits.h"
 
+#include <univalue.h>
+
+
 #include <algorithm>
 #include <exception>
 #include <map>
@@ -27,6 +30,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+
 
 #include <boost/unordered_map.hpp>
 
@@ -320,6 +324,8 @@ struct CNodeStateStats {
 
 /* Voting System */
 std::map<CIoPAddress,CAmount> getCCBeneficiaries();
+
+UniValue jsonContributionContracts(const UniValue& params);
 
 /** 
  * Count ECDSA signature operations the old-fashioned (pre-0.6) way
