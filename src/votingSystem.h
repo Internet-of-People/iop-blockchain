@@ -284,11 +284,13 @@ public:
 	// ToString override.
 	std::string ToString(){
 		std::string output = "\nVersion: " + this->version + "\n";
-		output = output  + "Block Start: " + std::to_string(this->blockStart + this->genesisBlockHeight + Params().GetConsensus().ccBlockStartAdditionalHeight) + "\n";
-		output = output  + "Block End: " + std::to_string(this->blockEnd + this->blockStart + this->genesisBlockHeight+Params().GetConsensus().ccBlockStartAdditionalHeight) + "\n";
+		output = output  + "Block start: " + std::to_string(this->blockStart) + "\n";
+		output = output  + "Block end: " + std::to_string(this->blockEnd) + "\n";
+		output = output  + "CC Start height: " + std::to_string(this->blockStart + this->genesisBlockHeight + Params().GetConsensus().ccBlockStartAdditionalHeight) + "\n";
+		output = output  + "CC End height: " + std::to_string(this->blockEnd + this->blockStart + this->genesisBlockHeight+Params().GetConsensus().ccBlockStartAdditionalHeight) + "\n";
 		output = output  + "Block Reward: " + std::to_string(this->blockReward) + "\n";
 		output = output  + "Genesis Tx: " + this->genesisTxHash.ToString() + "\n";
-		output = output  + "Block height: " + std::to_string(this->genesisBlockHeight) + "\n";
+		output = output  + "Genesis block height: " + std::to_string(this->genesisBlockHeight) + "\n";
 		for (CCBeneficiary ccb : this->beneficiaries){
 			output = output  + " Beneficiary : " + ccb.getAddress().ToString() + " - " + std::to_string(ccb.getAmount()) + "\n";
 		}

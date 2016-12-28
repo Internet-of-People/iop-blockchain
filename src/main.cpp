@@ -2829,12 +2829,13 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 				if (ContributionContract::isContributionContract(out.scriptPubKey)){
 					ContributionContract cc;
 					if (ContributionContract::getContributionContract(tx, cc)){
+						cc.genesisBlockHeight = chainActive.Height() + 1;
 						if (cc.isValid()){
 								// we found a valid contribution contract, lets persist it.
 								cc.persist(chainActive.Height() + 1, tx.GetHash());
-								LogPrint("VotingSystem", "Contract Proposal detected and stored: %s\n", cc.ToString());
+								LogPrint("VotingSystem", "Contribution Contract detected and stored: %s\n", cc.ToString());
 						} else
-							LogPrint("VotingSystem", "Contract Proposal detected but is not valid: %s\n", cc.ToString());
+							LogPrint("VotingSystem", "Contribution contract detected but is not valid: %s\n", cc.ToString());
 					}
 				}
 			}
