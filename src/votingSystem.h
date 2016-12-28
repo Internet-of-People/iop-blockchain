@@ -568,15 +568,15 @@ public:
 								return false;
 
 							//referenced transaction must be the same as genesis hash
-							if (opreturn.substr(8, 63).compare(this->genesisTxHash.ToString()) == 0){
+							if (opreturn.substr(8, 64).compare(this->genesisTxHash.ToString()) == 0){
 								// we get the YES Votes
-								if (opreturn.substr(6, 2).compare("01")  && includePositive){
+								if (opreturn.substr(6, 2).compare("01") == 0  && includePositive){
 									votes[0] = amount;
 									return true;
 								}
 
 								// we get the NO votes
-								if (opreturn.substr(6, 2).compare("00")){
+								if (opreturn.substr(6, 2).compare("00") == 0){
 									votes[1] = amount * 5; //negative votes weight x5
 									return true;
 								}
