@@ -127,6 +127,7 @@ public:
 
 		// we get the OP_Return data into the string and validate is CC for Contribution Contract
 		std::string opreturn = HexStr(value);
+
 		if (opreturn.size() > 2){
 			if (opreturn.substr(0, 4).compare("4343") == 0){
 				return true;
@@ -202,7 +203,7 @@ public:
 
 
 		// get the block reward
-		std::string strReward = value.substr(19,6);
+		std::string strReward = value.substr(18,6);
 		cc.blockReward= HexToInt(strReward);
 
 		// the hash of the genesis transaction
