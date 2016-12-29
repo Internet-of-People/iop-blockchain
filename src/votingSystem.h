@@ -321,7 +321,7 @@ public:
 	// gets true if the contract is valid in all the rules.
 		bool isValid(){
 			// valid version is 10
-			if (this->version.compare("0100") != 0)
+			if (this->version.compare("0001") != 0)
 				return false;
 
 			// we validate that this transaction freezes at least 1000 IoP
@@ -404,7 +404,7 @@ public:
 					return APPROVED;
 				}
 
-				if (votes[0] < votes[1]){
+				if (votes[0] <= votes[1]){
 					return NOT_APPROVED;
 				}
 			}
@@ -422,7 +422,7 @@ public:
 					return QUEUED_FOR_EXECUTION;
 				}
 
-				if (votes[0] < votes[1]){
+				if (votes[0] <= votes[1]){
 					return NOT_APPROVED;
 				}
 
@@ -447,7 +447,7 @@ public:
 					return IN_EXECUTION;
 				}
 
-				if (votes[0] < votes[1]){
+				if (votes[0] <= votes[1]){
 					return EXECUTION_CANCELLED;
 				}
 
@@ -462,6 +462,10 @@ public:
 				votes = getCCVotes(currentHeight);
 				if (votes[0] > votes[1]){
 					return EXECUTED;
+				}
+
+				if (votes[0] <= votes[1]){
+					return EXECUTION_CANCELLED;
 				}
 			}
 
@@ -499,7 +503,7 @@ public:
 			votes.push_back(0);
 
 			votes = getCCVotes(currentHeight);
-			if (votes[0] > votes[1] || (votes[0] == 0 && votes[1] == 0)){
+			if (votes[0] <= votes[1] || (votes[0] == 0 && votes[1] == 0)){
 				return false;
 			}
 
