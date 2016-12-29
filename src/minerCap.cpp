@@ -41,11 +41,6 @@ std::string HexText(const std::string in){
 void CMinerCap::enable(std::string factor){
 	CMinerWhiteList minerWhiteList;
 	minerwhitelist_v minerVector = minerWhiteList.Read();
-    
-    // Remove cap entries from vector if any exist already
-    minerVector.erase( std::remove_if( minerVector.begin(), minerVector.end(),
-        [](const std::string &entry) { return entry.find(ENABLED) == 0; } ) );
-    
 	std::string enabled = ENABLED + HexText(factor);
 	minerVector.push_back(enabled);
 
@@ -57,10 +52,9 @@ void CMinerCap::disable(){
 	CMinerWhiteList minerWhiteList;
 	minerwhitelist_v minerVector = minerWhiteList.Read();
 
-    // Remove cap entries from vector if any exist already
-    minerVector.erase( std::remove_if( minerVector.begin(), minerVector.end(),
-        [](const std::string &entry) { return entry.find(ENABLED) == 0; } ) );
-    
+	std::string enabled = ENABLED + std::to_string(getMinerMultiplier());
+	minerVector.erase(std::remove(minerVector.begin(), minerVector.end(), enabled), minerVector.end());
+
 	minerWhiteList.Write(minerVector);
 }
 
@@ -68,8 +62,9 @@ void CMinerCap::disable(){
 bool CMinerCap::isEnabled(){
 	CMinerWhiteList minerWhiteList;
 	minerwhitelist_v minerVector = minerWhiteList.Read();
-	return ( std::find_if( minerVector.begin(), minerVector.end(),
-	    [](const std::string &entry) { return entry.find(ENABLED) == 0; } ) != minerVector.end() );
+
+	std::string enabled = ENABLED + std::to_string(getMinerMultiplier());
+	return (std::find(minerVector.begin(), minerVector.end(), enabled) != minerVector.end());
 }
 
 // gets the average blocks per miner (2016 / amount of miners)
@@ -103,13 +98,10 @@ int CMinerCap::getMinerMultiplier(){
 		boost::split(strs, *it, boost::is_any_of(":"));
 		// I have found the enable:n string
 		if (strs.size() > 1){
-			int result = atoi(strs[1].c_str());
-            if (result > 0)
-                { return result; }
+			return  atoi(strs[1].c_str());
 		}
 	}
-	// return a reasonable value to avoid both int overflows and unnecessary caps
-	return 2016;
+	return 0;
 }
 
 int CMinerCap::getWhiteListedMiners(){
