@@ -265,6 +265,8 @@ public:
 		pathContributionContract = GetDataDir() / "cc.dat";
 
 		std::vector<std::string> cc;
+		cc = loadCCPointers();
+
 		std::string height = std::to_string(blockHeight);
 		cc.push_back(height + "," + genesisTxHash.ToString());
 
@@ -318,8 +320,8 @@ public:
 
 	// gets true if the contract is valid in all the rules.
 		bool isValid(){
-			// valid version is 0
-			if (this->version.compare("0001") != 0)
+			// valid version is 10
+			if (this->version.compare("0100") != 0)
 				return false;
 
 			// we validate that this transaction freezes at least 1000 IoP
@@ -334,8 +336,8 @@ public:
 			if (this->blockStart > 11960)
 				return false;
 
-			// block end is defined as EndBlock = StartBlock + n. and can't be more than 4 weeks, or 20160 blocks.
 			if (this->blockEnd > 20160)
+			// block end is defined as EndBlock = StartBlock + n. and can't be more than 4 weeks, or 20160 blocks.
 				return false;
 
 			// sum of beneficiaries amount, must be equal to block reward.
@@ -528,13 +530,12 @@ public:
 					}
 				}
 			}
-
 			return votes;
 		}
 
 
 
-		bool getVote(CTransaction tx, std::vector<int> votes, bool includePositive){
+		bool getVote(CTransaction tx, std::vector<int> &votes, bool includePositive){
 			// can't be coinbase
 			if (tx.IsCoinBase())
 				return false;
@@ -557,6 +558,7 @@ public:
 					if (opreturn.size() == 72){ //string must be 36 bytes long
 						// text in op_return output must be 0x564f54
 						if (opreturn.substr(0, 6).compare("564f54") == 0){
+
 							// vote power must be locked, meaning the output must in an utxo
 							UniValue utxo(UniValue::VOBJ);
 							UniValue ret(UniValue::VOBJ);
