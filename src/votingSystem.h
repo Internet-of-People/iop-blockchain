@@ -398,7 +398,7 @@ public:
 
 		CCState getCCState(int currentHeight){
 			// possible states are SUBMITTED, APPROVED, NOT APPROVED depending on the votes count
-			if (currentHeight < this->blockStart + this->genesisBlockHeight + Params().GetConsensus().ccBlockStartAdditionalHeight){
+			if (currentHeight < this->blockStart + this->genesisBlockHeight){
 				std::vector<int> votes;
 				votes.push_back(0);
 				votes.push_back(0);
@@ -442,7 +442,7 @@ public:
 
 			// possible states are NOT_APPROVED, IN_EXECUTION and EXECUTION_CANCELLED depending on the votes count
 			if (currentHeight >= this->blockStart + this->genesisBlockHeight + Params().GetConsensus().ccBlockStartAdditionalHeight &&
-					currentHeight < this->blockEnd + this->blockStart + this->genesisBlockHeight+Params().GetConsensus().ccBlockStartAdditionalHeight){
+					currentHeight <= this->blockEnd + this->blockStart + this->genesisBlockHeight+Params().GetConsensus().ccBlockStartAdditionalHeight){
 				std::vector<int> votes;
 				votes.push_back(0);
 				votes.push_back(0);
