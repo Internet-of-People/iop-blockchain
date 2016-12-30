@@ -1586,7 +1586,10 @@ void MinerThread( boost::shared_ptr<CReserveScript> coinbaseScript,
                 LogPrintf("Finished mining attempt with no success\n");
             } else {
                 LogPrintf("Mined a block, yaay!!!\n");
-                // MilliSleep(10000); // TODO used only for debugging in regtest mode
+
+                //if we are in regtest, let's put the miner to sleep.
+                if (Params().NetworkIDString().compare("regtest") == 0)
+                	MilliSleep(10000);
             }
         } catch (boost::thread_interrupted &e) {
             LogPrintf("Miner thread interrupt, shutting down\n");
