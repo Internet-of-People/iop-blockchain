@@ -621,11 +621,11 @@ UniValue getblock(const UniValue& params, bool fHelp)
 }
 
 
-UniValue dumpcontributioncontracts(const UniValue& params, bool fHelp){
+UniValue dumpCC(const UniValue& params, bool fHelp){
 	if (fHelp || params.size() > 1)
 		throw runtime_error(
-			"dumpcontributioncontracts [genesisTxHash]\n"
-			"\nReturns valid contribution contracts from the blockchain with all their properties.\n"
+			"dumpCC [genesisTxHash]\n"
+			"\nReturns valid contribution contracts from the blockchain with all their properties and states.\n"
 			"\nArguments:\n"
 			"1. genesisTxHash         (string, optional) The transaction hash that generated the contribution contract\n"
 			"\nResult:\n"
@@ -1355,7 +1355,7 @@ static const CRPCCommand commands[] =
     { "blockchain",         "gettxout",               &gettxout,               true  },
     { "blockchain",         "gettxoutsetinfo",        &gettxoutsetinfo,        true  },
     { "blockchain",         "verifychain",            &verifychain,            true  },
-	{ "blockchain",         "dumpcontributioncontracts",         &dumpcontributioncontracts,         true  },
+	{ "blockchain",         "dumpCC",         		  &dumpCC,		           true  },
 	{ "mining",             "dumpminerstats",         &dumpminerstats,         true  },
 
     /* Not shown in help */
