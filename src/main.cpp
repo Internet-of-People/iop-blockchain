@@ -1716,7 +1716,7 @@ map<CIoPAddress,CAmount> getCCBeneficiaries()
 	map<CIoPAddress,CAmount> mbb;
 
 	std::vector<ContributionContract> vcc;
-	ContributionContract::getActiveContracts(chainActive.Height(), vcc);
+	ContributionContract::getActiveContracts(chainActive.Height()+1, vcc);
 
 	BOOST_FOREACH(ContributionContract cc, vcc){
 		BOOST_FOREACH(CCBeneficiary ccb, cc.beneficiaries){
@@ -1747,6 +1747,7 @@ UniValue jsonContributionContracts(const UniValue& params){
 		//todo ya lo voy a mejorar Mati
 		if (ccGenesisHash.IsNull() || ccGenesisHash.Compare(cc.genesisTxHash) == 0){
 			result.push_back(Pair("genesistxhash", cc.genesisTxHash.ToString()));
+			result.push_back(Pair("currentheight", chainActive.Height()));
 			result.push_back(Pair("blockstart", cc.blockStart + cc.genesisBlockHeight + Params().GetConsensus().ccBlockStartAdditionalHeight));
 			result.push_back(Pair("blockend", cc.blockStart + cc.genesisBlockHeight + Params().GetConsensus().ccBlockStartAdditionalHeight + cc.blockEnd));
 			result.push_back(Pair("blockreward", cc.blockReward));
@@ -2851,7 +2852,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     CTransaction cb = CTransaction(block.vtx[0]);
     // for each Active Contribution Contract
     std::vector<ContributionContract> vcc;
-    ContributionContract::getActiveContracts(chainActive.Height(), vcc);
+    ContributionContract::getActiveContracts(chainActive.Height()+1, vcc);
 
     BOOST_FOREACH(ContributionContract cc, vcc) {
     	// For each beneficiary of the contract
@@ -3988,7 +3989,9 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
 
 
     /* IoP beta change - we are only enforcing BIP34 with height in coinbase ScriptSig if Miner whitelist is not active */
-    if (nHeight < Params().GetConsensus().minerWhiteListActivationHeight){
+    //if (nHeight < Params().GetConsensus().minerWhiteListActivationHeight){
+    //temporarelly disabling this rule --> Rodrigo Remove!
+    if (1==2){
     	// Enforce block.nVersion=2 rule that the coinbase starts with serialized block height
     	// if 750 of the last 1,000 blocks are version 2 or greater (51/100 if testnet):
     	if (block.nVersion >= 2 && IsSuperMajority(2, pindexPrev, consensusParams.nMajorityEnforceBlockUpgrade, consensusParams))

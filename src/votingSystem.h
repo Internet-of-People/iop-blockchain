@@ -267,11 +267,19 @@ public:
 		std::vector<std::string> cc;
 		cc = loadCCPointers();
 
+		//won't persist it if already exists.
+		for (auto i : cc){
+			std::vector<std::string> strs;
+			boost::split(strs, i, boost::is_any_of(","));
+
+			if (genesisTxHash.Compare(uint256S(strs[1])) == 0)
+				return false;
+		}
+
 		std::string height = std::to_string(blockHeight);
 		cc.push_back(height + "," + genesisTxHash.ToString());
 
 		try{
-			//delete duplicates before storing
 			std::ofstream file(pathContributionContract.string().c_str());
 			for (unsigned int i=0; i < cc.size();i++){
 				file << cc[i] << std::endl;
@@ -411,7 +419,7 @@ public:
 
 
 			// possible states are NOT_APPROVED and QUEUED_FOR_EXECUTION depending on the votes count
-			if (currentHeight > this->blockStart + this->genesisBlockHeight  &&
+			if (currentHeight >= this->blockStart + this->genesisBlockHeight  &&
 					currentHeight < this->blockStart + this->genesisBlockHeight + Params().GetConsensus().ccBlockStartAdditionalHeight){
 				std::vector<int> votes;
 				votes.push_back(0);
@@ -422,24 +430,27 @@ public:
 					return QUEUED_FOR_EXECUTION;
 				}
 
+				if (votes[0] == 0 && votes[1] == 0){
+					return EXECUTION_CANCELLED;
+				}
+
 				if (votes[0] <= votes[1]){
-					return NOT_APPROVED;
+					return EXECUTION_CANCELLED;
 				}
 
 			}
 
 			// possible states are NOT_APPROVED, IN_EXECUTION and EXECUTION_CANCELLED depending on the votes count
-			if (currentHeight > this->blockStart + this->genesisBlockHeight + Params().GetConsensus().ccBlockStartAdditionalHeight &&
+			if (currentHeight >= this->blockStart + this->genesisBlockHeight + Params().GetConsensus().ccBlockStartAdditionalHeight &&
 					currentHeight < this->blockEnd + this->blockStart + this->genesisBlockHeight+Params().GetConsensus().ccBlockStartAdditionalHeight){
 				std::vector<int> votes;
 				votes.push_back(0);
 				votes.push_back(0);
 
 				votes = getCCVotes(currentHeight);
-				LogPrint("VotingSystem", "Votes yes/no:%s/%s \n", votes[0], votes[1]);
 
 				if (votes[0] == 0 && votes[1] == 0){
-					return NOT_APPROVED;
+					return EXECUTION_CANCELLED;
 				}
 
 
@@ -518,7 +529,7 @@ public:
 			votes.push_back(0);
 			votes.push_back(0);
 
-			for (int i = this->genesisBlockHeight; i<currentHeight; i++){
+			for (int i = this->genesisBlockHeight; i<currentHeight+1; i++){
 				CBlockIndex* blockIndex = chainActive[i];
 				if (blockIndex == NULL)
 					return votes;
