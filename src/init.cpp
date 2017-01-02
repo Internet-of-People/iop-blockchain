@@ -1500,7 +1500,8 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
         // Changed option name
         string whitelistAddressStr = GetArg("-minewhitelistaddr", "");
         if ( whitelistAddressStr.empty() ) {
-            return InitError("Mining was enabled but whitelisted miner address is not specified");
+            // NOTE whitelisting may not be currently active, so give just a warning here instead of an error
+            InitWarning("Mining is enabled but whitelisted miner address is not specified.");
         }
         
         // minerWhiteListAddress must be a valid address on this network.
