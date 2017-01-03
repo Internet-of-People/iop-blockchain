@@ -88,10 +88,14 @@ public:
 	std::vector<CCBeneficiary> beneficiaries;
 	CAmount blockReward;
 	CCState state;
+
 	// constructs a new contribution contract
 	ContributionContract(){
+		// initialize values
 		this->blockStart = 0;
+		this->version = "";
 		this->blockEnd = 0;
+		this->genesisBlockHeight = 0;
 		this->state = UNKNOWN;
 	}
 
