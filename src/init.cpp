@@ -1589,7 +1589,7 @@ void MinerThread( boost::shared_ptr<CReserveScript> coinbaseScript,
 
                 //if we are in regtest, let's put the miner to sleep.
                 if (Params().NetworkIDString().compare("regtest") == 0)
-                	MilliSleep(10000);
+                	MilliSleep(3000);
             }
         } catch (boost::thread_interrupted &e) {
             LogPrintf("Miner thread interrupt, shutting down\n");
