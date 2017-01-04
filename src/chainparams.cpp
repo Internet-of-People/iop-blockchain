@@ -259,7 +259,7 @@ class CRegTestParams : public CChainParams {
 public:
     CRegTestParams() {
         strNetworkID = "regtest";
-        consensus.nSubsidyHalvingInterval = 1000;
+        consensus.nSubsidyHalvingInterval = 7000;
         consensus.nPreminedBlocks = 500;
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
