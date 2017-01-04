@@ -200,7 +200,6 @@ libIoP_server_a_SOURCES = \
   ui_interface.cpp \
   validationinterface.cpp \
   versionbits.cpp \
-  votingSystem.cpp \
   $(IoP_CORE_H)
 
 if ENABLE_ZMQ
