@@ -360,6 +360,17 @@ public:
 			if (totalAmount != this->blockReward)
 				return false;
 
+			// for this to be valid, the coins from output zero must still be freezed
+			// 1000 IoPs that where used to create the CC must still be locked, which means that there must
+			UniValue utxo(UniValue::VOBJ);
+			UniValue ret(UniValue::VOBJ);
+			utxo.push_back(Pair("tx", this->genesisTxHash.ToString()));
+			utxo.push_back(Pair("n", 0));
+			ret = gettxout(utxo, false);
+			// if I didn't get a result, then no utxo and the locked coins of the CC are already spent.
+
+			if (ret.isNull())
+				return false;
 
 			// at this point the Contribution contract is valid.
 			return true;
@@ -406,6 +417,7 @@ public:
 				std::vector<int> votes;
 				votes.push_back(0);
 				votes.push_back(0);
+
 
 				votes = getCCVotes(currentHeight);
 				if (votes[0] == 0 && votes[1] == 0){
