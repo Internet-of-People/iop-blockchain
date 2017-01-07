@@ -28,6 +28,11 @@ public:
 	bool Write(minerwhitelist_v minerwhitelist);
 	minerwhitelist_v Read();
 	bool Exist(std::string pkey);
+
+	/**
+	 * returns true if the mier whitelist control is active or not.
+	 */
+	bool isEnabled(int currentHeight);
 };
 
 #endif /* MINERWHITELIST_H_ */
