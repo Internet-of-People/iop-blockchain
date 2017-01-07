@@ -32,7 +32,7 @@ public:
 	/**
 	 * returns true if the mier whitelist control is active or not.
 	 */
-	bool isEnabled(int currentHeight);
+	static bool isEnabled(const int currentHeight);
 };
 
 #endif /* MINERWHITELIST_H_ */

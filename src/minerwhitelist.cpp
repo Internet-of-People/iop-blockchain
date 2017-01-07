@@ -96,7 +96,7 @@ bool CMinerWhiteList::Exist(std::string pkey){
 /**
  * returns true if the miner whitelist control is enabled or not.
  */
-bool CMinerWhiteList::isEnabled(int currentHeight){
+bool CMinerWhiteList::isEnabled(const int currentHeight){
 	if (currentHeight >= Params().GetConsensus().minerWhiteListActivationHeight)
 		return true;
 	else
