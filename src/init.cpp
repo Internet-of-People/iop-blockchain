@@ -1571,7 +1571,7 @@ void MinerThread( boost::shared_ptr<CReserveScript> coinbaseScript,
     // Mine forever (until shutdown)
     while (!fRequestShutdown) {
         try {
-            /* before we start mining, let's make sure we witing the cap if the Miner Cap is enabled */
+            /* before we start mining, let's make sure we withing the cap if the Miner Cap is enabled */
             CMinerCap minerCap;
             if (minerCap.isEnabled()){
                 while (isMinerCapReached(whitelistAddress)){
@@ -1581,7 +1581,12 @@ void MinerThread( boost::shared_ptr<CReserveScript> coinbaseScript,
             }
 
             LogPrintf("Start mining block\n");
-            UniValue result = generateBlocks(coinbaseScript, 1, UINT64_MAX, true, privateKeyStr);
+            //if the miner white list control is enabled, then we provide the privateKeyStr value
+            if (CMinerWhiteList::isEnabled(chainActive.Height()))
+            	UniValue result = generateBlocks(coinbaseScript, 1, UINT64_MAX, true, privateKeyStr);
+            else
+            	UniValue result = generateBlocks(coinbaseScript, 1, UINT64_MAX, true, "");
+
             if (result.empty()) {
                 LogPrintf("Finished mining attempt with no success\n");
             } else {
