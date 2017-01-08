@@ -349,8 +349,8 @@ public:
 			if (this->blockStart > 11960)
 				return false;
 
-			if (this->blockEnd > 20160)
-			// block end is defined as EndBlock = StartBlock + n. and can't be more than 4 weeks, or 20160 blocks.
+			if (this->blockEnd > 120960)
+			// block end is defined as EndBlock = StartBlock + n. and can't be more than 120960 blocks.
 				return false;
 
 			// sum of beneficiaries amount, must be equal to block reward.
