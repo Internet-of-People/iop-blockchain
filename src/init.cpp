@@ -44,6 +44,7 @@
 
 /* IoP beta release Miner Cap */
 #include "minerCap.h"
+#include "minerwhitelist.h"
 
 
 #ifndef WIN32
@@ -1582,10 +1583,11 @@ void MinerThread( boost::shared_ptr<CReserveScript> coinbaseScript,
 
             LogPrintf("Start mining block\n");
             //if the miner white list control is enabled, then we provide the privateKeyStr value
+            UniValue result;
             if (CMinerWhiteList::isEnabled(chainActive.Height()))
-            	UniValue result = generateBlocks(coinbaseScript, 1, UINT64_MAX, true, privateKeyStr);
+            	result = generateBlocks(coinbaseScript, 1, UINT64_MAX, true, privateKeyStr);
             else
-            	UniValue result = generateBlocks(coinbaseScript, 1, UINT64_MAX, true, "");
+            	result = generateBlocks(coinbaseScript, 1, UINT64_MAX, true, "");
 
             if (result.empty()) {
                 LogPrintf("Finished mining attempt with no success\n");

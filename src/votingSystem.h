@@ -97,6 +97,7 @@ public:
 		this->blockEnd = 0;
 		this->genesisBlockHeight = 0;
 		this->state = UNKNOWN;
+		this->blockReward = 0;
 	}
 
 	static std::string getState(CCState state){
@@ -333,7 +334,7 @@ public:
 	// gets true if the contract is valid in all the rules.
 		bool isValid(){
 			// valid version is 10
-			if (this->version.compare("0001") != 0)
+			if (this->version.compare("0100") != 0)
 				return false;
 
 			// we validate that this transaction freezes at least 1000 IoP
