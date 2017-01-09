@@ -1754,6 +1754,7 @@ UniValue jsonContributionContracts(const UniValue& params){
 			result.push_back(Pair("state", ContributionContract::getState(cc.state)));
 			result.push_back(Pair("voteyes", cc.votes[0]));
 			result.push_back(Pair("voteno", cc.votes[1]));
+			result.push_back(Pair("opreturn", cc.opReturn));
 
 			UniValue resultBeneficiary(UniValue::VOBJ);
 			BOOST_FOREACH(CCBeneficiary ccb, cc.beneficiaries){

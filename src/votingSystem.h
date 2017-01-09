@@ -73,6 +73,7 @@ public:
 	CTransaction genesisTx;
 	uint256 genesisTxHash;
 	std::vector<int> votes;
+	std::string opReturn;
 
 	// possible ContributionContract states
 	enum CCState {
@@ -98,6 +99,7 @@ public:
 		this->genesisBlockHeight = 0;
 		this->state = UNKNOWN;
 		this->blockReward = 0;
+		this->opReturn = "";
 	}
 
 	static std::string getState(CCState state){
@@ -190,6 +192,9 @@ public:
 
 		if (value.size() == 0)
 			return false;
+
+		// sets the op_return string
+		cc.opReturn = value;
 
 		// get the version
 		std::string textVersion(value.substr(4,4));
@@ -306,6 +311,8 @@ public:
 		output = output  + "Block Reward: " + std::to_string(this->blockReward) + "\n";
 		output = output  + "Genesis Tx: " + this->genesisTxHash.ToString() + "\n";
 		output = output  + "Genesis block height: " + std::to_string(this->genesisBlockHeight) + "\n";
+		output = output  + "OP Return: " + this->opReturn + "\n";
+
 		for (CCBeneficiary ccb : this->beneficiaries){
 			output = output  + " Beneficiary : " + ccb.getAddress().ToString() + " - " + std::to_string(ccb.getAmount()) + "\n";
 		}
