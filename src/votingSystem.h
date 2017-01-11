@@ -349,7 +349,7 @@ public:
 				return false;
 
 			// can't pay more than 0.1 IoP
-			if (this->blockReward > 1000000) //COIN * 0.1
+			if (this->blockReward > 10000000) //COIN * 0.1
 				return false;
 
 			// Block start is defined as current Height + 1000 + n, and can't be more than 6 months, or 11960 blocks.
