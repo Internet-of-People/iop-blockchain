@@ -530,6 +530,10 @@ public:
 			if (ret.isNull())
 				return false;
 
+			// block reward can't make the block subsidy to exceed 1 IoP
+			if (this->blockReward + getCCSubsidy(currentHeight) > COIN)
+				return false;
+
 
 			// The amount of YES votes must be greater than NO votes.
 			// I need to search all the Votes transaction since the genesis block.
