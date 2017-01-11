@@ -82,6 +82,7 @@ public:
 		NOT_APPROVED, 			// NO > YES. Current height  < (BlockStart + 1000 blocks).
 		QUEUED_FOR_EXECUTION,	// YES > NO. Current height  < (BlockStart + 1000 blocks).
 		IN_EXECUTION,			// YES > NO. Current height  > BlockStart  and Current height  < BlockEnd
+		QUEUED,		// YES > NO. Current height  > BlockStart  and Current height  < BlockEnd && Reward + Subsidy > 1 IoP
 		EXECUTION_CANCELLED, 	// NO > YES. Current height  > BlockStart  and Current height  < BlockEnd
 		EXECUTED,				// YES > NO. Current height  > BlockEnd
 		UNKNOWN};				// initial state
@@ -109,6 +110,7 @@ public:
 		case NOT_APPROVED: return "NOT_APPROVED";
 		case QUEUED_FOR_EXECUTION: return "QUEUED_FOR_EXECUTION";
 		case IN_EXECUTION: return "IN_EXECUTION";
+		case QUEUED: return "QUEUED";
 		case EXECUTION_CANCELLED: return "EXECUTION_CANCELLED";
 		case EXECUTED: return "EXECUTED";
 		default: return "UNKNOWN";
@@ -479,7 +481,11 @@ public:
 
 
 				if (votes[0] > votes[1]){
-					return IN_EXECUTION;
+					// if it is not active, then is pending.
+					if (isActive(currentHeight))
+						return IN_EXECUTION;
+					else
+						return QUEUED;
 				}
 
 				if (votes[0] <= votes[1]){
