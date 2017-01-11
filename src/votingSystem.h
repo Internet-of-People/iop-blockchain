@@ -534,7 +534,6 @@ public:
 			if (this->blockReward + getCCSubsidy(currentHeight) > COIN)
 				return false;
 
-
 			// The amount of YES votes must be greater than NO votes.
 			// I need to search all the Votes transaction since the genesis block.
 			std::vector<int> votes;
