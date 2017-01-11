@@ -2832,12 +2832,17 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 					ContributionContract cc;
 					if (ContributionContract::getContributionContract(tx, cc)){
 						cc.genesisBlockHeight = chainActive.Height() + 1;
-						if (cc.isValid()){
+						// is easier to check the fee here, so let's filter an invalid CC here
+						if (nFees < COIN * 1)
+							LogPrint("VotingSystem", "Contribution contract detected but with invalid fee: %s\n", cc.ToString());
+						else {
+							if (cc.isValid()){
 								// we found a valid contribution contract, lets persist it.
 								cc.persist(chainActive.Height() + 1, tx.GetHash());
 								LogPrint("VotingSystem", "Contribution Contract detected and stored: %s\n", cc.ToString());
-						} else
-							LogPrint("VotingSystem", "Contribution contract detected but is not valid: %s\n", cc.ToString());
+							} else
+								LogPrint("VotingSystem", "Contribution contract detected but is not valid: %s\n", cc.ToString());
+						}
 					}
 				}
 			}
