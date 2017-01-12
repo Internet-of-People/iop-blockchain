@@ -622,7 +622,7 @@ UniValue getblock(const UniValue& params, bool fHelp)
 
 
 UniValue dumpCC(const UniValue& params, bool fHelp){
-	if (fHelp || params.size() > 1)
+	if (fHelp)
 		throw runtime_error(
 			"dumpCC [genesisTxHash]\n"
 			"\nReturns valid contribution contracts from the blockchain with all their properties and states.\n"

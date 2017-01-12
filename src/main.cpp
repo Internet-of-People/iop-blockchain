@@ -1728,47 +1728,64 @@ map<CIoPAddress,CAmount> getCCBeneficiaries()
 	return mbb;
 }
 
+UniValue ccToJson(ContributionContract cc,UniValue result){
+	result.push_back(Pair("genesistxhash", cc.genesisTxHash.ToString()));
+	result.push_back(Pair("currentheight", chainActive.Height()));
+	result.push_back(Pair("blockstart", cc.blockStart + cc.genesisBlockHeight + Params().GetConsensus().ccBlockStartAdditionalHeight));
+	result.push_back(Pair("blockend", cc.blockStart + cc.genesisBlockHeight + Params().GetConsensus().ccBlockStartAdditionalHeight + cc.blockEnd));
+	result.push_back(Pair("blockreward", cc.blockReward));
+	result.push_back(Pair("state", ContributionContract::getState(cc.state)));
+	result.push_back(Pair("voteyes", cc.votes[0]));
+	result.push_back(Pair("voteno", cc.votes[1]));
+	result.push_back(Pair("op_return",cc.opReturn));
+	UniValue resultBeneficiaries(UniValue::VARR);
+	BOOST_FOREACH(CCBeneficiary ccb, cc.beneficiaries){
+		UniValue resultBeneficiary(UniValue::VOBJ);
+		resultBeneficiary.push_back(Pair("address", ccb.getAddress().ToString()));
+		resultBeneficiary.push_back(Pair("amount", ccb.getAmount()));
+		resultBeneficiaries.push_back(resultBeneficiary);
+	}
+	result.push_back(Pair("beneficiaries", resultBeneficiaries));
+	return result;
+}
+
 UniValue jsonContributionContracts(const UniValue& params){
-	uint256 ccGenesisHash = uint256();
-	ccGenesisHash.SetNull();
 
-	if (params.size() == 1)
-		ccGenesisHash = uint256S(params[0].get_str());
-
-	UniValue json(UniValue::VOBJ);
-
+	std::vector<uint256> ccGenesisHashes;
+	if (params.size() > 0){
+		for(unsigned int i=0;i<params.size();i++){
+			uint256 ccGenesisHash = uint256();
+			ccGenesisHash = uint256S(params[i].get_str());
+			ccGenesisHashes.push_back(ccGenesisHash);
+		}
+	}
+	UniValue json(UniValue::VARR);
 
 	std::vector<ContributionContract> vcc;
 	ContributionContract::getContributionContracts(chainActive.Height(), vcc);
-
 	BOOST_FOREACH(ContributionContract cc, vcc){
 		UniValue result(UniValue::VOBJ);
-
 		//todo ya lo voy a mejorar Mati
-		if (ccGenesisHash.IsNull() || ccGenesisHash.Compare(cc.genesisTxHash) == 0){
-			result.push_back(Pair("genesistxhash", cc.genesisTxHash.ToString()));
-			result.push_back(Pair("currentheight", chainActive.Height()));
-			result.push_back(Pair("blockstart", cc.blockStart + cc.genesisBlockHeight + Params().GetConsensus().ccBlockStartAdditionalHeight));
-			result.push_back(Pair("blockend", cc.blockStart + cc.genesisBlockHeight + Params().GetConsensus().ccBlockStartAdditionalHeight + cc.blockEnd));
-			result.push_back(Pair("blockreward", cc.blockReward));
-			result.push_back(Pair("state", ContributionContract::getState(cc.state)));
-			result.push_back(Pair("voteyes", cc.votes[0]));
-			result.push_back(Pair("voteno", cc.votes[1]));
-			result.push_back(Pair("opreturn", cc.opReturn));
-
-			UniValue resultBeneficiary(UniValue::VOBJ);
-			BOOST_FOREACH(CCBeneficiary ccb, cc.beneficiaries){
-				resultBeneficiary.push_back(Pair("address", ccb.getAddress().ToString()));
-				resultBeneficiary.push_back(Pair("amount", ccb.getAmount()));
+		if (ccGenesisHashes.empty()){
+			result = ccToJson(cc,result);
+		}else{
+			vector<uint256>::iterator it;
+			it=find(ccGenesisHashes.begin(),ccGenesisHashes.end(),cc.genesisTxHash);
+			auto pos = std::distance(ccGenesisHashes.begin(), it);
+			if(pos >= ccGenesisHashes.size() || pos<0) {
+			    // not found
+			}else{
+				result = ccToJson(cc,result);
 			}
-			result.push_back(Pair("beneficiaries", resultBeneficiary));
 		}
-
-		json.push_back(Pair("contributioncontract", result));
+		if(!result.empty())
+			json.push_back(result);
 	}
 
+	UniValue ret(UniValue::VOBJ);
+	ret.push_back(Pair("contribution_contracts", json));
 
-	return json;
+	return ret;
 }
 
 
