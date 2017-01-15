@@ -633,6 +633,7 @@ UniValue dumpCC(const UniValue& params, bool fHelp){
 			"  \"genesistxhash\": (string) genesis transaction hash .\n"
 			"  \"blockstart\": (int) start block of this contribution contract.\n"
 			"  \"blockend\": (int) end block of this contribution contract.\n"
+			"  \"blockpending\": (int) current number of pending blocks to process the contract.\n"
 			"  \"blockreward\": (int) amount of IoPs generated on each block for this contract.\n"
 			"  \"state\":(string) current state of this contribution contract.\n"
 			"  \"voteyes\":(int) current amount of YES votes.\n"

@@ -1732,7 +1732,8 @@ UniValue ccToJson(ContributionContract cc,UniValue result){
 	result.push_back(Pair("genesistxhash", cc.genesisTxHash.ToString()));
 	result.push_back(Pair("currentheight", chainActive.Height()));
 	result.push_back(Pair("blockstart", cc.blockStart + cc.genesisBlockHeight + Params().GetConsensus().ccBlockStartAdditionalHeight));
-	result.push_back(Pair("blockend", cc.blockStart + cc.genesisBlockHeight + Params().GetConsensus().ccBlockStartAdditionalHeight + cc.blockEnd));
+	result.push_back(Pair("blockend", cc.blockEnd));
+	result.push_back(Pair("blockpending", cc.blockPending));
 	result.push_back(Pair("blockreward", cc.blockReward));
 	result.push_back(Pair("state", ContributionContract::getState(cc.state)));
 	result.push_back(Pair("voteyes", cc.votes[0]));

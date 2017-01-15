@@ -66,9 +66,10 @@ private:
 	boost::filesystem::path pathContributionContract;
 
 public:
-	int blockStart;
 	std::string version;
+	int blockStart;
 	int blockEnd;
+	int blockPending;
 	int genesisBlockHeight;
 	CTransaction genesisTx;
 	uint256 genesisTxHash;
@@ -94,8 +95,9 @@ public:
 	// constructs a new contribution contract
 	ContributionContract(){
 		// initialize values
-		this->blockStart = 0;
 		this->version = "";
+		this->blockStart = 0;
+		this->blockPending = 0;
 		this->blockEnd = 0;
 		this->genesisBlockHeight = 0;
 		this->state = UNKNOWN;
@@ -308,6 +310,7 @@ public:
 		std::string output = "\nVersion: " + this->version + "\n";
 		output = output  + "Block start: " + std::to_string(this->blockStart) + "\n";
 		output = output  + "Block end: " + std::to_string(this->blockEnd) + "\n";
+		output = output  + "Blocks pending: " + std::to_string(this->blockPending) + "\n";
 		output = output  + "CC Start height: " + std::to_string(this->blockStart + this->genesisBlockHeight + Params().GetConsensus().ccBlockStartAdditionalHeight) + "\n";
 		output = output  + "CC End height: " + std::to_string(this->blockEnd + this->blockStart + this->genesisBlockHeight+Params().GetConsensus().ccBlockStartAdditionalHeight) + "\n";
 		output = output  + "Block Reward: " + std::to_string(this->blockReward) + "\n";
@@ -358,8 +361,9 @@ public:
 			if (this->blockStart > 11960 || this->blockStart <= 0)
 				return false;
 
+			// block end is defined as the amount of blocks that this contract will be executed and the reward included in.
+			// Max Value is 120960 blocks-
 			if (this->blockEnd > 120960 || this->blockEnd <= 0 )
-			// block end is defined as EndBlock = StartBlock + n. and can't be more than 120960 blocks.
 				return false;
 
 			// sum of beneficiaries amount, must be equal to block reward.
@@ -409,6 +413,7 @@ public:
 									if (cc.isValid()){
 											cc.votes = cc.getCCVotes(currentHeight);
 											cc.state = cc.getCCState(currentHeight);
+											cc.blockPending = cc.getPendingBlocks(currentHeight);
 											found = true;
 											ccOut.push_back(cc);
 									}
@@ -466,9 +471,9 @@ public:
 
 			}
 
-			// possible states are NOT_APPROVED, IN_EXECUTION and EXECUTION_CANCELLED depending on the votes count
+			// possible states are NOT_APPROVED, IN_EXECUTION, QUEUED and EXECUTION_CANCELLED depending on the votes count
 			if (currentHeight >= this->blockStart + this->genesisBlockHeight + Params().GetConsensus().ccBlockStartAdditionalHeight &&
-					currentHeight <= this->blockEnd + this->blockStart + this->genesisBlockHeight+Params().GetConsensus().ccBlockStartAdditionalHeight){
+					getPendingBlocks(currentHeight) > 0){
 				std::vector<int> votes;
 				votes.push_back(0);
 				votes.push_back(0);
@@ -481,7 +486,7 @@ public:
 
 
 				if (votes[0] > votes[1]){
-					// if it is not active, then is pending.
+					// if it is not active, then is queued.
 					if (isActive(currentHeight))
 						return IN_EXECUTION;
 					else
@@ -494,21 +499,9 @@ public:
 
 			}
 
-			// possible states are EXECUTED  depending on the votes count
-			if (currentHeight > this->blockEnd + this->blockStart + this->genesisBlockHeight+Params().GetConsensus().ccBlockStartAdditionalHeight){
-				std::vector<int> votes;
-				votes.push_back(0);
-				votes.push_back(0);
-
-				votes = getCCVotes(currentHeight);
-				if (votes[0] > votes[1]){
-					return EXECUTED;
-				}
-
-				if (votes[0] <= votes[1]){
-					return EXECUTION_CANCELLED;
-				}
-			}
+			// If no pending executions are available, then it was executed.
+			if (getPendingBlocks(currentHeight) == 0)
+				return EXECUTED;
 
 			return UNKNOWN;
 		}
@@ -518,10 +511,6 @@ public:
 		bool isActive(int currentHeight){
 			// first condition to be active: current height must be greater that blockstart
 			if (currentHeight < this->blockStart + this->genesisBlockHeight + Params().GetConsensus().ccBlockStartAdditionalHeight)
-				return false;
-
-			// if the current height is greater than blockend the cc is expired.
-			if (currentHeight > this->blockEnd + this->blockStart + this->genesisBlockHeight+Params().GetConsensus().ccBlockStartAdditionalHeight)
 				return false;
 
 			// 1000 IoPs that where used to create the CC must still be locked, which means that there must
@@ -540,6 +529,10 @@ public:
 			if (this->blockReward + getCCSubsidy(currentHeight) > COIN)
 				return false;
 
+			// must have pending blocks to be included in
+			if (getPendingBlocks(currentHeight) == 0)
+				return false;
+
 			// The amount of YES votes must be greater than NO votes.
 			// I need to search all the Votes transaction since the genesis block.
 			std::vector<int> votes;
@@ -554,6 +547,50 @@ public:
 			return true;
 		}
 
+		/**
+		 * Gets the amount of pending blocks for this CC.
+		 * It checks all the coinbase transactions generated since the start of the execution of this CC
+		 * and finds for a match in the beneficiaries. Each match is considered an execution
+		 */
+		int getPendingBlocks(int currentHeight){
+			// before counting the blocks we make sure that the CC is supposed to be active and ready
+			// to be executed.
+			if (currentHeight < this->blockStart + this->genesisBlockHeight + Params().GetConsensus().ccBlockStartAdditionalHeight)
+				return 0;
+
+			int executions = 0;
+
+			//the contract is within the running window. Let's count the matches
+			for (int i = this->genesisBlockHeight; i<currentHeight+1; i++){
+				// boolean vector initialized to false.
+				std::vector<bool> matches (this->beneficiaries.size(), false);
+
+				CBlockIndex* blockIndex = chainActive[i];
+				if (blockIndex != NULL){
+					CBlock block;
+					if (ReadBlockFromDisk(block, blockIndex, Params().GetConsensus())){
+						CTransaction cb = block.vtx[0];
+						BOOST_FOREACH(CTxOut out, cb.vout){
+							for (int x=0; x<matches.size();x++){
+								if (out.nValue == this->beneficiaries[x].getAmount()){ //we have a match in the amount
+									CScript redeemScript = out.scriptPubKey;
+									CTxDestination destinationAddress;
+									ExtractDestination(redeemScript, destinationAddress);
+									CIoPAddress address(destinationAddress);
+									if (address.CompareTo(this->beneficiaries[x].getAddress()))
+										matches[x] = true;
+								}
+							}
+						}
+					}
+				}
+				if (std::all_of(matches.begin(), matches.end(), [](bool v) { return v; }))
+					executions++;
+			}
+
+
+			return this->blockEnd - executions;
+		}
 
 		// gets the total numbers of valid votes for the CC.
 		// position 0 are YES votes, Position 1 are NO votes
