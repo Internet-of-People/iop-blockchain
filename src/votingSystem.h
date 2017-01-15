@@ -244,6 +244,8 @@ public:
 
 		bool found = false;
 
+		CAmount totalReward = 0;
+
 		for (auto i : ccPointers){
 			std::vector<std::string> strs;
 			boost::split(strs, i, boost::is_any_of(","));
@@ -258,6 +260,12 @@ public:
 							cc.genesisBlockHeight = atoi(strs[0]); //I set the block height
 							if (cc.isValid()){
 								if (cc.isActive(currentHeight)){
+									totalReward = totalReward + cc.blockReward;
+									//if we exceed the maximun allowed value we stop here.
+									if (totalReward > COIN) // todo change
+										return found;
+
+									//we haven't reached the max queue, so let's include another CC
 									cc.state = IN_EXECUTION;
 									found = true;
 									ccOut.push_back(cc);
@@ -525,10 +533,6 @@ public:
 			if (ret.isNull())
 				return false;
 
-			// block reward can't make the block subsidy to exceed 1 IoP
-			if (this->blockReward + getCCSubsidy(currentHeight) > COIN)
-				return false;
-
 			// must have pending blocks to be included in
 			if (getPendingBlocks(currentHeight) == 0)
 				return false;
@@ -556,7 +560,7 @@ public:
 			// before counting the blocks we make sure that the CC is supposed to be active and ready
 			// to be executed.
 			if (currentHeight < this->blockStart + this->genesisBlockHeight + Params().GetConsensus().ccBlockStartAdditionalHeight)
-				return 0;
+				return this->blockEnd;
 
 			int executions = 0;
 

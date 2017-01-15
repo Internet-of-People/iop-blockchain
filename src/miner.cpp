@@ -192,7 +192,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn)
 
     // Create coinbase transaction.
     CMutableTransaction coinbaseTx;
-    coinbaseTx.vin.resize(1);
+    coinbaseTx.vin.resize(voutSize);
     coinbaseTx.vin[0].prevout.SetNull();
     coinbaseTx.vout.resize(voutSize);
     coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
@@ -201,7 +201,6 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn)
     // if there are active CCs, then I need to add new outputs to each beneficiary
     map<CIoPAddress,CAmount> beneficiaries;
     beneficiaries = getCCBeneficiaries();
-
 
     if (beneficiaries.size() > 0){
     	voutSize = voutSize + beneficiaries.size();
@@ -216,7 +215,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn)
     	}
     }
 
-    if (minerPrivateKey.empty())
+    if (minerPrivateKey.empty() || minerPrivateKey.compare("") == 0)
     	// no private key provided, so we continue as always.
     	coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
     else {
