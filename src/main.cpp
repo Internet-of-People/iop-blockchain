@@ -2846,11 +2846,12 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     	if (!tx.IsCoinBase()){
     		BOOST_FOREACH(const CTxOut& out, tx.vout) {
 				if (ContributionContract::isContributionContract(out.scriptPubKey)){
-					ContributionContract cc;
+					ContributionContract cc = ContributionContract();
 					if (ContributionContract::getContributionContract(tx, cc)){
 						cc.genesisBlockHeight = chainActive.Height() + 1;
 						// is easier to check the fee here, so let's filter an invalid CC here
-						if (nFees < COIN * 1)
+						// fee must be 1 IoP
+						if (nFees < COIN)
 							LogPrint("VotingSystem", "Contribution contract detected but with invalid fee: %s\n", cc.ToString());
 						else {
 							if (cc.isValid()){
