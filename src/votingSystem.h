@@ -355,10 +355,10 @@ public:
 				return false;
 
 			// Block start is defined as current Height + 1000 + n, and can't be more than 6 months, or 11960 blocks.
-			if (this->blockStart > 11960)
+			if (this->blockStart > 11960 || this->blockStart <= 0)
 				return false;
 
-			if (this->blockEnd > 120960)
+			if (this->blockEnd > 120960 || this->blockEnd <= 0 )
 			// block end is defined as EndBlock = StartBlock + n. and can't be more than 120960 blocks.
 				return false;
 
@@ -377,8 +377,8 @@ public:
 			utxo.push_back(Pair("tx", this->genesisTxHash.ToString()));
 			utxo.push_back(Pair("n", 0));
 			ret = gettxout(utxo, false);
-			// if I didn't get a result, then no utxo and the locked coins of the CC are already spent.
 
+			// if I didn't get a result, then no utxo and the locked coins of the CC are already spent.
 			if (ret.isNull())
 				return false;
 
