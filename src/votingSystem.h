@@ -250,34 +250,38 @@ public:
 			std::vector<std::string> strs;
 			boost::split(strs, i, boost::is_any_of(","));
 
-			CTransaction ccGenesisTx;
-			ccGenesisTx = loadCCGenesisTransaction(atoi(strs[0]), uint256S(strs[1]));
-			if (ccGenesisTx.vin.size() > 0){
-				BOOST_FOREACH(const CTxOut& out, ccGenesisTx.vout) {
-					if (isContributionContract(out.scriptPubKey)){
-						ContributionContract cc;
-						if (getContributionContract(ccGenesisTx, cc)){
-							cc.genesisBlockHeight = atoi(strs[0]); //I set the block height
-							if (cc.isValid()){
-								if (cc.isActive(currentHeight)){
-									totalReward = totalReward + cc.blockReward;
-									//if we exceed the maximun allowed value we stop here.
-									if (totalReward > COIN) // todo change
-										return found;
 
-									//we haven't reached the max queue, so let's include another CC
-									cc.state = IN_EXECUTION;
-									found = true;
-									ccOut.push_back(cc);
+			//we are loading transaction stored on blocks burried under current height
+			if (atoi(strs[0]) <= currentHeight){
+				LogPrint("Invalid coinbase transaction", "trying to load transaction at : %s,%s with current %s\n", atoi(strs[0]),uint256S(strs[1]).ToString(), currentHeight);
+				CTransaction ccGenesisTx;
+				ccGenesisTx = loadCCGenesisTransaction(atoi(strs[0]), uint256S(strs[1]));
+				if (!ccGenesisTx.IsNull() && ccGenesisTx.vin.size() > 0){
+					BOOST_FOREACH(const CTxOut& out, ccGenesisTx.vout) {
+						if (isContributionContract(out.scriptPubKey)){
+							ContributionContract cc = ContributionContract();
+							if (getContributionContract(ccGenesisTx, cc)){
+								cc.genesisBlockHeight = atoi(strs[0]); //I set the block height
+								if (cc.isValid()){
+									if (cc.isActive(currentHeight)){
+										totalReward = totalReward + cc.blockReward;
+										//if we exceed the maximun allowed value we stop here.
+										if (totalReward > COIN) // todo change
+											return found;
+
+										//we haven't reached the max queue, so let's include another CC
+										cc.state = IN_EXECUTION;
+										found = true;
+										ccOut.push_back(cc);
+									}
+
 								}
-
 							}
 						}
 					}
 				}
 			}
 		}
-
 		return found;
 	}
 
@@ -320,7 +324,6 @@ public:
 		output = output  + "Block end: " + std::to_string(this->blockEnd) + "\n";
 		output = output  + "Blocks pending: " + std::to_string(this->blockPending) + "\n";
 		output = output  + "CC Start height: " + std::to_string(this->blockStart + this->genesisBlockHeight + Params().GetConsensus().ccBlockStartAdditionalHeight) + "\n";
-		output = output  + "CC End height: " + std::to_string(this->blockEnd + this->blockStart + this->genesisBlockHeight+Params().GetConsensus().ccBlockStartAdditionalHeight) + "\n";
 		output = output  + "Block Reward: " + std::to_string(this->blockReward) + "\n";
 		output = output  + "Genesis Tx: " + this->genesisTxHash.ToString() + "\n";
 		output = output  + "Genesis block height: " + std::to_string(this->genesisBlockHeight) + "\n";
@@ -410,20 +413,23 @@ public:
 					std::vector<std::string> strs;
 					boost::split(strs, i, boost::is_any_of(","));
 
-					CTransaction ccGenesisTx;
-					ccGenesisTx = loadCCGenesisTransaction(atoi(strs[0]), uint256S(strs[1]));
-					if (ccGenesisTx.vin.size() > 0){
-						BOOST_FOREACH(const CTxOut& out, ccGenesisTx.vout) {
-							if (isContributionContract(out.scriptPubKey)){
-								ContributionContract cc;
-								if (getContributionContract(ccGenesisTx, cc)){
-									cc.genesisBlockHeight = atoi(strs[0]); //I set the block height
-									if (cc.isValid()){
-											cc.votes = cc.getCCVotes(currentHeight);
-											cc.state = cc.getCCState(currentHeight);
-											cc.blockPending = cc.getPendingBlocks(currentHeight);
-											found = true;
-											ccOut.push_back(cc);
+					if (atoi(strs[0]) <= currentHeight){
+						CTransaction ccGenesisTx;
+						ccGenesisTx = loadCCGenesisTransaction(atoi(strs[0]), uint256S(strs[1]));
+						if (ccGenesisTx.vin.size() > 0){
+							BOOST_FOREACH(const CTxOut& out, ccGenesisTx.vout) {
+								if (isContributionContract(out.scriptPubKey)){
+									ContributionContract cc = ContributionContract();
+									if (getContributionContract(ccGenesisTx, cc)){
+										cc.genesisBlockHeight = atoi(strs[0]); //I set the block height
+										if (cc.isValid()){
+												cc.votes = cc.getCCVotes(currentHeight);
+												cc.blockPending = cc.getPendingBlocks(currentHeight);
+												cc.state = cc.getCCState(currentHeight);
+
+												found = true;
+												ccOut.push_back(cc);
+										}
 									}
 								}
 							}
@@ -534,7 +540,9 @@ public:
 				return false;
 
 			// must have pending blocks to be included in
-			if (getPendingBlocks(currentHeight) == 0)
+			this->blockPending = getPendingBlocks(currentHeight);
+
+			if (this->blockPending == 0)
 				return false;
 
 			// The amount of YES votes must be greater than NO votes.
@@ -544,9 +552,11 @@ public:
 			votes.push_back(0);
 
 			votes = getCCVotes(currentHeight);
+
 			if (votes[0] <= votes[1] || (votes[0] == 0 && votes[1] == 0)){
 				return false;
 			}
+
 
 			return true;
 		}
@@ -566,14 +576,18 @@ public:
 
 			//the contract is within the running window. Let's count the matches
 			for (int i = this->genesisBlockHeight; i<currentHeight+1; i++){
+				LogPrint("Pending Block", "Pending Block. from %s to %s. Actual: %s\n", this->genesisBlockHeight, currentHeight, i );
 				// boolean vector initialized to false.
 				std::vector<bool> matches (this->beneficiaries.size(), false);
 
 				CBlockIndex* blockIndex = chainActive[i];
 				if (blockIndex != NULL){
 					CBlock block;
+
+
 					if (ReadBlockFromDisk(block, blockIndex, Params().GetConsensus())){
 						CTransaction cb = block.vtx[0];
+						LogPrint("Pending Block", "Pending Block. Reviewing coinbase: %s\n", cb.ToString());
 						BOOST_FOREACH(CTxOut out, cb.vout){
 							for (int x=0; x<matches.size();x++){
 								if (out.nValue == this->beneficiaries[x].getAmount()){ //we have a match in the amount
@@ -581,18 +595,22 @@ public:
 									CTxDestination destinationAddress;
 									ExtractDestination(redeemScript, destinationAddress);
 									CIoPAddress address(destinationAddress);
-									if (address.CompareTo(this->beneficiaries[x].getAddress()))
+
+									// we have a match in the address too.
+									if (address.CompareTo(this->beneficiaries[x].getAddress()) == 0)
 										matches[x] = true;
-								}
+									else
+										matches[x] = false;
+								} else matches[x] = false;
 							}
 						}
 					}
+
 				}
-				if (std::all_of(matches.begin(), matches.end(), [](bool v) { return v; }))
+				// if all validations are true, then I found a coinbase that delivers rewards to this CC.
+				if (std::all_of(std::begin(matches), std::end(matches), [](bool i) { return i;}))
 					executions++;
 			}
-
-
 			return this->blockEnd - executions;
 		}
 
@@ -609,6 +627,7 @@ public:
 					return votes;
 
 				CBlock block;
+
 				if (ReadBlockFromDisk(block, blockIndex, Params().GetConsensus())){
 					std::string op_returnData = "";
 					BOOST_FOREACH(CTransaction tx, block.vtx){
@@ -618,6 +637,7 @@ public:
 							getVote(tx, votes, false);
 					}
 				}
+
 			}
 			return votes;
 		}
@@ -691,18 +711,21 @@ public:
 		static CTransaction loadCCGenesisTransaction(int blockHeight, uint256 txHash){
 			CTransaction txOut;
 			CBlockIndex* blockIndex = chainActive[blockHeight];
+
 			// if the index passed is not valid, no CC genesis transaction available
 			if (blockIndex == NULL)
 				return txOut;
 
-
 			CBlock block;
+
 			if (ReadBlockFromDisk(block, blockIndex, Params().GetConsensus())){
 				BOOST_FOREACH(const CTransaction& tx, block.vtx){
 					if (tx.GetHash().Compare(txHash) == 0)
 					return tx;
 				}
 			}
+
+
 			// block or transaction does not exists.
 			return txOut;
 		}

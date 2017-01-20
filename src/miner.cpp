@@ -199,8 +199,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn)
     coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
 
     // if there are active CCs, then I need to add new outputs to each beneficiary
-    map<CIoPAddress,CAmount> beneficiaries;
-    beneficiaries = getCCBeneficiaries();
+    map<CIoPAddress,CAmount> beneficiaries = getCCBeneficiaries();
 
     if (beneficiaries.size() > 0){
     	voutSize = voutSize + beneficiaries.size();

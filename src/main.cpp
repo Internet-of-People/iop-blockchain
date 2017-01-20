@@ -1716,7 +1716,7 @@ map<CIoPAddress,CAmount> getCCBeneficiaries()
 	map<CIoPAddress,CAmount> mbb;
 
 	std::vector<ContributionContract> vcc;
-	ContributionContract::getActiveContracts(chainActive.Height()+1, vcc);
+	ContributionContract::getActiveContracts(chainActive.Height()+1, vcc); // increase block height because this is call for miner for next block
 
 	BOOST_FOREACH(ContributionContract cc, vcc){
 		BOOST_FOREACH(CCBeneficiary ccb, cc.beneficiaries){
@@ -2877,47 +2877,44 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     CTransaction cb = CTransaction(block.vtx[0]);
     // for each Active Contribution Contract
     std::vector<ContributionContract> vcc;
-    ContributionContract::getActiveContracts(chainActive.Height()+1, vcc);
+    LogPrint("Invalid coinbase transaction", "calling getActiveContracts: %s \n", chainActive.Height());
+    if (ContributionContract::getActiveContracts(chainActive.Height()+1, vcc)){
+    	BOOST_FOREACH(ContributionContract cc, vcc) {
+			// For each beneficiary of the contract
+			if (cc.isValid()){
 
-    BOOST_FOREACH(ContributionContract cc, vcc) {
-    	// For each beneficiary of the contract
-    	if (cc.isValid()){
+				// we must found for each beneficiary of the Contribution contract, an output that send the coins to the right address
+				BOOST_FOREACH(CCBeneficiary beneficiary, cc.beneficiaries){
+					CIoPAddress benAddress = beneficiary.getAddress();
+					CAmount benAmount = beneficiary.getAmount();
+					bool addressExists = false;
 
-    		// we must found for each beneficiary of the Contribution contract, an output that send the coins to the right address
-    		BOOST_FOREACH(CCBeneficiary beneficiary, cc.beneficiaries){
-    			CIoPAddress benAddress = beneficiary.getAddress();
-				CAmount benAmount = beneficiary.getAmount();
-				bool addressExists = false;
+					// we search for an output that sends the contract reward to the beneficiary
+					BOOST_FOREACH(const CTxOut& out, cb.vout){
+						CScript redeemScript = out.scriptPubKey;
+						CTxDestination destinationAddress;
+						ExtractDestination(redeemScript, destinationAddress);
+						CIoPAddress address(destinationAddress);
 
-				// we search for an output that sends the contract reward to the beneficiary
-				BOOST_FOREACH(const CTxOut& out, cb.vout){
-					CScript redeemScript = out.scriptPubKey;
-					CTxDestination destinationAddress;
-					ExtractDestination(redeemScript, destinationAddress);
-					CIoPAddress address(destinationAddress);
+						if (address.CompareTo(benAddress) == 0 && out.nValue == benAmount )
+							addressExists = true; // we find it!
+					}
 
-					if (address.CompareTo(benAddress) == 0 && out.nValue == benAmount )
-						addressExists = true; // we find it!
+					// we didn't find it. Is not a valid CB.
+					if (addressExists == false){
+						LogPrint("Invalid coinbase transaction", "CB don't pay to Contribution Contract: %s \n%s\n", cc.ToString(), cb.ToString());
+						return state.DoS(100, false, REJECT_INVALID, "bad-CB-CC", false, "Coinbase invalid payment");
+					}
 				}
 
-				// we didn't find it. Is not a valid CB.
-				if (addressExists == false){
-					LogPrint("Invalid coinbase transaction", "CB don't pay to Contribution Contract: %s \n%s\n", cc.ToString(), cb.ToString());
-					return state.DoS(100, false, REJECT_INVALID, "bad-CB-CC", false, "Coinbase invalid payment");
-				}
-    		}
-
-    	}
+			}
+		}
     }
 
 
 
-    /**
-     * IoP Voting System.
-     * If we have open contribution contracts, we must validate the coinbase is distributing the IoPs to the contract before accepting it.
-     */
-    //active contracts
-     //get coinbase and validate is ok.
+
+
 
     // Erase orphan transactions include or precluded by this block
     if (vOrphanErase.size()) {
