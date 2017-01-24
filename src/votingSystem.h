@@ -357,51 +357,54 @@ public:
 	// gets true if the contract is valid in all the rules.
 		bool isValid(){
 			// valid version is 10
-			if (this->version.compare("0100") != 0)
+			if (this->version.compare("0100") != 0){
+				LogPrint("Invalid Contract", "Invalid version: %s\n", this->version);
 				return false;
+			}
 
 			// we validate that this transaction freezes at least 1000 IoP
-			if (this->genesisTx.vout[0].nValue < COIN * 1000)
+			if (this->genesisTx.vout[0].nValue < COIN * 1000){
+				LogPrint("Invalid Contract", "Genesis transaction doesn't freeze 1000 IoPs\n");
 				return false;
+			}
+
 
 			// can't pay more than 0.1 IoP
-			if (this->blockReward > 10000000) //COIN * 0.1
+			if (this->blockReward > 10000000){ //COIN * 0.1
+				LogPrint("Invalid Contract", "Contract reward is too high: %s\n", this->blockReward);
 				return false;
+			}
+
 
 			// Block start is defined as current Height + 1000 + n, and can't be more than 6 months, or 11960 blocks.
-			if (this->blockStart > 11960 || this->blockStart <= 0)
+			if (this->blockStart > 11960 || this->blockStart <= 0){
+				LogPrint("Invalid Contract", "Invalid contract start block: %s\n", this->blockStart);
 				return false;
+			}
+
 
 			// block end is defined as the amount of blocks that this contract will be executed and the reward included in.
 			// Max Value is 120960 blocks-
-			if (this->blockEnd > 120960 || this->blockEnd <= 0 )
+			if (this->blockEnd > 120960 || this->blockEnd <= 0 ){
+				LogPrint("Invalid Contract", "Invalid contract end block: %s\n", this->blockEnd);
 				return false;
+			}
+
 
 			// sum of beneficiaries amount, must be equal to block reward.
 			CAmount totalAmount = 0;
 			BOOST_FOREACH(CCBeneficiary beneficiary, this->beneficiaries){
 				totalAmount = totalAmount + beneficiary.getAmount();
 			}
-			if (totalAmount != this->blockReward)
+			if (totalAmount != this->blockReward){
+				LogPrint("Invalid Contract", "Contract pays too much to beneficiaries: %s\n", totalAmount);
 				return false;
-
-			// for this to be valid, the coins from output zero must still be freezed
-			// 1000 IoPs that where used to create the CC must still be locked, which means that there must
-			UniValue utxo(UniValue::VOBJ);
-			UniValue ret(UniValue::VOBJ);
-			utxo.push_back(Pair("tx", this->genesisTxHash.ToString()));
-			utxo.push_back(Pair("n", 0));
-			ret = gettxout(utxo, false);
-
-			// if I didn't get a result, then no utxo and the locked coins of the CC are already spent.
-			if (ret.isNull())
-				return false;
+			}
 
 			// at this point the Contribution contract is valid.
 			return true;
 
 		}
-
 
 		static bool getContributionContracts(int currentHeight, std::vector<ContributionContract>& ccOut){
 				std::vector<std::string> ccPointers;
