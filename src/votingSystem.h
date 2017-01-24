@@ -590,7 +590,6 @@ public:
 
 					if (ReadBlockFromDisk(block, blockIndex, Params().GetConsensus())){
 						CTransaction cb = block.vtx[0];
-						LogPrint("Pending Block", "Pending Block. Reviewing coinbase: %s\n", cb.ToString());
 						BOOST_FOREACH(CTxOut out, cb.vout){
 							for (int x=0; x<matches.size();x++){
 								if (out.nValue == this->beneficiaries[x].getAmount()){ //we have a match in the amount
