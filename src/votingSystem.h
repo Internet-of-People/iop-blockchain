@@ -253,7 +253,6 @@ public:
 
 			//we are loading transaction stored on blocks burried under current height
 			if (atoi(strs[0]) <= currentHeight){
-				LogPrint("Invalid coinbase transaction", "trying to load transaction at : %s,%s with current %s\n", atoi(strs[0]),uint256S(strs[1]).ToString(), currentHeight);
 				CTransaction ccGenesisTx;
 				ccGenesisTx = loadCCGenesisTransaction(atoi(strs[0]), uint256S(strs[1]));
 				if (!ccGenesisTx.IsNull() && ccGenesisTx.vin.size() > 0){
@@ -266,7 +265,7 @@ public:
 									if (cc.isActive(currentHeight)){
 										totalReward = totalReward + cc.blockReward;
 										//if we exceed the maximun allowed value we stop here.
-										if (totalReward > COIN) // todo change
+										if (totalReward > COIN *1)
 											return found;
 
 										//we haven't reached the max queue, so let's include another CC
@@ -504,10 +503,14 @@ public:
 
 				if (votes[0] > votes[1]){
 					// if it is not active, then is queued.
-					if (isActive(currentHeight))
-						return IN_EXECUTION;
-					else
-						return QUEUED;
+					std::vector<ContributionContract> vcc;
+					ContributionContract::getActiveContracts(currentHeight, vcc);
+					for (ContributionContract& cc : vcc) {
+					    if (cc.genesisTxHash.Compare(this->genesisTxHash) == 0)
+					    	return IN_EXECUTION;
+					}
+
+					return QUEUED;
 				}
 
 				if (votes[0] <= votes[1]){
@@ -560,7 +563,6 @@ public:
 				return false;
 			}
 
-
 			return true;
 		}
 
@@ -579,7 +581,6 @@ public:
 
 			//the contract is within the running window. Let's count the matches
 			for (int i = this->genesisBlockHeight; i<currentHeight+1; i++){
-				LogPrint("Pending Block", "Pending Block. from %s to %s. Actual: %s\n", this->genesisBlockHeight, currentHeight, i );
 				// boolean vector initialized to false.
 				std::vector<bool> matches (this->beneficiaries.size(), false);
 
@@ -613,7 +614,9 @@ public:
 				if (std::all_of(std::begin(matches), std::end(matches), [](bool i) { return i;}))
 					executions++;
 			}
-			return this->blockEnd - executions;
+
+			this->blockPending = this->blockEnd - executions;
+			return this->blockPending;
 		}
 
 		// gets the total numbers of valid votes for the CC.
