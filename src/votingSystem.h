@@ -649,7 +649,6 @@ public:
 				CBlock block;
 
 				if (ReadBlockFromDisk(block, blockIndex, Params().GetConsensus())){
-					std::string op_returnData = "";
 					BOOST_FOREACH(CTransaction tx, block.vtx){
 						if (i <= this->blockStart + this->genesisBlockHeight)
 							getVote(tx, votes, true); // if the CC is not yet active, then count positive votes
@@ -702,13 +701,13 @@ public:
 							if (opreturn.substr(8, 64).compare(this->genesisTxHash.ToString()) == 0){
 								// we get the YES Votes
 								if (opreturn.substr(6, 2).compare("01") == 0  && includePositive){
-									votes[0] = amount;
+									votes[0] = votes[0] + amount;
 									return true;
 								}
 
 								// we get the NO votes
 								if (opreturn.substr(6, 2).compare("00") == 0){
-									votes[1] = amount * 5; //negative votes weight x5
+									votes[1] = votes[1] + amount * 5; //negative votes weight x5
 									return true;
 								}
 
