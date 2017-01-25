@@ -2877,7 +2877,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     CTransaction cb = CTransaction(block.vtx[0]);
     // for each Active Contribution Contract
     std::vector<ContributionContract> vcc;
-    LogPrint("Invalid coinbase transaction", "calling getActiveContracts: %s \n", chainActive.Height());
+
     if (ContributionContract::getActiveContracts(chainActive.Height()+1, vcc)){
     	BOOST_FOREACH(ContributionContract cc, vcc) {
 			// For each beneficiary of the contract

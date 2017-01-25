@@ -267,11 +267,12 @@ public:
 										//if we exceed the maximun allowed value we stop here.
 										if (totalReward > COIN *1)
 											return found;
-
-										//we haven't reached the max queue, so let's include another CC
-										cc.state = IN_EXECUTION;
-										found = true;
-										ccOut.push_back(cc);
+										else {
+											//we haven't reached the max queue, so let's include another CC
+											cc.state = IN_EXECUTION;
+											found = true;
+											ccOut.push_back(cc);
+										}
 									}
 
 								}
@@ -443,6 +444,10 @@ public:
 			}
 
 		CCState getCCState(int currentHeight){
+			//if not valid, then it won't be executed.
+			if (!isValid())
+				return EXECUTION_CANCELLED;
+
 			// possible states are SUBMITTED, APPROVED, NOT APPROVED depending on the votes count
 			if (currentHeight < this->blockStart + this->genesisBlockHeight){
 				std::vector<int> votes;
@@ -462,6 +467,7 @@ public:
 				if (votes[0] <= votes[1]){
 					return NOT_APPROVED;
 				}
+
 			}
 
 
@@ -502,6 +508,9 @@ public:
 
 
 				if (votes[0] > votes[1]){
+					if (!isActive(currentHeight))
+						return EXECUTION_CANCELLED;
+
 					// if it is not active, then is queued.
 					std::vector<ContributionContract> vcc;
 					ContributionContract::getActiveContracts(currentHeight, vcc);
@@ -530,8 +539,10 @@ public:
 		// a CC is Active if it is between the blocks period and the amount of YES votes is bigger than the NO votes.
 		bool isActive(int currentHeight){
 			// first condition to be active: current height must be greater that blockstart
-			if (currentHeight < this->blockStart + this->genesisBlockHeight + Params().GetConsensus().ccBlockStartAdditionalHeight)
+			if (currentHeight < this->blockStart + this->genesisBlockHeight + Params().GetConsensus().ccBlockStartAdditionalHeight){
 				return false;
+			}
+
 
 			// 1000 IoPs that where used to create the CC must still be locked, which means that there must
 			// not be another transaction that uses that input in the Active period.
@@ -542,14 +553,19 @@ public:
 			ret = gettxout(utxo, false);
 			// if I didn't get a result, then no utxo and the locked coins of the CC are already spent.
 
-			if (ret.isNull())
+			if (ret.isNull()){
+				LogPrint("Inactive Contract", "Contract %s is not active. No UTXO\n", this->genesisTxHash.ToString());
 				return false;
+			}
+
 
 			// must have pending blocks to be included in
 			this->blockPending = getPendingBlocks(currentHeight);
 
-			if (this->blockPending == 0)
+			if (this->blockPending == 0){
 				return false;
+			}
+
 
 			// The amount of YES votes must be greater than NO votes.
 			// I need to search all the Votes transaction since the genesis block.
@@ -580,7 +596,7 @@ public:
 			int executions = 0;
 
 			//the contract is within the running window. Let's count the matches
-			for (int i = this->genesisBlockHeight; i<currentHeight+1; i++){
+			for (int i = this->blockStart + this->genesisBlockHeight + Params().GetConsensus().ccBlockStartAdditionalHeight; i<currentHeight+1; i++){
 				// boolean vector initialized to false.
 				std::vector<bool> matches (this->beneficiaries.size(), false);
 
@@ -602,11 +618,10 @@ public:
 									// we have a match in the address too.
 									if (address.CompareTo(this->beneficiaries[x].getAddress()) == 0)
 										matches[x] = true;
-									else
-										matches[x] = false;
-								} else matches[x] = false;
+								}
 							}
 						}
+
 					}
 
 				}
