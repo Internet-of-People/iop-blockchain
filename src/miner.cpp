@@ -650,7 +650,7 @@ CMutableTransaction SignCoinbaseTransactionForWhiteList(CMutableTransaction coin
 {
 	if (strPrivKey.empty()){
 		LogPrintf("Can't sign coinbase transaction. Private key is empty.\n");
-		throw std::runtime_error(strprintf("Provided private key is empty.", strPrivKey));
+		throw std::runtime_error(strprintf("Provided private key is empty.%s", strPrivKey));
 	}
 
 	// creates a private key from the secret passed.

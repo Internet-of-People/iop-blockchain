@@ -1584,7 +1584,7 @@ void MinerThread( boost::shared_ptr<CReserveScript> coinbaseScript,
             LogPrintf("Start mining block\n");
             //if the miner white list control is enabled, then we provide the privateKeyStr value
             UniValue result;
-            if (CMinerWhiteList::isEnabled(chainActive.Height()))
+            if (CMinerWhiteList::isEnabled(chainActive.Height()+1))
             	result = generateBlocks(coinbaseScript, 1, UINT64_MAX, true, privateKeyStr);
             else
             	result = generateBlocks(coinbaseScript, 1, UINT64_MAX, true, "");
