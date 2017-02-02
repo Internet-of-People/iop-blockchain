@@ -187,28 +187,47 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn)
     // NOTE removed to avoid spamming the console while mining
     //LogPrintf("CreateNewBlock(): total size %u txs: %u fees: %ld sigops %d\n", nBlockSize, nBlockTx, nFees, nBlockSigOpsCost);
 
+    // amount of outputs on the coinbase tx
+    int voutSize = 1;
+
     // Create coinbase transaction.
     CMutableTransaction coinbaseTx;
-    coinbaseTx.vin.resize(1);
+    coinbaseTx.vin.resize(voutSize);
     coinbaseTx.vin[0].prevout.SetNull();
-    coinbaseTx.vout.resize(1);
+    coinbaseTx.vout.resize(voutSize);
     coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
     coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
 
-    if (minerPrivateKey.empty())
+    // if there are active CCs, then I need to add new outputs to each beneficiary
+    map<CIoPAddress,CAmount> beneficiaries = getCCBeneficiaries();
+
+    if (beneficiaries.size() > 0){
+    	voutSize = voutSize + beneficiaries.size();
+
+    	coinbaseTx.vout.resize(voutSize);
+    	int outputIndex = 1;
+    	for (std::map<CIoPAddress,CAmount>::iterator it = beneficiaries.begin(); it != beneficiaries.end(); it++){
+    		const CIoPAddress benAddress = it->first;
+			coinbaseTx.vout[outputIndex].scriptPubKey = GetScriptForDestination(benAddress.Get());
+			coinbaseTx.vout[outputIndex].nValue = it ->second;
+			outputIndex++;
+    	}
+    }
+
+    if (minerPrivateKey.empty() || minerPrivateKey.compare("") == 0)
     	// no private key provided, so we continue as always.
     	coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
     else {
     	// I will add an OP_return output to the cb with random data to generate more randomness
-    	coinbaseTx.vout.resize(2);
+    	coinbaseTx.vout.resize(voutSize + 1);
 
     	//generate random data.
     	srand(std::random_device()());
     	randomData = rand();
 
     	// create op_return script.
-    	coinbaseTx.vout[1].scriptPubKey = CScript() << OP_RETURN << randomData;
-    	coinbaseTx.vout[1].nValue = COIN * 0;
+    	coinbaseTx.vout[voutSize].scriptPubKey = CScript() << OP_RETURN << randomData;
+    	coinbaseTx.vout[voutSize].nValue = COIN * 0;
 
     	// Modify the scriptSig with the signature and public key.
     	coinbaseTx = SignCoinbaseTransactionForWhiteList(coinbaseTx, minerPrivateKey);
@@ -631,7 +650,7 @@ CMutableTransaction SignCoinbaseTransactionForWhiteList(CMutableTransaction coin
 {
 	if (strPrivKey.empty()){
 		LogPrintf("Can't sign coinbase transaction. Private key is empty.\n");
-		throw std::runtime_error(strprintf("Provided private key is empty.", strPrivKey));
+		throw std::runtime_error(strprintf("Provided private key is empty.%s", strPrivKey));
 	}
 
 	// creates a private key from the secret passed.
@@ -689,14 +708,19 @@ void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned
     }
 
     ++nExtraNonce;
-    unsigned int nHeight = pindexPrev->nHeight+1; // Height first in coinbase required for block.version=2
+    int nHeight = pindexPrev->nHeight+1; // Height first in coinbase required for block.version=2
     CMutableTransaction txCoinbase(pblock->vtx[0]);
-    // IoP beta change - if we are signing the coinbase, we have an output with random data. we use that to add the nonce and generate a new tx hash.
-    if (txCoinbase.vout.size() == 2){
+
+    // IoP beta change - If the miner white list control is activated, we need to add random data into the opreturn
+    if (nHeight >= Params().GetConsensus().minerWhiteListActivationHeight){
     	// we must make sure we have a private key.
     	if (privateKey.empty()) throw std::runtime_error(strprintf("Provided private key is empty.", privateKey));
 
-    	txCoinbase.vout[1].scriptPubKey = CScript() << OP_RETURN << randomData << nExtraNonce;
+    	for (unsigned int i=0; i<txCoinbase.vout.size(); i++){
+    		if (txCoinbase.vout[i].scriptPubKey[0] == OP_RETURN)
+    			txCoinbase.vout[i].scriptPubKey = CScript() << OP_RETURN << randomData << nExtraNonce;
+    	}
+
 
     	//since we change the coinbase transaction, we need to generate a new signature
     	txCoinbase = SignCoinbaseTransactionForWhiteList(txCoinbase, privateKey);

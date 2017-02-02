@@ -143,6 +143,7 @@ IoP_CORE_H = \
   utiltime.h \
   validationinterface.h \
   versionbits.h \
+  votingSystem.h \
   wallet/crypter.h \
   wallet/db.h \
   wallet/rpcwallet.h \

@@ -106,6 +106,9 @@ public:
         consensus.minerWhiteListAdminAddress.insert("pUSydiLr9kFjtL7VbtfMYXMz7GLV413coQ"); //default miner address
         consensus.minerWhiteListAdminAddress.insert("pGNcLNCavQLGXwXkVDwoHPCuQUBoXzJtPh"); //default miner address
 
+        // Voting System Params
+        consensus.ccBlockStartAdditionalHeight = 1000;
+
 
 
         /**
@@ -200,6 +203,9 @@ public:
 		consensus.minerWhiteListAdminPubKey.insert("03f331bdfe024cf106fa1dcedb8b78e084480fa665d91c50b61822d7830c9ea840"); //pub key required to sign add / remove transactions
 		consensus.minerWhiteListAdminAddress.insert("uh2SKjE6R1uw3b5smZ8i1G8rDoQv458Lsj"); //default miner address
 
+		// Voting System Params
+		consensus.ccBlockStartAdditionalHeight = 10;
+
         pchMessageStart[0] = 0xb1;
 		pchMessageStart[1] = 0xfc;
 		pchMessageStart[2] = 0x50;
@@ -253,7 +259,7 @@ class CRegTestParams : public CChainParams {
 public:
     CRegTestParams() {
         strNetworkID = "regtest";
-        consensus.nSubsidyHalvingInterval = 1000;
+        consensus.nSubsidyHalvingInterval = 7000;
         consensus.nPreminedBlocks = 500;
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
@@ -278,9 +284,12 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 999999999999ULL;
 
         // Miner White list params
-		consensus.minerWhiteListActivationHeight = 200; //block height that activates the white list.
+		consensus.minerWhiteListActivationHeight = 5000; //block height that activates the white list.
 		consensus.minerWhiteListAdminPubKey.insert("03760087582c5e225aea2a6781f4df8b12d7124e4f039fbd3e6d053fdcaacc60eb"); //pub key required to sign add / remove transactions
 		consensus.minerWhiteListAdminAddress.insert("ucNbB1K3BaHWY5tXrWiyWn11QB51vPDuVE"); //default miner address
+
+		// Voting System Params
+		consensus.ccBlockStartAdditionalHeight = 10;
 
         pchMessageStart[0] = 0x35;
 		pchMessageStart[1] = 0xb2;

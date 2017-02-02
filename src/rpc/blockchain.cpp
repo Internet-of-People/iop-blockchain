@@ -620,6 +620,38 @@ UniValue getblock(const UniValue& params, bool fHelp)
     return blockToJSON(block, pblockindex);
 }
 
+
+UniValue dumpCC(const UniValue& params, bool fHelp){
+	if (fHelp)
+		throw runtime_error(
+			"dumpCC [genesisTxHash]\n"
+			"\nReturns valid contribution contracts from the blockchain with all their properties and states.\n"
+			"\nArguments:\n"
+			"1. genesisTxHash         (string, optional) The transaction hash that generated the contribution contract\n"
+			"\nResult:\n"
+			"{\n"
+			"  \"genesistxhash\": (string) genesis transaction hash .\n"
+			"  \"blockstart\": (int) start block of this contribution contract.\n"
+			"  \"blockend\": (int) end block of this contribution contract.\n"
+			"  \"blockpending\": (int) current number of pending blocks to process the contract.\n"
+			"  \"blockreward\": (int) amount of IoPs generated on each block for this contract.\n"
+			"  \"state\":(string) current state of this contribution contract.\n"
+			"  \"voteyes\":(int) current amount of YES votes.\n"
+			"  \"voteno\":(int) current amount of NO votes.\n"
+			"		{\n"
+			"  		\"address\": (string) address of beneficiary to which coins are being sent\n"
+			"  		\"amount\": (int) amount of coins being sent to this beneficiary\n"
+			"		}\n"
+			"}\n"
+		);
+
+
+
+	return jsonContributionContracts(params);
+}
+
+
+
 /**
  * IoP beta release - scans the blockchain identifying blocks from whitelisted miners and showing the stats of how much they mined.
  */
@@ -1324,6 +1356,7 @@ static const CRPCCommand commands[] =
     { "blockchain",         "gettxout",               &gettxout,               true  },
     { "blockchain",         "gettxoutsetinfo",        &gettxoutsetinfo,        true  },
     { "blockchain",         "verifychain",            &verifychain,            true  },
+	{ "blockchain",         "dumpCC",         		  &dumpCC,		           true  },
 	{ "mining",             "dumpminerstats",         &dumpminerstats,         true  },
 
     /* Not shown in help */

@@ -44,6 +44,7 @@
 
 /* IoP beta release Miner Cap */
 #include "minerCap.h"
+#include "minerwhitelist.h"
 
 
 #ifndef WIN32
@@ -1572,7 +1573,7 @@ void MinerThread( boost::shared_ptr<CReserveScript> coinbaseScript,
     // Mine forever (until shutdown)
     while (!fRequestShutdown) {
         try {
-            /* before we start mining, let's make sure we witing the cap if the Miner Cap is enabled */
+            /* before we start mining, let's make sure we withing the cap if the Miner Cap is enabled */
             CMinerCap minerCap;
             if (minerCap.isEnabled()){
                 while (isMinerCapReached(whitelistAddress)){
@@ -1582,12 +1583,21 @@ void MinerThread( boost::shared_ptr<CReserveScript> coinbaseScript,
             }
 
             LogPrintf("Start mining block\n");
-            UniValue result = generateBlocks(coinbaseScript, 1, UINT64_MAX, true, privateKeyStr);
+            //if the miner white list control is enabled, then we provide the privateKeyStr value
+            UniValue result;
+            if (CMinerWhiteList::isEnabled(chainActive.Height()+1))
+            	result = generateBlocks(coinbaseScript, 1, UINT64_MAX, true, privateKeyStr);
+            else
+            	result = generateBlocks(coinbaseScript, 1, UINT64_MAX, true, "");
+
             if (result.empty()) {
                 LogPrintf("Finished mining attempt with no success\n");
             } else {
                 LogPrintf("Mined a block, yaay!!!\n");
-                // MilliSleep(10000); // TODO used only for debugging in regtest mode
+
+                //if we are in regtest, let's put the miner to sleep.
+                if (Params().NetworkIDString().compare("regtest") == 0)
+                	MilliSleep(3000);
             }
         } catch (boost::thread_interrupted &e) {
             LogPrintf("Miner thread interrupt, shutting down\n");

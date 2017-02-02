@@ -69,6 +69,9 @@ struct Params {
     int minerWhiteListActivationHeight;
     std::set<std::string> minerWhiteListAdminPubKey;
     std::set<std::string> minerWhiteListAdminAddress;
+
+    /* Voting System Parameters */
+    int ccBlockStartAdditionalHeight; // this amount of blocks is used to calculate the start of a CC. Current Height + n + User Provided CC height
 };
 } // namespace Consensus
 

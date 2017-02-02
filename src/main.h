@@ -10,6 +10,7 @@
 #include "config/IoP-config.h"
 #endif
 
+#include "base58.h"
 #include "amount.h"
 #include "chain.h"
 #include "coins.h"
@@ -17,6 +18,9 @@
 #include "script/script_error.h"
 #include "sync.h"
 #include "versionbits.h"
+
+#include <univalue.h>
+
 
 #include <algorithm>
 #include <exception>
@@ -26,6 +30,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+
 
 #include <boost/unordered_map.hpp>
 
@@ -265,6 +270,12 @@ std::string GetWarnings(const std::string& strFor);
 bool GetTransaction(const uint256 &hash, CTransaction &tx, const Consensus::Params& params, uint256 &hashBlock, bool fAllowSlow = false);
 /** Find the best known block, and make it the tip of the block chain */
 bool ActivateBestChain(CValidationState& state, const CChainParams& chainparams, const CBlock* pblock = NULL);
+
+/**
+ * Gets the active Contribution Contracts lists and the sumatory of rewards for each contract
+ */
+CAmount getCCSubsidy(int nHeight);
+
 CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams);
 
 /**
@@ -317,7 +328,10 @@ struct CNodeStateStats {
     std::vector<int> vHeightInFlight;
 };
 
+/* Voting System */
+std::map<CIoPAddress,CAmount> getCCBeneficiaries();
 
+UniValue jsonContributionContracts(const UniValue& params);
 
 /** 
  * Count ECDSA signature operations the old-fashioned (pre-0.6) way
@@ -444,6 +458,7 @@ bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex, const Consensus
 /** Context-independent validity checks */
 bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW = true);
 bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW = true, bool fCheckMerkleRoot = true);
+
 
 /** Context-dependent validity checks.
  *  By "context", we mean only the previous block headers, but not the UTXO
