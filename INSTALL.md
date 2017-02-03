@@ -92,9 +92,9 @@ First you have to grab the source code, you can just clone our GitHub repository
 
 `sudo apt-get install git`
 
-`git clone https://github.com/Fermat-ORG/iop-blockchain.git`
+`git clone https://github.com/Fermat-ORG/iop-token.git`
 
-`cd iop-blockchain`
+`cd iop-token`
 
 `git checkout beta`
 
