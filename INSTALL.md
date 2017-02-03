@@ -96,7 +96,7 @@ First you have to grab the source code, you can just clone our GitHub repository
 
 `cd iop-blockchain`
 
-`git checkout beta-1.0.0`
+`git checkout beta`
 
 
 Now comes the hard part, you will have to install the whole build environment which means an awful lot of tools, libraries and headers.
