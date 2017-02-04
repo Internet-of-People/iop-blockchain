@@ -83,7 +83,7 @@ public:
 		NOT_APPROVED, 			// NO > YES. Current height  < (BlockStart + 1000 blocks).
 		QUEUED_FOR_EXECUTION,	// YES > NO. Current height  < (BlockStart + 1000 blocks).
 		IN_EXECUTION,			// YES > NO. Current height  > BlockStart  and Current height  < BlockEnd
-		QUEUED,		// YES > NO. Current height  > BlockStart  and Current height  < BlockEnd && Reward + Subsidy > 1 IoP
+		QUEUED,					// YES > NO. Current height  > BlockStart  and Current height  < BlockEnd && Reward + Subsidy > 1 IoP
 		EXECUTION_CANCELLED, 	// NO > YES. Current height  > BlockStart  and Current height  < BlockEnd
 		EXECUTED,				// YES > NO. Current height  > BlockEnd
 		UNKNOWN};				// initial state
@@ -238,7 +238,7 @@ public:
 		return true;
 	}
 
-	static bool getActiveContracts(int currentHeight, std::vector<ContributionContract>& ccOut){
+	static bool getActiveContracts(int startHeight,int currentHeight ,std::vector<ContributionContract>& ccOut){
 		std::vector<std::string> ccPointers;
 		ccPointers = loadCCPointers();
 
@@ -252,7 +252,7 @@ public:
 
 
 			//we are loading transaction stored on blocks burried under current height
-			if (atoi(strs[0]) <= currentHeight){
+			if (atoi(strs[0]) <= currentHeight  && atoi(strs[0])>startHeight){
 				CTransaction ccGenesisTx;
 				ccGenesisTx = loadCCGenesisTransaction(atoi(strs[0]), uint256S(strs[1]));
 				if (!ccGenesisTx.IsNull() && ccGenesisTx.vin.size() > 0){
@@ -406,7 +406,7 @@ public:
 
 		}
 
-		static bool getContributionContracts(int currentHeight, std::vector<ContributionContract>& ccOut){
+		static bool getContributionContracts(int startHeight,int currentHeight, std::vector<ContributionContract>& ccOut){
 				std::vector<std::string> ccPointers;
 				ccPointers = loadCCPointers();
 
@@ -416,7 +416,8 @@ public:
 					std::vector<std::string> strs;
 					boost::split(strs, i, boost::is_any_of(","));
 
-					if (atoi(strs[0]) <= currentHeight){
+					int ccBlockHeight = atoi(strs[0]);
+					if ( ccBlockHeight<= currentHeight && ccBlockHeight>startHeight ){
 						CTransaction ccGenesisTx;
 						ccGenesisTx = loadCCGenesisTransaction(atoi(strs[0]), uint256S(strs[1]));
 						if (ccGenesisTx.vin.size() > 0){
@@ -513,7 +514,7 @@ public:
 
 					// if it is not active, then is queued.
 					std::vector<ContributionContract> vcc;
-					ContributionContract::getActiveContracts(currentHeight, vcc);
+					ContributionContract::getActiveContracts(0,currentHeight, vcc);
 					for (ContributionContract& cc : vcc) {
 					    if (cc.genesisTxHash.Compare(this->genesisTxHash) == 0)
 					    	return IN_EXECUTION;
