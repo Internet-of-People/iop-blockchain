@@ -1532,7 +1532,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
             boost::shared_ptr<CReserveScript> coinbaseScript( new CReserveScript() );
             coinbaseScript->reserveScript = GetScriptForDestination( mineToAddress.Get() );
             
-            threadGroup.create_thread(boost::bind(&MinerThread, coinbaseScript, whitelistAddressStr, mineToAddress));
+            threadGroup.create_thread(boost::bind(&MinerThread, coinbaseScript, whitelistAddress, mineToAddress));
         }
     }
 #endif
@@ -1541,7 +1541,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 }
 
 void MinerThread( boost::shared_ptr<CReserveScript> coinbaseScript,
-                  const string &whitelistAddress, const CIoPAddress &minerAddress )
+                  const CIoPAddress &whitelistAddress, const CIoPAddress &minerAddress )
 {
     // we must wait for the wallet to be unlocked in order to get the private key
     while (IsWalletLocked()) {
@@ -1559,7 +1559,7 @@ void MinerThread( boost::shared_ptr<CReserveScript> coinbaseScript,
 
     CKey vchSecret;
     if (!pwalletMain->GetKey(keyID, vchSecret)){
-        LogPrintf("Private key for %s is not known.\n", whitelistAddress.c_str());
+        LogPrintf("Private key for %s is not known.\n", whitelistAddress.ToString());
         return;
     }
 
