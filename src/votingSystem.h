@@ -417,7 +417,7 @@ public:
 					boost::split(strs, i, boost::is_any_of(","));
 
 					int ccBlockHeight = atoi(strs[0]);
-					if ( ccBlockHeight<= currentHeight && ccBlockHeight>startHeight ){
+					if ( ccBlockHeight<= currentHeight && ccBlockHeight>=startHeight ){
 						CTransaction ccGenesisTx;
 						ccGenesisTx = loadCCGenesisTransaction(atoi(strs[0]), uint256S(strs[1]));
 						if (ccGenesisTx.vin.size() > 0){
