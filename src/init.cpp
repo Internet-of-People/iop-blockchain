@@ -78,7 +78,7 @@ UniValue generateBlocks(boost::shared_ptr<CReserveScript> coinbaseScript,
 
 #include "base58.h" // To access class CIoPAddress to handle the mining target address parameter
 void MinerThread(boost::shared_ptr<CReserveScript> coinbaseScript,
-    const string &whitelistAddress, const CIoPAddress &minerAddress);
+    const CIoPAddress &whitelistAddress);
 
 
 
@@ -1532,7 +1532,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
             boost::shared_ptr<CReserveScript> coinbaseScript( new CReserveScript() );
             coinbaseScript->reserveScript = GetScriptForDestination( mineToAddress.Get() );
             
-            threadGroup.create_thread(boost::bind(&MinerThread, coinbaseScript, whitelistAddressStr, mineToAddress));
+            threadGroup.create_thread(boost::bind(&MinerThread, coinbaseScript, whitelistAddress));
         }
     }
 #endif
@@ -1541,7 +1541,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 }
 
 void MinerThread( boost::shared_ptr<CReserveScript> coinbaseScript,
-                  const string &whitelistAddress, const CIoPAddress &minerAddress )
+                  const CIoPAddress &whitelistAddress )
 {
     // we must wait for the wallet to be unlocked in order to get the private key
     while (IsWalletLocked()) {
@@ -1552,14 +1552,14 @@ void MinerThread( boost::shared_ptr<CReserveScript> coinbaseScript,
     }
 
     CKeyID keyID;
-    if (!minerAddress.GetKeyID(keyID)){
+    if (!whitelistAddress.GetKeyID(keyID)){
         LogPrintf("Provided minerWhiteListAddress does not refer to a key.\n");
         return;
     }
 
     CKey vchSecret;
     if (!pwalletMain->GetKey(keyID, vchSecret)){
-        LogPrintf("Private key for %s is not known.\n", whitelistAddress.c_str());
+        LogPrintf("Private key for %s is not known.\n", whitelistAddress.ToString());
         return;
     }
 
@@ -1576,7 +1576,7 @@ void MinerThread( boost::shared_ptr<CReserveScript> coinbaseScript,
             /* before we start mining, let's make sure we withing the cap if the Miner Cap is enabled */
             CMinerCap minerCap;
             if (minerCap.isEnabled()){
-                while (isMinerCapReached(whitelistAddress)){
+                while (isMinerCapReached(whitelistAddress.ToString())){
                     LogPrintf("Miner cap reached. Waiting a minute to retry...\n");
                     MilliSleep(1000 * 60);
                 }
