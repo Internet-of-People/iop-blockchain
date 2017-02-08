@@ -1576,7 +1576,7 @@ void MinerThread( boost::shared_ptr<CReserveScript> coinbaseScript,
             /* before we start mining, let's make sure we withing the cap if the Miner Cap is enabled */
             CMinerCap minerCap;
             if (minerCap.isEnabled()){
-                while (isMinerCapReached(whitelistAddress)){
+                while (isMinerCapReached(whitelistAddress.ToString())){
                     LogPrintf("Miner cap reached. Waiting a minute to retry...\n");
                     MilliSleep(1000 * 60);
                 }
