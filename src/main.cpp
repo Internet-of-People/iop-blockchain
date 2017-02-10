@@ -1755,16 +1755,19 @@ UniValue jsonContributionContracts(const UniValue& params){
 	unsigned int height = 0;
 
 	std::vector<uint256> ccGenesisHashes;
+	cout<<"params size "<<std::to_string(params.size())<<endl;
 	if (params.size() > 0){
 		height = atoi(params[0].get_str());
-		for(unsigned int i=0;i<params.size();i++){
-			uint256 ccGenesisHash = uint256();
-			ccGenesisHash = uint256S(params[i].get_str());
-			ccGenesisHashes.push_back(ccGenesisHash);
+		if (params.size()>1){
+			for(unsigned int i=0;i<params.size();i++){
+				uint256 ccGenesisHash = uint256();
+				ccGenesisHash = uint256S(params[i].get_str());
+				ccGenesisHashes.push_back(ccGenesisHash);
+			}
 		}
 	}
 	UniValue json(UniValue::VARR);
-
+	cout<<"contracts height: "<<std::to_string(height)<<endl;
 	std::vector<ContributionContract> vcc;
 	ContributionContract::getContributionContracts(height,chainActive.Height(), vcc);
 	BOOST_FOREACH(ContributionContract cc, vcc){
@@ -6630,6 +6633,24 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         }
     }
 
+    else if (strCommand == NetMsgType::GETCC){
+    		vector<CInv> vInv;
+        	uint256 hashStart;
+        	vRecv >> hashStart;
+        	std::cout<<"height: "<<hashStart.GetHex()<<std::endl;
+    		CBlock block;
+    		CBlockIndex* startBlockIndex = mapBlockIndex[hashStart];
+    		// Send the rest of the chain
+    		if (startBlockIndex){
+    			int blockHeight = startBlockIndex->nHeight;
+    			UniValue data(UniValue::VARR);
+    			std::cout<<"height: "<<std::to_string(blockHeight)<<std::endl;
+    			data.push_back(std::to_string(blockHeight));
+    			UniValue result = jsonContributionContracts(data);
+    			std::cout<<"data: "<<result.write(1,0)<<std::endl;
+    			pfrom->PushMessage(NetMsgType::SENDCC, result.write(1,0));
+    		}
+        }
     else {
         // Ignore unknown commands for extensibility
         LogPrint("net", "Unknown command \"%s\" from peer=%d\n", SanitizeString(strCommand), pfrom->id);
