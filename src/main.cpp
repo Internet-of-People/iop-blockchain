@@ -1716,7 +1716,7 @@ map<CIoPAddress,CAmount> getCCBeneficiaries()
 	map<CIoPAddress,CAmount> mbb;
 
 	std::vector<ContributionContract> vcc;
-	ContributionContract::getActiveContracts(0,chainActive.Height()+1, vcc); // increase block height because this is call for miner for next block
+	ContributionContract::getActiveContracts(chainActive.Height()+1, vcc); // increase block height because this is call for miner for next block
 
 	BOOST_FOREACH(ContributionContract cc, vcc){
 		BOOST_FOREACH(CCBeneficiary ccb, cc.beneficiaries){
@@ -1769,7 +1769,7 @@ UniValue jsonContributionContracts(const UniValue& params){
 	UniValue json(UniValue::VARR);
 	cout<<"contracts height: "<<std::to_string(height)<<endl;
 	std::vector<ContributionContract> vcc;
-	ContributionContract::getContributionContracts(height,chainActive.Height(), vcc);
+	ContributionContract::getContributionContractsByHeight(height,chainActive.Height(), vcc);
 	BOOST_FOREACH(ContributionContract cc, vcc){
 		UniValue result(UniValue::VOBJ);
 		//todo ya lo voy a mejorar Mati
@@ -1809,7 +1809,7 @@ uint256 getContributionContract(const CTransaction& tx){
 CAmount getCCSubsidy(int nHeight){
 	CAmount subsidy = 0;
 	std::vector<ContributionContract> vcc;
-	ContributionContract::getActiveContracts(0,nHeight, vcc);
+	ContributionContract::getActiveContracts(nHeight, vcc);
 
 	BOOST_FOREACH(ContributionContract cc, vcc){
 		subsidy = subsidy + cc.blockReward;
@@ -2891,7 +2891,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     // for each Active Contribution Contract
     std::vector<ContributionContract> vcc;
 
-    if (ContributionContract::getActiveContracts(0,chainActive.Height()+1, vcc)){
+    if (ContributionContract::getActiveContracts(chainActive.Height()+1, vcc)){
     	BOOST_FOREACH(ContributionContract cc, vcc) {
 			// For each beneficiary of the contract
 			if (cc.isValid()){

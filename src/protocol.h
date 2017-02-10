@@ -243,6 +243,23 @@ extern const char *GETBLOCKTXN;
  * @since protocol version 70014 as described by BIP 152
  */
 extern const char *BLOCKTXN;
+
+// Voting
+/**
+ * Contains a block hash
+ *
+ */
+extern const char *GETCC;
+
+/**
+ * Contains an array of cc in json.
+ * Sent in response to a "getcc"
+ *
+ */
+extern const char *SENDCC;
+
+
+
 };
 
 /* Get a vector of all valid message types (see above) */

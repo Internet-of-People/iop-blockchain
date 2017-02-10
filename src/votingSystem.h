@@ -238,7 +238,7 @@ public:
 		return true;
 	}
 
-	static bool getActiveContracts(int startHeight,int currentHeight ,std::vector<ContributionContract>& ccOut){
+	static bool getActiveContracts(int currentHeight ,std::vector<ContributionContract>& ccOut){
 		std::vector<std::string> ccPointers;
 		ccPointers = loadCCPointers();
 
@@ -252,7 +252,7 @@ public:
 
 
 			//we are loading transaction stored on blocks burried under current height
-			if (atoi(strs[0]) <= currentHeight  && atoi(strs[0])>startHeight){
+			if (atoi(strs[0]) <= currentHeight){
 				CTransaction ccGenesisTx;
 				ccGenesisTx = loadCCGenesisTransaction(atoi(strs[0]), uint256S(strs[1]));
 				if (!ccGenesisTx.IsNull() && ccGenesisTx.vin.size() > 0){
@@ -406,7 +406,7 @@ public:
 
 		}
 
-		static bool getContributionContracts(int startHeight,int currentHeight, std::vector<ContributionContract>& ccOut){
+		static bool getContributionContracts(int currentHeight, std::vector<ContributionContract>& ccOut){
 				std::vector<std::string> ccPointers;
 				ccPointers = loadCCPointers();
 
@@ -417,7 +417,7 @@ public:
 					boost::split(strs, i, boost::is_any_of(","));
 
 					int ccBlockHeight = atoi(strs[0]);
-					if ( ccBlockHeight<= currentHeight && ccBlockHeight>=startHeight ){
+					if ( ccBlockHeight<= currentHeight){
 						CTransaction ccGenesisTx;
 						ccGenesisTx = loadCCGenesisTransaction(atoi(strs[0]), uint256S(strs[1]));
 						if (ccGenesisTx.vin.size() > 0){
@@ -443,6 +443,44 @@ public:
 
 				return found;
 			}
+
+		static bool getContributionContractsByHeight(int startHeight,int currentHeight, std::vector<ContributionContract>& ccOut){
+						std::vector<std::string> ccPointers;
+						ccPointers = loadCCPointers();
+
+						bool found = false;
+
+						for (auto i : ccPointers){
+							std::vector<std::string> strs;
+							boost::split(strs, i, boost::is_any_of(","));
+
+							int ccBlockHeight = atoi(strs[0]);
+							if ( ccBlockHeight<= currentHeight && ccBlockHeight>=startHeight ){
+								CTransaction ccGenesisTx;
+								ccGenesisTx = loadCCGenesisTransaction(atoi(strs[0]), uint256S(strs[1]));
+								if (ccGenesisTx.vin.size() > 0){
+									BOOST_FOREACH(const CTxOut& out, ccGenesisTx.vout) {
+										if (isContributionContract(out.scriptPubKey)){
+											ContributionContract cc = ContributionContract();
+											if (getContributionContract(ccGenesisTx, cc)){
+												cc.genesisBlockHeight = atoi(strs[0]); //I set the block height
+												if (cc.isValid()){
+														cc.votes = cc.getCCVotes(currentHeight);
+														cc.blockPending = cc.getPendingBlocks(currentHeight);
+														cc.state = cc.getCCState(currentHeight);
+
+														found = true;
+														ccOut.push_back(cc);
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+
+						return found;
+					}
 
 		CCState getCCState(int currentHeight){
 			//if not valid, then it won't be executed.
@@ -514,7 +552,7 @@ public:
 
 					// if it is not active, then is queued.
 					std::vector<ContributionContract> vcc;
-					ContributionContract::getActiveContracts(0,currentHeight, vcc);
+					ContributionContract::getActiveContracts(currentHeight, vcc);
 					for (ContributionContract& cc : vcc) {
 					    if (cc.genesisTxHash.Compare(this->genesisTxHash) == 0)
 					    	return IN_EXECUTION;
