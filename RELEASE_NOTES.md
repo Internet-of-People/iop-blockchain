@@ -117,3 +117,9 @@ Shows the status and specifications of each Contribution Contract. For example:
   ]
 }
 ```
+
+## version 3.0.1
+
+Small changes
+
+* added commands to retrieve Contribution Contracts from the message protocol.
