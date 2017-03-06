@@ -1,14 +1,22 @@
 Installing IoP Client
 ==========================
 
-At this early stage we don't provide other packages than for Ubuntu Linux.
+At this early stage we don't provide other official packages than for Ubuntu Linux.
 But you can find other community packages on the [community repositories](http://repo.fermat.community)
 
 For a little help building IoP Core on OSX see [INSTALL_OSX.md](https://github.com/Fermat-ORG/iop-blockchain/blob/beta-1.0.0/INSTALL_OSX.md)
 
 We will provide Windows, MacOSX and other Packages after the beta phase, please be patient.
 
-# Installing Ubuntu Packages
+# Installing and upgrading on Ubuntu
+
+To install or upgrade the IoP Token Core on an Ubuntu trusty or xenial system, you only need this one-liner:
+
+`curl -L https://raw.githubusercontent.com/Fermat-ORG/iop-token-scripts/master/install-iop-token.deb.sh | sudo bash -`
+
+Ready!
+
+## The longer and manual way
 
 To install IoP the first time on Ubuntu, add new repository to `/etc/apt/sources.list.d/IoP.list` with your editor (here "nano"):
 
