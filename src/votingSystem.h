@@ -487,6 +487,20 @@ public:
 			if (!isValid())
 				return EXECUTION_CANCELLED;
 
+			// 1000 IoPs that where used to create the CC must still be locked, which means that there must
+			// not be another transaction that uses that input in the Active period.
+			UniValue utxo(UniValue::VOBJ);
+			UniValue ret(UniValue::VOBJ);
+			utxo.push_back(Pair("tx", this->genesisTxHash.ToString()));
+			utxo.push_back(Pair("n", 0));
+			ret = gettxout(utxo, false);
+			// if I didn't get a result, then no utxo and the locked coins of the CC are already spent.
+
+			if (ret.isNull()){
+				LogPrint("Inactive Contract", "Contract %s is not active. No UTXO\n", this->genesisTxHash.ToString());
+				return EXECUTION_CANCELLED;;
+			}
+
 			// possible states are SUBMITTED, APPROVED, NOT APPROVED depending on the votes count
 			if (currentHeight < this->blockStart + this->genesisBlockHeight){
 				std::vector<CAmount> votes;
