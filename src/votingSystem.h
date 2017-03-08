@@ -73,7 +73,7 @@ public:
 	int genesisBlockHeight;
 	CTransaction genesisTx;
 	uint256 genesisTxHash;
-	std::vector<int> votes;
+	std::vector<CAmount> votes;
 	std::string opReturn;
 
 	// possible ContributionContract states
@@ -487,9 +487,23 @@ public:
 			if (!isValid())
 				return EXECUTION_CANCELLED;
 
+			// 1000 IoPs that where used to create the CC must still be locked, which means that there must
+			// not be another transaction that uses that input in the Active period.
+			UniValue utxo(UniValue::VOBJ);
+			UniValue ret(UniValue::VOBJ);
+			utxo.push_back(Pair("tx", this->genesisTxHash.ToString()));
+			utxo.push_back(Pair("n", 0));
+			ret = gettxout(utxo, false);
+			// if I didn't get a result, then no utxo and the locked coins of the CC are already spent.
+
+			if (ret.isNull()){
+				LogPrint("Inactive Contract", "Contract %s is not active. No UTXO\n", this->genesisTxHash.ToString());
+				return EXECUTION_CANCELLED;;
+			}
+
 			// possible states are SUBMITTED, APPROVED, NOT APPROVED depending on the votes count
 			if (currentHeight < this->blockStart + this->genesisBlockHeight){
-				std::vector<int> votes;
+				std::vector<CAmount> votes;
 				votes.push_back(0);
 				votes.push_back(0);
 
@@ -513,7 +527,7 @@ public:
 			// possible states are NOT_APPROVED and QUEUED_FOR_EXECUTION depending on the votes count
 			if (currentHeight >= this->blockStart + this->genesisBlockHeight  &&
 					currentHeight < this->blockStart + this->genesisBlockHeight + Params().GetConsensus().ccBlockStartAdditionalHeight){
-				std::vector<int> votes;
+				std::vector<CAmount> votes;
 				votes.push_back(0);
 				votes.push_back(0);
 
@@ -535,7 +549,7 @@ public:
 			// possible states are NOT_APPROVED, IN_EXECUTION, QUEUED and EXECUTION_CANCELLED depending on the votes count
 			if (currentHeight >= this->blockStart + this->genesisBlockHeight + Params().GetConsensus().ccBlockStartAdditionalHeight &&
 					getPendingBlocks(currentHeight) > 0){
-				std::vector<int> votes;
+				std::vector<CAmount> votes;
 				votes.push_back(0);
 				votes.push_back(0);
 
@@ -608,7 +622,7 @@ public:
 
 			// The amount of YES votes must be greater than NO votes.
 			// I need to search all the Votes transaction since the genesis block.
-			std::vector<int> votes;
+			std::vector<CAmount> votes;
 			votes.push_back(0);
 			votes.push_back(0);
 
@@ -675,8 +689,8 @@ public:
 
 		// gets the total numbers of valid votes for the CC.
 		// position 0 are YES votes, Position 1 are NO votes
-		std::vector<int> getCCVotes(int currentHeight){
-			std::vector<int> votes;
+		std::vector<CAmount> getCCVotes(int currentHeight){
+			std::vector<CAmount> votes;
 			votes.push_back(0);
 			votes.push_back(0);
 
@@ -702,7 +716,7 @@ public:
 
 
 
-		bool getVote(CTransaction tx, std::vector<int> &votes, bool includePositive){
+		bool getVote(CTransaction tx, std::vector<CAmount> &votes, bool includePositive){
 			// can't be coinbase
 			if (tx.IsCoinBase())
 				return false;

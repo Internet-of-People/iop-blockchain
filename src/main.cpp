@@ -1755,7 +1755,7 @@ UniValue jsonContributionContracts(const UniValue& params){
 	unsigned int height = 0;
 
 	std::vector<uint256> ccGenesisHashes;
-	cout<<"params size "<<std::to_string(params.size())<<endl;
+
 	if (params.size() > 0){
 		height = atoi(params[0].get_str());
 		if (params.size()>1){
@@ -1767,12 +1767,11 @@ UniValue jsonContributionContracts(const UniValue& params){
 		}
 	}
 	UniValue json(UniValue::VARR);
-	cout<<"contracts height: "<<std::to_string(height)<<endl;
+
 	std::vector<ContributionContract> vcc;
 	ContributionContract::getContributionContractsByHeight(height,chainActive.Height(), vcc);
 	BOOST_FOREACH(ContributionContract cc, vcc){
 		UniValue result(UniValue::VOBJ);
-		//todo ya lo voy a mejorar Mati
 		if (ccGenesisHashes.empty()){
 			result = ccToJson(cc,result);
 		}else{

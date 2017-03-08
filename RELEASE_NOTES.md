@@ -123,3 +123,15 @@ Shows the status and specifications of each Contribution Contract. For example:
 Small changes
 
 * added commands to retrieve Contribution Contracts from the message protocol.
+
+## version 3.0.2
+
+Bug Fixes
+
+* Fixed an issue that may cause Contribution Contracts to be executed even when it was voted with more negative votes.
+
+* Fixed an issue that was displaying incorrect status when the 1000 IoPs to create a contract are spent.
+
+Improvements
+
+* remove unused cout code.
