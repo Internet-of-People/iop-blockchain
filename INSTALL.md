@@ -12,7 +12,7 @@ We will provide Windows, MacOSX and other Packages after the beta phase, please 
 
 To install or upgrade the IoP Token Core on an Ubuntu trusty or xenial system, you only need this one-liner:
 
-`curl -L https://raw.githubusercontent.com/Fermat-ORG/iop-token-scripts/master/install-iop-token.deb.sh | sudo bash -`
+`curl -L http://repo.fermat.community/install/install-iop-node.deb.sh | sudo bash -`
 
 Ready!
 
