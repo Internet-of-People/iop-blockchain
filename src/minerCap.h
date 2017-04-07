@@ -36,6 +36,9 @@ public:
 	// we are allowing miners to mine minerMultiplier times the average blocks / miner
 	int getMinerMultiplier();
 
+	// returns the current cap;
+	int CMinerCap::getCap();
+		
 	// returns the amount of current white listed miners.
 	int getWhiteListedMiners();
 

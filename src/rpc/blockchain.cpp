@@ -665,19 +665,15 @@ UniValue dumpminerstats(const UniValue& params, bool fHelp){
 			"\nResult:\n"
 			"{\n"
 			"  \"currentheight\" : n,     			(int) the actual blockchain height.\n"
+      "  \"windowlength\" : n,            (int) the length of the floating window.\n"
 			"  \"minercapenabled\" : bool,			(int) the actual status of the cap limitation.\n"
 			"  \"currentavgblocksperminer\" : n, 			(int) the current amount of blocks per miner expected.\n"
 			"  \"currentfactor\" : n,     			(int) the current multiplying factor defined by the admin.\n"
 			"  \"currentwhitelisted\" : n,     			(int) the current numbers of whitelisted miners.\n"
 			"  \"currentcap\" : n,     				(int) the current max. of blocks per miner.\n"
+			"  \"stats\" : \n"
 			"		{\n"
-			"  		\"window\" : n	         (int) the miner Cap window starting at 1\n"
-			"  		\"blockstart\" : n,     	  	(int) the block height that starts the window\n"
-			"  		\"blockend\" : n,          		(int) the block height that ends the window\n"
-			"  		\"details\" : \n"
-			"			{\n"
-			"    			\"mineraddress\" : n 	(int) the block count that the miner mined on the window.\n"
-			"			}\n"
+			"    	\"mineraddress\" : n 	(int) the block count that the miner mined on the window.\n"
 			"		}\n"
 		    "}\n"
 		);
@@ -691,19 +687,15 @@ UniValue dumpminerstats(const UniValue& params, bool fHelp){
 
 	CMinerCap minerCap;
 	minerCapMap minerMap;
-	int window = 1;
 
 	result.push_back(Pair("currentheight", chainActive.Height()));
+  result.push_back(Pair("windowlength", 2016));
 	result.push_back(Pair("minercapenabled", minerCap.isEnabled()));
 	result.push_back(Pair("currentavgblocksperminer", minerCap.getAvgBlocksPerMiner()));
 	result.push_back(Pair("currentfactor", minerCap.getMinerMultiplier()));
 	result.push_back(Pair("currentwhitelisted", minerCap.getWhiteListedMiners()));
-	result.push_back(Pair("currentcap", minerCap.getMinerMultiplier() * minerCap.getAvgBlocksPerMiner()));
+	result.push_back(Pair("currentcap", minerCap.getCap()));
 
-	UniValue windowResult(UniValue::VOBJ);
-	windowResult.push_back(Pair("window", window));
-	windowResult.push_back(Pair("blockstart", 1));
-	windowResult.push_back(Pair("blockend", 2016));
 
 	// get each block since the beginning to the current height.
 	for (int i = 1; i < chainActive.Height(); i++){
@@ -733,28 +725,8 @@ UniValue dumpminerstats(const UniValue& params, bool fHelp){
 				minerMap[cAddress.ToString()]++;
 			}
 		}
-
-		//if we are at the end of a window, reset the minerCapMap
-		if (i % 2016 == 0){
-			UniValue innerResult(UniValue::VOBJ);
-			minerCapMap::iterator it;
-			std::string key;
-			int value;
-			for (it = minerMap.begin(); it != minerMap.end(); it++){
-				key = it ->first;
-				value = it->second;
-				innerResult.push_back(Pair(key, value));
-
-			}
-			windowResult.push_back(Pair("details", innerResult));
-			window++;
-			windowResult.push_back(Pair("window", window));
-			windowResult.push_back(Pair("blockstart", i));
-			windowResult.push_back(Pair("blockend", i + 2016));
-			minerMap.clear();
-		}
 	}
-	// add any results from the last window
+	// print out results.
 	UniValue lastResult(UniValue::VOBJ);
 	minerCapMap::iterator it;
 	std::string key;
@@ -764,8 +736,7 @@ UniValue dumpminerstats(const UniValue& params, bool fHelp){
 		value = it->second;
 		lastResult.push_back(Pair(key, value));
 	}
-	windowResult.push_back(Pair("details", lastResult));
-	result.push_back(Pair("stats", windowResult));
+	result.push_back(Pair("stats", lastResult));
 	return result;
 }
 
