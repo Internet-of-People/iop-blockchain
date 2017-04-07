@@ -650,6 +650,9 @@ UniValue dumpCC(const UniValue& params, bool fHelp){
 	return jsonContributionContracts(params);
 }
 
+bool comppair(pair<std::string,uint32_t> a, pair<std::string,uint32_t> b) {
+    return a.second > b.second;
+}
 
 
 /**
@@ -671,6 +674,7 @@ UniValue dumpminerstats(const UniValue& params, bool fHelp){
 			"  \"currentfactor\" : n,     			(int) the current multiplying factor defined by the admin.\n"
 			"  \"currentwhitelisted\" : n,     			(int) the current numbers of whitelisted miners.\n"
 			"  \"currentcap\" : n,     				(int) the current max. of blocks per miner.\n"
+      "  \"windowstart\" : n,     				(int) the starting block of the floating window.\n"
 			"  \"stats\" : \n"
 			"		{\n"
 			"    	\"mineraddress\" : n 	(int) the block count that the miner mined on the window.\n"
@@ -687,18 +691,22 @@ UniValue dumpminerstats(const UniValue& params, bool fHelp){
 
 	CMinerCap minerCap;
 	minerCapMap minerMap;
-
-	result.push_back(Pair("currentheight", chainActive.Height()));
+  
+  int currHeight = chainActive.Height();
+  int windowStart = minerCap.getWindowStart(currHeight);
+  
+	result.push_back(Pair("currentheight", currHeight));
   result.push_back(Pair("windowlength", 2016));
 	result.push_back(Pair("minercapenabled", minerCap.isEnabled()));
 	result.push_back(Pair("currentavgblocksperminer", minerCap.getAvgBlocksPerMiner()));
 	result.push_back(Pair("currentfactor", minerCap.getMinerMultiplier()));
 	result.push_back(Pair("currentwhitelisted", minerCap.getWhiteListedMiners()));
 	result.push_back(Pair("currentcap", minerCap.getCap()));
-
+  result.push_back(Pair("windowstart", windowStart));
+  
 
 	// get each block since the beginning to the current height.
-	for (int i = 1; i < chainActive.Height(); i++){
+	for (int i = windowStart; i <= currHeight; i++){
 		CBlockIndex* pblockindex = chainActive[i];
 		CBlock block;
 		ReadBlockFromDisk(block, pblockindex, Params().GetConsensus());
@@ -727,13 +735,16 @@ UniValue dumpminerstats(const UniValue& params, bool fHelp){
 		}
 	}
 	// print out results.
+  std::vector<std::pair<std::string, uint32_t>> elems(minerMap.begin(), minerMap.end());
+  std::sort(elems.begin(), elems.end(), comppair);
+  
+  
 	UniValue lastResult(UniValue::VOBJ);
-	minerCapMap::iterator it;
 	std::string key;
 	int value;
-	for (it = minerMap.begin(); it != minerMap.end(); it++){
-		key = it ->first;
-		value = it->second;
+	for (int i = 0; i < elems.size() ; i++){
+		key = elems[i].first;
+		value = elems[i].second;
 		lastResult.push_back(Pair(key, value));
 	}
 	result.push_back(Pair("stats", lastResult));

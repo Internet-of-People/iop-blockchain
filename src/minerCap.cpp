@@ -88,11 +88,8 @@ int CMinerCap::getWindowStart(int currentHeight){
 	if (currentHeight < 2017)
 		return 1;
 
-	for (int i = currentHeight; i>1; i--){
-			return i - 2016 + 1; // We want 2016 Blocks INCLUDING the current block.
-	}
+	return currentHeight - 2016 + 1; // We want 2016 Blocks INCLUDING the current block.
 
-	return 0;
 }
 
 int CMinerCap::getMinerMultiplier(){

@@ -2431,6 +2431,10 @@ bool isMinerCapReached(std::string minerAddress){
 	// if the address is from the admin, no cap is forced.
 	if (Params().GetConsensus().minerWhiteListAdminAddress.count(minerAddress))
 		return false;
+    
+  // if we are scanning the existing chain, no cap is forced either
+  if (chainActive.Height()<=32256)
+    return false;
 
 	CMinerCap minerCap;
 	int minedBlockscounter = 0;
