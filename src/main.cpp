@@ -2436,9 +2436,9 @@ bool isMinerCapReached(std::string minerAddress){
 	int minedBlockscounter = 0;
 
 	
-  int currHeight = chainActive.Height()
+  int currHeight = chainActive.Height();
   // we get the start of the window
-  int windowStart = minerCap.getWindowStart();
+  int windowStart = minerCap.getWindowStart(currHeight);
   
 	LogPrint("MinerCap", "MinerCap - WindowStart: %s. Current Height: %s\n", windowStart, currHeight);
 
@@ -2472,7 +2472,7 @@ bool isMinerCapReached(std::string minerAddress){
 			}
 		}
 	}
-  int currCap = minerCap.getCap()
+  int currCap = minerCap.getCap();
 	LogPrint("MinerCap", "Is Miner cap exceeded: %s > %s ?\n", minedBlockscounter, currCap);
 	return (minedBlockscounter > currCap);
 }

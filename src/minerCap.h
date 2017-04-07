@@ -37,7 +37,7 @@ public:
 	int getMinerMultiplier();
 
 	// returns the current cap;
-	int CMinerCap::getCap();
+	int getCap();
 		
 	// returns the amount of current white listed miners.
 	int getWhiteListedMiners();

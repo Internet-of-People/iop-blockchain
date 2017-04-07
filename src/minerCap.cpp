@@ -79,7 +79,7 @@ int CMinerCap::getCap(){
 	CMinerWhiteList minerWhiteList;
 	minerwhitelist_v minerVector = minerWhiteList.Read();
 	
-	int fac = getMinerMultiplier()
+	int fac = getMinerMultiplier();
 	return (fac * 2016 / (minerVector.size() -1)); // removing the enable line from the size
 }
 
