@@ -2431,17 +2431,23 @@ bool isMinerCapReached(std::string minerAddress){
 	// if the address is from the admin, no cap is forced.
 	if (Params().GetConsensus().minerWhiteListAdminAddress.count(minerAddress))
 		return false;
+    
+  // if we are scanning the existing chain, no cap is forced either
+  if (chainActive.Height()<=32256)
+    return false;
 
 	CMinerCap minerCap;
 	int minedBlockscounter = 0;
 
-	// we get the start of the window. The start if the previous multiple of 2016 before the current height.
-	// possible windows ares from 1 to 2016, from 2016 to 4032, from 4032 to 6048 and so on...
-	int windowStart = minerCap.getWindowStart(chainActive.Height());
-	LogPrint("MinerCap", "MinerCap - WindowStart: %s. Current Height: %s\n", windowStart, chainActive.Height());
+	
+  int currHeight = chainActive.Height();
+  // we get the start of the window
+  int windowStart = minerCap.getWindowStart(currHeight);
+  
+	LogPrint("MinerCap", "MinerCap - WindowStart: %s. Current Height: %s\n", windowStart, currHeight);
 
-	// get each block since the beginning of the window to the current height.
-	for (int i = windowStart; i < chainActive.Height(); i++){
+	// get each block since the beginning of the window up to and including the current block.
+	for (int i = windowStart; i <= currHeight; i++){
 		CBlockIndex* pblockindex = chainActive[i];
 		CBlock block;
 		ReadBlockFromDisk(block, pblockindex, Params().GetConsensus());
@@ -2470,8 +2476,9 @@ bool isMinerCapReached(std::string minerAddress){
 			}
 		}
 	}
-	LogPrint("MinerCap", "Is Miner cap exceeded: %s > (%s * %s)\n", minedBlockscounter, minerCap.getAvgBlocksPerMiner(), minerCap.getMinerMultiplier());
-	return (minedBlockscounter > (minerCap.getAvgBlocksPerMiner() * minerCap.getMinerMultiplier()));
+  int currCap = minerCap.getCap();
+	LogPrint("MinerCap", "Is Miner cap exceeded: %s > %s ?\n", minedBlockscounter, currCap);
+	return (minedBlockscounter > currCap);
 }
 
 
