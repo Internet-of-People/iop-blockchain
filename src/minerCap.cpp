@@ -80,7 +80,7 @@ int CMinerCap::getCap(){
 	minerwhitelist_v minerVector = minerWhiteList.Read();
 	
 	int fac = getMinerMultiplier();
-	if (currentHeight < Params().GetConsensus().minerCapSystemChangeHeight) {
+	if (chainActive.Height() < Params().GetConsensus().minerCapSystemChangeHeight) {
 		return  (2016 / (minerVector.size() -1) * fac); 
 	}
 	return (fac * 2016 / (minerVector.size() -1)); // removing the enable line from the size
