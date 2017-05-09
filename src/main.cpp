@@ -2432,21 +2432,20 @@ bool isMinerCapReached(std::string minerAddress){
 	if (Params().GetConsensus().minerWhiteListAdminAddress.count(minerAddress))
 		return false;
     
-  // if we are scanning the existing chain, no cap is forced either
-  if (chainActive.Height()<=32256)
-    return false;
-
-	CMinerCap minerCap;
+  CMinerCap minerCap;
 	int minedBlockscounter = 0;
-
-	
   int currHeight = chainActive.Height();
-  // we get the start of the window
-  int windowStart = minerCap.getWindowStart(currHeight);
-  
-	LogPrint("MinerCap", "MinerCap - WindowStart: %s. Current Height: %s\n", windowStart, currHeight);
 
-	// get each block since the beginning of the window up to and including the current block.
+  
+	int windowStart = minerCap.getWindowStart(currHeight);
+	LogPrint("MinerCap", "MinerCap - WindowStart: %s. Current Height: %s\n", windowStart, currHeight);
+  
+  
+  // if we are below the new cap start point, we need to adjust the currHeight, because previously we ran the loop until i<currHeight
+	if (currHeight < 36288) {
+		currHeight-=1;
+	}
+  
 	for (int i = windowStart; i <= currHeight; i++){
 		CBlockIndex* pblockindex = chainActive[i];
 		CBlock block;
