@@ -287,7 +287,7 @@ public:
 		consensus.minerWhiteListActivationHeight = 5000; //block height that activates the white list.
 		consensus.minerWhiteListAdminPubKey.insert("03760087582c5e225aea2a6781f4df8b12d7124e4f039fbd3e6d053fdcaacc60eb"); //pub key required to sign add / remove transactions
 		consensus.minerWhiteListAdminAddress.insert("ucNbB1K3BaHWY5tXrWiyWn11QB51vPDuVE"); //default miner address
-
+    consensus.minerCapSystemChangeHeight = 5200;
 		// Voting System Params
 		consensus.ccBlockStartAdditionalHeight = 10;
 
