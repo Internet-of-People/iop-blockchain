@@ -88,7 +88,7 @@ int CMinerCap::getWindowStart(int currentHeight){
 	if (currentHeight < 2017)
 		return 1;
 	
-	if (currentHeight < 36288) {
+	if (currentHeight < Params().GetConsensus().minerCapSystemChangeHeight) {
 		for (int i = currentHeight; i>1; i--){ 
     if (i % 2016 == 0) 
       return i; 

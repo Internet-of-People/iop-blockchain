@@ -663,7 +663,7 @@ UniValue dumpminerstats(const UniValue& params, bool fHelp){
   int currHeight = chainActive.Height();
   
   if (fHelp || params.size() > 1) {
-    if (currHeight < 36288) {
+    if (currHeight < Params().GetConsensus().minerCapSystemChangeHeight) {
   		throw runtime_error(
   			"dumpminerstats [minerAddress]\n"
   			"\nReturns the statistics of blocks mined by the specified miner. If no miner address is specified, then stats from all miners is retrieved.\n"
@@ -727,7 +727,7 @@ UniValue dumpminerstats(const UniValue& params, bool fHelp){
   minerCapMap minerMap;
   
   
-  if (currHeight < 36288) {
+  if (currHeight < Params().GetConsensus().minerCapSystemChangeHeight) {
 
   	int window = 1;
   	result.push_back(Pair("currentheight", chainActive.Height()));

@@ -2442,7 +2442,7 @@ bool isMinerCapReached(std::string minerAddress){
   
   
   // if we are below the new cap start point, we need to adjust the currHeight, because previously we ran the loop until i<currHeight
-	if (currHeight < 36288) {
+	if (currHeight < Params().GetConsensus().minerCapSystemChangeHeight) {
 		currHeight-=1;
 	}
   
