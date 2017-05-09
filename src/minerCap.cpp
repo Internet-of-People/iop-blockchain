@@ -93,9 +93,9 @@ int CMinerCap::getWindowStart(int currentHeight){
 	
 	if (currentHeight < Params().GetConsensus().minerCapSystemChangeHeight) {
 		for (int i = currentHeight; i>1; i--){ 
-    if (i % 2016 == 0) 
-      return i; 
-    }
+			if (i % 2016 == 0)
+				return i; 
+		}
 		return 0;
 	}
 	return currentHeight - 2016 + 1; // We want 2016 Blocks INCLUDING the current block.
