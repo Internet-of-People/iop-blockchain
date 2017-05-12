@@ -650,123 +650,221 @@ UniValue dumpCC(const UniValue& params, bool fHelp){
 	return jsonContributionContracts(params);
 }
 
+bool comppair(pair<std::string,uint32_t> a, pair<std::string,uint32_t> b) {
+    return a.second > b.second;
+}
 
 
 /**
  * IoP beta release - scans the blockchain identifying blocks from whitelisted miners and showing the stats of how much they mined.
  */
 UniValue dumpminerstats(const UniValue& params, bool fHelp){
-	if (fHelp || params.size() > 1)
-		throw runtime_error(
-			"dumpminerstats [minerAddress]\n"
-			"\nReturns the statistics of blocks mined by the specified miner. If no miner address is specified, then stats from all miners is retrieved.\n"
-			"\nArguments:\n"
-			"1. mineraddress         (string, optional) The whitelisted address of a miner\n"
-			"\nResult:\n"
-			"{\n"
-			"  \"currentheight\" : n,     			(int) the actual blockchain height.\n"
-			"  \"minercapenabled\" : bool,			(int) the actual status of the cap limitation.\n"
-			"  \"currentavgblocksperminer\" : n, 			(int) the current amount of blocks per miner expected.\n"
-			"  \"currentfactor\" : n,     			(int) the current multiplying factor defined by the admin.\n"
-			"  \"currentwhitelisted\" : n,     			(int) the current numbers of whitelisted miners.\n"
-			"  \"currentcap\" : n,     				(int) the current max. of blocks per miner.\n"
-			"		{\n"
-			"  		\"window\" : n	         (int) the miner Cap window starting at 1\n"
-			"  		\"blockstart\" : n,     	  	(int) the block height that starts the window\n"
-			"  		\"blockend\" : n,          		(int) the block height that ends the window\n"
-			"  		\"details\" : \n"
-			"			{\n"
-			"    			\"mineraddress\" : n 	(int) the block count that the miner mined on the window.\n"
-			"			}\n"
-			"		}\n"
-		    "}\n"
-		);
+  
+  int currHeight = chainActive.Height();
+  
+  if (fHelp || params.size() > 1) {
+    if (currHeight < Params().GetConsensus().minerCapSystemChangeHeight) {
+  		throw runtime_error(
+  			"dumpminerstats [minerAddress]\n"
+  			"\nReturns the statistics of blocks mined by the specified miner. If no miner address is specified, then stats from all miners is retrieved.\n"
+  			"\nArguments:\n"
+  			"1. mineraddress         (string, optional) The whitelisted address of a miner\n"
+  			"\nResult:\n"
+  			"{\n"
+  			"  \"currentheight\" : n,             (int) the actual blockchain height.\n"
+        "  \"windowlength\" : n,              (int) the length of the window.\n"
+  			"  \"minercapenabled\" : bool,        (int) the actual status of the cap limitation.\n"
+  			"  \"currentavgblocksperminer\" : n,  (int) the current amount of blocks per miner expected.\n"
+  			"  \"currentfactor\" : n,             (int) the current multiplying factor defined by the admin.\n"
+  			"  \"currentwhitelisted\" : n,        (int) the current numbers of whitelisted miners.\n"
+  			"  \"currentcap\" : n,                (int) the current max. of blocks per miner.\n"
+        "  \"windowstart\" : n,               (int) the starting block of the window.\n"
+  			"  \"stats\" : \n"
+  			"  {\n"
+        "    \"window\" : n                   (int) the miner Cap window starting at 1\n" 
+        "    \"blockstart\" : n,              (int) the block height that starts the window\n" 
+        "    \"blockend\" : n,                (int) the block height that ends the window\n" 
+        "    \"details\" : \n" 
+        "    {\n" 
+        "      \"mineraddress\" : n           (int) the block count that the miner mined on the window.\n" 
+        "    }\n"
+  			"  }\n"
+  	    "}\n"
+  		);
+    } else {
+  		throw runtime_error(
+  			"dumpminerstats [minerAddress]\n"
+  			"\nReturns the statistics of blocks mined by the specified miner. If no miner address is specified, then stats from all miners is retrieved.\n"
+  			"\nArguments:\n"
+  			"1. mineraddress         (string, optional) The whitelisted address of a miner\n"
+  			"\nResult:\n"
+  			"{\n"
+  			"  \"currentheight\" : n,             (int) the actual blockchain height.\n"
+        "  \"windowlength\" : n,              (int) the length of the window.\n"
+  			"  \"minercapenabled\" : bool,        (int) the actual status of the cap limitation.\n"
+  			"  \"currentavgblocksperminer\" : n,  (int) the current amount of blocks per miner expected.\n"
+  			"  \"currentfactor\" : n,             (int) the current multiplying factor defined by the admin.\n"
+  			"  \"currentwhitelisted\" : n,        (int) the current numbers of whitelisted miners.\n"
+  			"  \"currentcap\" : n,                (int) the current max. of blocks per miner.\n"
+        "  \"windowstart\" : n,               (int) the starting block of the window.\n"
+  			"  \"stats\" : \n"
+  			"  {\n"
+  			"    \"mineraddress\" : n            (int) the block count that the miner mined on the window.\n"
+  			"  }\n"
+  		  "}\n"
+  		);
+    }
+  }
+  
+  std::string minerParamater;
+  if (params.size()== 1)
+    minerParamater = params[0].getValStr();
+    
+  UniValue result(UniValue::VOBJ);
+  typedef std::unordered_map <std::string, uint32_t> minerCapMap;
 
-	std::string minerParamater;
-	if (params.size()== 1)
-		minerParamater = params[0].getValStr();
+  CMinerCap minerCap;
+  minerCapMap minerMap;
+  
+  
+  if (currHeight < Params().GetConsensus().minerCapSystemChangeHeight) {
 
-	UniValue result(UniValue::VOBJ);
-	typedef std::unordered_map <std::string, uint32_t> minerCapMap;
+  	int window = 1;
+  	result.push_back(Pair("currentheight", chainActive.Height()));
+  	result.push_back(Pair("minercapenabled", minerCap.isEnabled()));
+  	result.push_back(Pair("currentavgblocksperminer", minerCap.getAvgBlocksPerMiner()));
+  	result.push_back(Pair("currentfactor", minerCap.getMinerMultiplier()));
+  	result.push_back(Pair("currentwhitelisted", minerCap.getWhiteListedMiners()));
+  	result.push_back(Pair("currentcap", minerCap.getMinerMultiplier() * minerCap.getAvgBlocksPerMiner()));
 
-	CMinerCap minerCap;
-	minerCapMap minerMap;
-	int window = 1;
+  	UniValue windowResult(UniValue::VOBJ);
+  	windowResult.push_back(Pair("window", window));
+  	windowResult.push_back(Pair("blockstart", 1));
+  	windowResult.push_back(Pair("blockend", 2016));
 
-	result.push_back(Pair("currentheight", chainActive.Height()));
-	result.push_back(Pair("minercapenabled", minerCap.isEnabled()));
-	result.push_back(Pair("currentavgblocksperminer", minerCap.getAvgBlocksPerMiner()));
-	result.push_back(Pair("currentfactor", minerCap.getMinerMultiplier()));
-	result.push_back(Pair("currentwhitelisted", minerCap.getWhiteListedMiners()));
-	result.push_back(Pair("currentcap", minerCap.getMinerMultiplier() * minerCap.getAvgBlocksPerMiner()));
+  	// get each block since the beginning to the current height.
+  	for (int i = 1; i < chainActive.Height(); i++){
+  		CBlockIndex* pblockindex = chainActive[i];
+  		CBlock block;
+  		ReadBlockFromDisk(block, pblockindex, Params().GetConsensus());
 
-	UniValue windowResult(UniValue::VOBJ);
-	windowResult.push_back(Pair("window", window));
-	windowResult.push_back(Pair("blockstart", 1));
-	windowResult.push_back(Pair("blockend", 2016));
+  		CScript coinbaseScriptSig = block.vtx[0].vin[0].scriptSig;
 
-	// get each block since the beginning to the current height.
-	for (int i = 1; i < chainActive.Height(); i++){
-		CBlockIndex* pblockindex = chainActive[i];
-		CBlock block;
-		ReadBlockFromDisk(block, pblockindex, Params().GetConsensus());
+  		vector<unsigned char> value;
+  		CScript::const_iterator pc = coinbaseScriptSig.begin();
+  		opcodetype opcode;
 
-		CScript coinbaseScriptSig = block.vtx[0].vin[0].scriptSig;
+  		// we get the public key
+  		while (pc < coinbaseScriptSig.end()){
+  			coinbaseScriptSig.GetOp(pc, opcode, value);
+  		}
+  		const CPubKey pkey(value);
 
-		vector<unsigned char> value;
-		CScript::const_iterator pc = coinbaseScriptSig.begin();
-		opcodetype opcode;
+  		// make sure the public key is ok.
+  		if (pkey.IsValid()){
+  			CIoPAddress cAddress;
+  			cAddress.Set(pkey.GetID());
+  			if (cAddress.IsValid()){
+  				// update the counter for this miner
+  				if (minerParamater.empty() || minerParamater.compare(cAddress.ToString()) == 0)
+  				minerMap[cAddress.ToString()]++;
+  			}
+  		}
 
-		// we get the public key
-		while (pc < coinbaseScriptSig.end()){
-			coinbaseScriptSig.GetOp(pc, opcode, value);
-		}
-		const CPubKey pkey(value);
+  		//if we are at the end of a window, reset the minerCapMap
+  		if (i % 2016 == 0){
+  			UniValue innerResult(UniValue::VOBJ);
+  			minerCapMap::iterator it;
+  			std::string key;
+  			int value;
+  			for (it = minerMap.begin(); it != minerMap.end(); it++){
+  				key = it ->first;
+  				value = it->second;
+  				innerResult.push_back(Pair(key, value));
 
-		// make sure the public key is ok.
-		if (pkey.IsValid()){
-			CIoPAddress cAddress;
-			cAddress.Set(pkey.GetID());
-			if (cAddress.IsValid()){
-				// update the counter for this miner
-				if (minerParamater.empty() || minerParamater.compare(cAddress.ToString()) == 0)
-				minerMap[cAddress.ToString()]++;
-			}
-		}
+  			}
+  			windowResult.push_back(Pair("details", innerResult));
+  			window++;
+  			windowResult.push_back(Pair("window", window));
+  			windowResult.push_back(Pair("blockstart", i));
+  			windowResult.push_back(Pair("blockend", i + 2016));
+  			minerMap.clear();
+  		}
+  	}
+  	// add any results from the last window
+  	UniValue lastResult(UniValue::VOBJ);
+  	minerCapMap::iterator it;
+  	std::string key;
+  	int value;
+  	for (it = minerMap.begin(); it != minerMap.end(); it++){
+  		key = it ->first;
+  		value = it->second;
+  		lastResult.push_back(Pair(key, value));
+  	}
+  	windowResult.push_back(Pair("details", lastResult));
+    result.push_back(Pair("stats", windowResult));
+    return result;
+    
+    
+    
+  } else {
+    
+    int windowStart = minerCap.getWindowStart(currHeight);
+    
+  	result.push_back(Pair("currentheight", currHeight));
+    result.push_back(Pair("windowlength", 2016));
+  	result.push_back(Pair("minercapenabled", minerCap.isEnabled()));
+  	result.push_back(Pair("currentavgblocksperminer", minerCap.getAvgBlocksPerMiner()));
+  	result.push_back(Pair("currentfactor", minerCap.getMinerMultiplier()));
+  	result.push_back(Pair("currentwhitelisted", minerCap.getWhiteListedMiners()));
+  	result.push_back(Pair("currentcap", minerCap.getCap()));
+    result.push_back(Pair("windowstart", windowStart));
+    
 
-		//if we are at the end of a window, reset the minerCapMap
-		if (i % 2016 == 0){
-			UniValue innerResult(UniValue::VOBJ);
-			minerCapMap::iterator it;
-			std::string key;
-			int value;
-			for (it = minerMap.begin(); it != minerMap.end(); it++){
-				key = it ->first;
-				value = it->second;
-				innerResult.push_back(Pair(key, value));
+  	// get each block since the beginning to the current height.
+  	for (int i = windowStart; i <= currHeight; i++){
+  		CBlockIndex* pblockindex = chainActive[i];
+  		CBlock block;
+  		ReadBlockFromDisk(block, pblockindex, Params().GetConsensus());
 
-			}
-			windowResult.push_back(Pair("details", innerResult));
-			window++;
-			windowResult.push_back(Pair("window", window));
-			windowResult.push_back(Pair("blockstart", i));
-			windowResult.push_back(Pair("blockend", i + 2016));
-			minerMap.clear();
-		}
-	}
-	// add any results from the last window
-	UniValue lastResult(UniValue::VOBJ);
-	minerCapMap::iterator it;
-	std::string key;
-	int value;
-	for (it = minerMap.begin(); it != minerMap.end(); it++){
-		key = it ->first;
-		value = it->second;
-		lastResult.push_back(Pair(key, value));
-	}
-	windowResult.push_back(Pair("details", lastResult));
-	result.push_back(Pair("stats", windowResult));
-	return result;
+  		CScript coinbaseScriptSig = block.vtx[0].vin[0].scriptSig;
+
+  		vector<unsigned char> value;
+  		CScript::const_iterator pc = coinbaseScriptSig.begin();
+  		opcodetype opcode;
+
+  		// we get the public key
+  		while (pc < coinbaseScriptSig.end()){
+  			coinbaseScriptSig.GetOp(pc, opcode, value);
+  		}
+  		const CPubKey pkey(value);
+
+  		// make sure the public key is ok.
+  		if (pkey.IsValid()){
+  			CIoPAddress cAddress;
+  			cAddress.Set(pkey.GetID());
+  			if (cAddress.IsValid()){
+  				// update the counter for this miner
+  				if (minerParamater.empty() || minerParamater.compare(cAddress.ToString()) == 0)
+  				minerMap[cAddress.ToString()]++;
+  			}
+  		}
+  	}
+  	// print out results.
+    std::vector<std::pair<std::string, uint32_t>> elems(minerMap.begin(), minerMap.end());
+    std::sort(elems.begin(), elems.end(), comppair);
+    
+  	UniValue lastResult(UniValue::VOBJ);
+  	std::string key;
+  	int value;
+  	for (int i = 0; i < elems.size() ; i++){
+  		key = elems[i].first;
+  		value = elems[i].second;
+  		lastResult.push_back(Pair(key, value));
+  	}
+  	result.push_back(Pair("stats", lastResult));
+  	return result;
+  }
 }
 
 struct CCoinsStats

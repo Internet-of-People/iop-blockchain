@@ -75,17 +75,30 @@ int CMinerCap::getAvgBlocksPerMiner(){
 	return (2016 / (minerVector.size() -1)); // removing the enable line from the size
 }
 
+int CMinerCap::getCap(){
+	CMinerWhiteList minerWhiteList;
+	minerwhitelist_v minerVector = minerWhiteList.Read();
+	
+	int fac = getMinerMultiplier();
+	if (chainActive.Height() < Params().GetConsensus().minerCapSystemChangeHeight) {
+		return  (2016 / (minerVector.size() -1) * fac); 
+	}
+	return (fac * 2016 / (minerVector.size() -1)); // removing the enable line from the size
+}
+
 // gets the start of the cap window.
 int CMinerCap::getWindowStart(int currentHeight){
 	if (currentHeight < 2017)
 		return 1;
-
-	for (int i = currentHeight; i>1; i--){
-		if (i % 2016 == 0)
-			return i;
+	
+	if (currentHeight < Params().GetConsensus().minerCapSystemChangeHeight) {
+		for (int i = currentHeight; i>1; i--){ 
+			if (i % 2016 == 0)
+				return i; 
+		}
+		return 0;
 	}
-
-	return 0;
+	return currentHeight - 2016 + 1; // We want 2016 Blocks INCLUDING the current block.
 }
 
 int CMinerCap::getMinerMultiplier(){
@@ -109,4 +122,3 @@ int CMinerCap::getWhiteListedMiners(){
 	minerwhitelist_v minerVector = minerWhiteList.Read();
 	return (minerVector.size() -1); // removing the enable line from the size
 }
-
