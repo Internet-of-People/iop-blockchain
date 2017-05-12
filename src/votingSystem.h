@@ -29,7 +29,6 @@
 #include <rpc/blockchain.cpp>
 #include <minerCap.cpp>
 
-#include "votingSystem.h"
 
 #include "util.h"
 #include "uint256.h"
