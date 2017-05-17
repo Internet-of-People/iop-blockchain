@@ -136,8 +136,8 @@ Improvements
 
 * remove unused cout code.
 
-## version 3.0.3
-
-Improvements
-
+## version 4.0.0
+ 
+Improvements 
+ 
 * New mining cap calculation algorithm
