@@ -1,5 +1,5 @@
 ---
-name: "IoP-osx-0.13"
+name: "IoP-osx-4.0.0"
 enable_cache: true
 suites:
 - "trusty"

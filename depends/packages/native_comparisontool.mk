@@ -1,10 +1,10 @@
 package=native_comparisontool
 $(package)_version=8c6666f
-$(package)_download_path=https://github.com/theuni/IoPd-comparisontool/raw/master
+$(package)_download_path=https://github.com/theuni/bitcoind-comparisontool/raw/master
 $(package)_file_name=pull-tests-$($(package)_version).jar
 $(package)_sha256_hash=a865332b3827abcde684ab79f5f43c083b0b6a4c97ff5508c79f29fee24f11cd
-$(package)_install_dirname=IoPdComparisonTool_jar
-$(package)_install_filename=IoPdComparisonTool.jar
+$(package)_install_dirname=bitcoindComparisonTool_jar
+$(package)_install_filename=bitcoindComparisonTool.jar
 
 define $(package)_extract_cmds
 endef
