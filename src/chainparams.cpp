@@ -129,12 +129,14 @@ public:
         assert(genesis.hashMerkleRoot == uint256S("0x951bc46d2da95047fb4a2c0f9b7d6e45591c3ffb49ab2fdffb8e96ef2b8f2be1"));
 
         vFixedSeeds.clear();
-		vSeeds.clear();
+        vSeeds.clear();
         vSeeds.push_back(CDNSSeedData("Seed server 1", "ham1.fermat.cloud"));
-		vSeeds.push_back(CDNSSeedData("Seed server 2", "ham2.fermat.cloud"));
+        vSeeds.push_back(CDNSSeedData("Seed server 2", "ham2.fermat.cloud"));
         vSeeds.push_back(CDNSSeedData("Seed server 3", "ham3.fermat.cloud"));
         vSeeds.push_back(CDNSSeedData("Seed server 4", "ham4.fermat.cloud"));
         vSeeds.push_back(CDNSSeedData("Seed server 5", "ham5.fermat.cloud"));
+        vSeeds.push_back(CDNSSeedData("Seed server 5", "ham5.fermat.cloud"));
+        vSeeds.push_back(CDNSSeedData("dejf DNS Seed", "iop-ts-main.amberloom.com"));
 
 		base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,117);
 		base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,174);
@@ -225,6 +227,7 @@ public:
 		vSeeds.push_back(CDNSSeedData("Seed server 6", "ham6.fermat.cloud"));
 		vSeeds.push_back(CDNSSeedData("Seed server 7", "ham7.fermat.cloud"));
 		vSeeds.push_back(CDNSSeedData("Seed server 8", "ham8.fermat.cloud"));
+    vSeeds.push_back(CDNSSeedData("dejf DNS Seed", "iop-ts-test.amberloom.com"));
 
 		base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,130);
 		base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,49);
