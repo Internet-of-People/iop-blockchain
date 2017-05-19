@@ -1,5 +1,5 @@
 ---
-name: "IoP-linux-0.13"
+name: "IoP-linux-4.0.0"
 enable_cache: true
 suites:
 - "trusty"
@@ -28,7 +28,7 @@ packages:
 - "ca-certificates"
 - "python"
 remotes:
-- "url": "https://github.com/IoP/IoP.git"
+- "url": "https://github.com/Fermat-ORG/iop-token-server.git"
   "dir": "IoP"
 files: []
 script: |

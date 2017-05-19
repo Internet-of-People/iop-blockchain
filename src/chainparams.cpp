@@ -105,7 +105,7 @@ public:
         consensus.minerWhiteListAdminPubKey.insert("038f21c88b0d7f60e736cc447a3a6716c81a7b403b27bede2b67522d7c29b6e608"); //pub key required to sign add / remove transactions
         consensus.minerWhiteListAdminAddress.insert("pUSydiLr9kFjtL7VbtfMYXMz7GLV413coQ"); //default miner address
         consensus.minerWhiteListAdminAddress.insert("pGNcLNCavQLGXwXkVDwoHPCuQUBoXzJtPh"); //default miner address
-        consensus.minerCapSystemChangeHeight = 38304;
+        consensus.minerCapSystemChangeHeight = 40320;
         // Voting System Params
         consensus.ccBlockStartAdditionalHeight = 1000;
 
@@ -129,12 +129,14 @@ public:
         assert(genesis.hashMerkleRoot == uint256S("0x951bc46d2da95047fb4a2c0f9b7d6e45591c3ffb49ab2fdffb8e96ef2b8f2be1"));
 
         vFixedSeeds.clear();
-		vSeeds.clear();
+        vSeeds.clear();
         vSeeds.push_back(CDNSSeedData("Seed server 1", "ham1.fermat.cloud"));
-		vSeeds.push_back(CDNSSeedData("Seed server 2", "ham2.fermat.cloud"));
+        vSeeds.push_back(CDNSSeedData("Seed server 2", "ham2.fermat.cloud"));
         vSeeds.push_back(CDNSSeedData("Seed server 3", "ham3.fermat.cloud"));
         vSeeds.push_back(CDNSSeedData("Seed server 4", "ham4.fermat.cloud"));
         vSeeds.push_back(CDNSSeedData("Seed server 5", "ham5.fermat.cloud"));
+        vSeeds.push_back(CDNSSeedData("Seed server 5", "ham5.fermat.cloud"));
+        vSeeds.push_back(CDNSSeedData("dejf DNS Seed", "iop-ts-main.amberloom.com"));
 
 		base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,117);
 		base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,174);
@@ -202,7 +204,7 @@ public:
 		consensus.minerWhiteListActivationHeight = 110; //block height that activates the white list.
 		consensus.minerWhiteListAdminPubKey.insert("03f331bdfe024cf106fa1dcedb8b78e084480fa665d91c50b61822d7830c9ea840"); //pub key required to sign add / remove transactions
 		consensus.minerWhiteListAdminAddress.insert("uh2SKjE6R1uw3b5smZ8i1G8rDoQv458Lsj"); //default miner address
-    consensus.minerCapSystemChangeHeight=7700;
+    consensus.minerCapSystemChangeHeight=7800;
 		// Voting System Params
 		consensus.ccBlockStartAdditionalHeight = 10;
 
@@ -225,6 +227,7 @@ public:
 		vSeeds.push_back(CDNSSeedData("Seed server 6", "ham6.fermat.cloud"));
 		vSeeds.push_back(CDNSSeedData("Seed server 7", "ham7.fermat.cloud"));
 		vSeeds.push_back(CDNSSeedData("Seed server 8", "ham8.fermat.cloud"));
+    vSeeds.push_back(CDNSSeedData("dejf DNS Seed", "iop-ts-test.amberloom.com"));
 
 		base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,130);
 		base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,49);
