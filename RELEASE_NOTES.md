@@ -141,3 +141,5 @@ Improvements
 Improvements 
  
 * New mining cap calculation algorithm
+* Switched over to gitian building 
+* made Berkley-DB 5.3 the default 
