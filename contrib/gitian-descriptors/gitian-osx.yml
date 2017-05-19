@@ -28,7 +28,7 @@ packages:
 - "python-setuptools"
 - "fonts-tuffy"
 remotes:
-- "url": "https://github.com/IoP/IoP.git"
+- "url": "https://github.com/Fermat-ORG/iop-token-server.git"
   "dir": "IoP"
 files:
 - "MacOSX10.11.sdk.tar.gz"
