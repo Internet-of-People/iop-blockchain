@@ -136,8 +136,10 @@ Improvements
 
 * remove unused cout code.
 
-## version 4.0.0
+## version 4.0.1
  
 Improvements 
  
 * New mining cap calculation algorithm
+* Switched over to gitian building 
+* made Berkley-DB 5.3 the default 
