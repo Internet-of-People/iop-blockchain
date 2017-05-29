@@ -1713,8 +1713,14 @@ bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex, const Consensus
 /* Voting System gets the beneficiaries addresses and amounts for coinbase creation at miner */
 map<CIoPAddress,CAmount> getCCBeneficiaries()
 {
-	map<CIoPAddress,CAmount> mbb;
-
+	static int lastCallHeight = -1;
+	static map<CIoPAddress,CAmount> mbb;
+	
+	if (lastCallHeight == chainActive.Height()) {// we already have value inside of mbb
+		return mbb;
+	} 
+	lastCallHeight=chainActive.Height();
+  
 	std::vector<ContributionContract> vcc;
 	ContributionContract::getActiveContracts(chainActive.Height()+1, vcc); // increase block height because this is call for miner for next block
 
