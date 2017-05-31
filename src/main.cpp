@@ -2690,21 +2690,25 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 // NOTE removed to avoid spamming the console while mining
 //    LogPrint("bench", "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs]\n", (unsigned)block.vtx.size(), 0.001 * (nTime3 - nTime2), 0.001 * (nTime3 - nTime2) / block.vtx.size(), nInputs <= 1 ? 0 : 0.001 * (nTime3 - nTime2) / (nInputs-1), nTimeConnect * 0.000001);
 
-    /* Voting System blockreward might include subsidy from Contribution Contracts */
-    CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus()) + getCCSubsidy(pindex->nHeight);
-    if (block.vtx[0].GetValueOut() > blockReward)
-        return state.DoS(100,
-                         error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
-                               block.vtx[0].GetValueOut(), blockReward),
-                               REJECT_INVALID, "bad-cb-amount");
+    
+    if (fScriptChecks) { // because of CCs this is now an expensive check, so only do it above checkpoints
+      /* Voting System blockreward might include subsidy from Contribution Contracts */
+      CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus()) + getCCSubsidy(pindex->nHeight);
+      if (block.vtx[0].GetValueOut() > blockReward)
+          return state.DoS(100,
+                           error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
+                                 block.vtx[0].GetValueOut(), blockReward),
+                                 REJECT_INVALID, "bad-cb-amount");
 
-    /* IoP Voting System - we added this control to make sure the coinbase includes actives CC payments */
-    if (block.vtx[0].GetValueOut() < blockReward)
-            return state.DoS(100,
-                             error("ConnectBlock(): coinbase pays too less (actual=%d vs limit=%d)",
-                                   block.vtx[0].GetValueOut(), blockReward),
-                                   REJECT_INVALID, "bad-cb-amount");
-
+      /* IoP Voting System - we added this control to make sure the coinbase includes actives CC payments */
+      if (block.vtx[0].GetValueOut() < blockReward)
+              return state.DoS(100,
+                               error("ConnectBlock(): coinbase pays too less (actual=%d vs limit=%d)",
+                                     block.vtx[0].GetValueOut(), blockReward),
+                                     REJECT_INVALID, "bad-cb-amount");
+    }
+    
+    
     if (!control.Wait())
         return state.DoS(100, false);
     int64_t nTime4 = GetTimeMicros(); nTimeVerify += nTime4 - nTime2;
