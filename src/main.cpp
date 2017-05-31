@@ -2690,21 +2690,25 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 // NOTE removed to avoid spamming the console while mining
 //    LogPrint("bench", "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs]\n", (unsigned)block.vtx.size(), 0.001 * (nTime3 - nTime2), 0.001 * (nTime3 - nTime2) / block.vtx.size(), nInputs <= 1 ? 0 : 0.001 * (nTime3 - nTime2) / (nInputs-1), nTimeConnect * 0.000001);
 
-    /* Voting System blockreward might include subsidy from Contribution Contracts */
-    CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus()) + getCCSubsidy(pindex->nHeight);
-    if (block.vtx[0].GetValueOut() > blockReward)
-        return state.DoS(100,
-                         error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
-                               block.vtx[0].GetValueOut(), blockReward),
-                               REJECT_INVALID, "bad-cb-amount");
+    
+    if (fScriptChecks) { // because of CCs this is now an expensive check, so only do it above checkpoints
+      /* Voting System blockreward might include subsidy from Contribution Contracts */
+      CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus()) + getCCSubsidy(pindex->nHeight);
+      if (block.vtx[0].GetValueOut() > blockReward)
+          return state.DoS(100,
+                           error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
+                                 block.vtx[0].GetValueOut(), blockReward),
+                                 REJECT_INVALID, "bad-cb-amount");
 
-    /* IoP Voting System - we added this control to make sure the coinbase includes actives CC payments */
-    if (block.vtx[0].GetValueOut() < blockReward)
-            return state.DoS(100,
-                             error("ConnectBlock(): coinbase pays too less (actual=%d vs limit=%d)",
-                                   block.vtx[0].GetValueOut(), blockReward),
-                                   REJECT_INVALID, "bad-cb-amount");
-
+      /* IoP Voting System - we added this control to make sure the coinbase includes actives CC payments */
+      if (block.vtx[0].GetValueOut() < blockReward)
+              return state.DoS(100,
+                               error("ConnectBlock(): coinbase pays too less (actual=%d vs limit=%d)",
+                                     block.vtx[0].GetValueOut(), blockReward),
+                                     REJECT_INVALID, "bad-cb-amount");
+    }
+    
+    
     if (!control.Wait())
         return state.DoS(100, false);
     int64_t nTime4 = GetTimeMicros(); nTimeVerify += nTime4 - nTime2;
@@ -2892,49 +2896,51 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     	}
     }
 
+    if (fScriptChecks) {
+      /**
+       * IoP Voting System
+       * For each active Contribution Contract we get the amount of Coins that are being sent to the benefitiaries.
+       * The Coinbase transaction must send that total to the benefitiaries of the contract, plus the miner coin-
+       */
+      CTransaction cb = CTransaction(block.vtx[0]);
+      // for each Active Contribution Contract
+      std::vector<ContributionContract> vcc;
 
-    /**
-     * IoP Voting System
-     * For each active Contribution Contract we get the amount of Coins that are being sent to the benefitiaries.
-     * The Coinbase transaction must send that total to the benefitiaries of the contract, plus the miner coin-
-     */
-    CTransaction cb = CTransaction(block.vtx[0]);
-    // for each Active Contribution Contract
-    std::vector<ContributionContract> vcc;
+      if (ContributionContract::getActiveContracts(chainActive.Height()+1, vcc)){
+      	BOOST_FOREACH(ContributionContract cc, vcc) {
+  			// For each beneficiary of the contract
+  			if (cc.isValid()){
 
-    if (ContributionContract::getActiveContracts(chainActive.Height()+1, vcc)){
-    	BOOST_FOREACH(ContributionContract cc, vcc) {
-			// For each beneficiary of the contract
-			if (cc.isValid()){
+  				// we must found for each beneficiary of the Contribution contract, an output that send the coins to the right address
+  				BOOST_FOREACH(CCBeneficiary beneficiary, cc.beneficiaries){
+  					CIoPAddress benAddress = beneficiary.getAddress();
+  					CAmount benAmount = beneficiary.getAmount();
+  					bool addressExists = false;
 
-				// we must found for each beneficiary of the Contribution contract, an output that send the coins to the right address
-				BOOST_FOREACH(CCBeneficiary beneficiary, cc.beneficiaries){
-					CIoPAddress benAddress = beneficiary.getAddress();
-					CAmount benAmount = beneficiary.getAmount();
-					bool addressExists = false;
+  					// we search for an output that sends the contract reward to the beneficiary
+  					BOOST_FOREACH(const CTxOut& out, cb.vout){
+  						CScript redeemScript = out.scriptPubKey;
+  						CTxDestination destinationAddress;
+  						ExtractDestination(redeemScript, destinationAddress);
+  						CIoPAddress address(destinationAddress);
 
-					// we search for an output that sends the contract reward to the beneficiary
-					BOOST_FOREACH(const CTxOut& out, cb.vout){
-						CScript redeemScript = out.scriptPubKey;
-						CTxDestination destinationAddress;
-						ExtractDestination(redeemScript, destinationAddress);
-						CIoPAddress address(destinationAddress);
+  						if (address.CompareTo(benAddress) == 0 && out.nValue == benAmount )
+  							addressExists = true; // we find it!
+  					}
 
-						if (address.CompareTo(benAddress) == 0 && out.nValue == benAmount )
-							addressExists = true; // we find it!
-					}
+  					// we didn't find it. Is not a valid CB.
+  					if (addressExists == false){
+  						LogPrint("Invalid coinbase transaction", "CB don't pay to Contribution Contract: %s \n%s\n", cc.ToString(), cb.ToString());
+  						return state.DoS(100, false, REJECT_INVALID, "bad-CB-CC", false, "Coinbase invalid payment");
+  					}
+  				}
 
-					// we didn't find it. Is not a valid CB.
-					if (addressExists == false){
-						LogPrint("Invalid coinbase transaction", "CB don't pay to Contribution Contract: %s \n%s\n", cc.ToString(), cb.ToString());
-						return state.DoS(100, false, REJECT_INVALID, "bad-CB-CC", false, "Coinbase invalid payment");
-					}
-				}
-
-			}
-		}
+  			}
+  		}
+      }
+      
     }
-
+    
 
 
 
@@ -2953,7 +2959,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     LogPrint("bench", "    - Callbacks: %.2fms [%.2fs]\n", 0.001 * (nTime6 - nTime5), nTimeCallbacks * 0.000001);
 
     /* IoP beta release - added logic to validate correct inputs on cb transaction if window is active */
-	if (fIsMinerWhiteList){
+	if (fIsMinerWhiteList && fScriptChecks){
 		// first transaction is coinbase with only one input
 		const CTransaction tx = block.vtx[0];
 		const CScript scriptSig = tx.vin[0].scriptSig;

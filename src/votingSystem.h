@@ -492,6 +492,7 @@ public:
 			UniValue ret(UniValue::VOBJ);
 			utxo.push_back(Pair("tx", this->genesisTxHash.ToString()));
 			utxo.push_back(Pair("n", 0));
+			utxo.push_back(Pair("includemempool", false));
 			ret = gettxout(utxo, false);
 			// if I didn't get a result, then no utxo and the locked coins of the CC are already spent.
 
@@ -602,6 +603,7 @@ public:
 			UniValue ret(UniValue::VOBJ);
 			utxo.push_back(Pair("tx", this->genesisTxHash.ToString()));
 			utxo.push_back(Pair("n", 0));
+			utxo.push_back(Pair("includemempool", false));
 			ret = gettxout(utxo, false);
 			// if I didn't get a result, then no utxo and the locked coins of the CC are already spent.
 
@@ -744,6 +746,7 @@ public:
 							UniValue ret(UniValue::VOBJ);
 							utxo.push_back(Pair("tx", tx.GetHash().ToString()));
 							utxo.push_back(Pair("n", 0));
+							utxo.push_back(Pair("includemempool", false));
 							ret = gettxout(utxo, false);
 							// if I didn't get a result, then no utxo and the locked coins of the Vote transaction are already spent.
 							if (ret.isNull())
