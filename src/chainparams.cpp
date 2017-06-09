@@ -158,9 +158,10 @@ public:
             (10000, uint256S("0x0000000009c613396a7cd6a2d6d7dc2e07e6d4485ec03bb64e951273133663ee"))
             (20000, uint256S("0x000000000205ce279aed9220fbac67f6f7a863f898f98ef0cdeae863e2d19bc1"))
             (30000, uint256S("0x0000000003a1cdeed2c42ddac58bfb807f93d8458f1d7da834640e32898b20b6"))
-            (38500, uint256S("0x0000000004bde9ba366c93490f1d6a701f036cfa7491243f2f544c21b84fa97f")),
-            1496060819, // * UNIX timestamp of last checkpoint block
-            42052,   // * total number of transactions between genesis and last checkpoint
+            (38500, uint256S("0x0000000004bde9ba366c93490f1d6a701f036cfa7491243f2f544c21b84fa97f"))
+            (39600, uint256S("0x000000000a6804cbf32d0e71351e71dd8c7e078abcaf40f413e3a4458a0a7821")),
+            1497006409, // * UNIX timestamp of last checkpoint block
+            43237,   // * total number of transactions between genesis and last checkpoint
             //   (the tx=... number in the SetBestChain debug.log lines)
             100     // * estimated number of transactions per day after checkpoint
         };
@@ -360,4 +361,4 @@ void SelectParams(const std::string& network)
     SelectBaseParams(network);
     pCurrentParams = &Params(network);
 }
- 
+
