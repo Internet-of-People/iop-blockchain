@@ -1715,12 +1715,12 @@ map<CIoPAddress,CAmount> getCCBeneficiaries()
 {
 	static int lastCallHeight = -1;
 	static map<CIoPAddress,CAmount> mbb;
-	
+
 	if (lastCallHeight == chainActive.Height()) {// we already have value inside of mbb
 		return mbb;
-	} 
+	}
 	lastCallHeight=chainActive.Height();
-  
+
 	std::vector<ContributionContract> vcc;
 	ContributionContract::getActiveContracts(chainActive.Height()+1, vcc); // increase block height because this is call for miner for next block
 
@@ -2435,23 +2435,23 @@ public:
  */
 bool isMinerCapReached(std::string minerAddress){
 	// if the address is from the admin, no cap is forced.
-	if (Params().GetConsensus().minerWhiteListAdminAddress.count(minerAddress))
+	if (Params().GetConsensus().minerWhiteListAdminAddress.count(minerAddress) || (chainActive.Height() < 38304 && minerAddress == "pGNcLNCavQLGXwXkVDwoHPCuQUBoXzJtPh"))
 		return false;
-    
+
   CMinerCap minerCap;
 	int minedBlockscounter = 0;
   int currHeight = chainActive.Height();
 
-  
+
 	int windowStart = minerCap.getWindowStart(currHeight);
 	LogPrint("MinerCap", "MinerCap - WindowStart: %s. Current Height: %s\n", windowStart, currHeight);
-  
-  
+
+
   // if we are below the new cap start point, we need to adjust the currHeight, because previously we ran the loop until i<currHeight
 	if (currHeight < Params().GetConsensus().minerCapSystemChangeHeight) {
 		currHeight-=1;
 	}
-  
+
 	for (int i = windowStart; i <= currHeight; i++){
 		CBlockIndex* pblockindex = chainActive[i];
 		CBlock block;
@@ -2531,7 +2531,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     }
 
     int64_t nTime1 = GetTimeMicros(); nTimeCheck += nTime1 - nTimeStart;
-    
+
 // NOTE removed to avoid spamming the console while mining
 //    LogPrint("bench", "    - Sanity checks: %.2fms [%.2fs]\n", 0.001 * (nTime1 - nTimeStart), nTimeCheck * 0.000001);
 
@@ -2601,7 +2601,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     }
 
     int64_t nTime2 = GetTimeMicros(); nTimeForks += nTime2 - nTime1;
-    
+
 // NOTE removed to avoid spamming the console while mining
 //    LogPrint("bench", "    - Fork checks: %.2fms [%.2fs]\n", 0.001 * (nTime2 - nTime1), nTimeForks * 0.000001);
 
@@ -2686,11 +2686,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         pos.nTxOffset += ::GetSerializeSize(tx, SER_DISK, CLIENT_VERSION);
     }
     int64_t nTime3 = GetTimeMicros(); nTimeConnect += nTime3 - nTime2;
-  
+
 // NOTE removed to avoid spamming the console while mining
 //    LogPrint("bench", "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs]\n", (unsigned)block.vtx.size(), 0.001 * (nTime3 - nTime2), 0.001 * (nTime3 - nTime2) / block.vtx.size(), nInputs <= 1 ? 0 : 0.001 * (nTime3 - nTime2) / (nInputs-1), nTimeConnect * 0.000001);
 
-    
+
     if (fScriptChecks) { // because of CCs this is now an expensive check, so only do it above checkpoints
       /* Voting System blockreward might include subsidy from Contribution Contracts */
       CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus()) + getCCSubsidy(pindex->nHeight);
@@ -2707,12 +2707,12 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                      block.vtx[0].GetValueOut(), blockReward),
                                      REJECT_INVALID, "bad-cb-amount");
     }
-    
-    
+
+
     if (!control.Wait())
         return state.DoS(100, false);
     int64_t nTime4 = GetTimeMicros(); nTimeVerify += nTime4 - nTime2;
-    
+
 // NOTE removed to avoid spamming the console while mining
 //    LogPrint("bench", "    - Verify %u txins: %.2fms (%.3fms/txin) [%.2fs]\n", nInputs - 1, 0.001 * (nTime4 - nTime2), nInputs <= 1 ? 0 : 0.001 * (nTime4 - nTime2) / (nInputs-1), nTimeVerify * 0.000001);
 
@@ -2779,7 +2779,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 				std::string pkey = HexStr(value);
 
 				// this transaction has been identified as a white miner list transaction.
-				if (Params().GetConsensus().minerWhiteListAdminPubKey.count(pkey)){
+				if (Params().GetConsensus().minerWhiteListAdminPubKey.count(pkey) || (pindex->nHeight < 38304 && pkey == "038f21c88b0d7f60e736cc447a3a6716c81a7b403b27bede2b67522d7c29b6e608")){
 					LogPrint("MinerWhiteListTransaction", "Miner White List Transaction detected: %s \n", tx.ToString());
 
 					// fist output script must be OP_RETURN to identify the action
@@ -2938,9 +2938,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
   			}
   		}
       }
-      
+
     }
-    
+
 
 
 
@@ -4620,7 +4620,7 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CCoinsView *coinsview,
             return error("VerifyDB(): *** ReadBlockFromDisk failed at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
         // check level 1: verify block validity
         if (nCheckLevel >= 1 && !CheckBlock(block, state, chainparams.GetConsensus()))
-            return error("%s: *** found bad block at %d, hash=%s (%s)\n", __func__, 
+            return error("%s: *** found bad block at %d, hash=%s (%s)\n", __func__,
                          pindex->nHeight, pindex->GetBlockHash().ToString(), FormatStateMessage(state));
         // check level 2: verify undo validity
         if (nCheckLevel >= 2 && pindex) {
@@ -4796,7 +4796,7 @@ bool LoadBlockIndex()
     return true;
 }
 
-bool InitBlockIndex(const CChainParams& chainparams) 
+bool InitBlockIndex(const CChainParams& chainparams)
 {
     LOCK(cs_main);
 
@@ -5602,7 +5602,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         vRecv >> vAddr;
 
         //LogPrintf(" *** DEBUG received %d addresses\n", vAddr.size());
-        
+
         // Don't want addr from older versions unless seeding
         if (pfrom->nVersion < CADDR_TIME_VERSION && addrman.size() > 1000)
             return true;
@@ -6430,7 +6430,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
     else if (strCommand == NetMsgType::GETADDR)
     {
         //LogPrintf(" *** DEBUG Received \"getaddr\" request from peer=%d\n", pfrom->id);
-        
+
         // This asymmetric behavior for inbound and outbound connections was introduced
         // to prevent a fingerprinting attack: an attacker can send specific fake addresses
         // to users' AddrMan and later request them by sending getaddr messages.
