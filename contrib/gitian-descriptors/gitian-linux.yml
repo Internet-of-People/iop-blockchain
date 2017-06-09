@@ -28,7 +28,7 @@ packages:
 - "ca-certificates"
 - "python"
 remotes:
-- "url": "https://github.com/Fermat-ORG/iop-token-server.git"
+- "url": "https://github.com/anfauglith/iop-token-server.git"
   "dir": "IoP"
 files: []
 script: |
