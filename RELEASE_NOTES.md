@@ -2,7 +2,7 @@
 ## Release Notes
 
 ## version 1.0.0
-Initial Miner Whitelist implementation. 
+Initial Miner Whitelist implementation.
 
 * It supports adding and removing miners into the white list.
 * Embedded miner activated.
@@ -10,7 +10,7 @@ Initial Miner Whitelist implementation.
 * Coinbase blocks limited to 1 IoP per block
 
 ## version 1.1.0
-Small fixes to the whitelist implementation which include: 
+Small fixes to the whitelist implementation which include:
 
 * New parameters for admins public keys into chainparams divided by network.
 * correct retrieval of admin miner from whitelist db.
@@ -31,7 +31,7 @@ New functionality called Miner Cap introduced on the client.
 
 The miner Cap control is used to limit the amount of blocks each miner can submit to the network.
 
-* New RPC command called **dumpMinerStats** use to generate a JSON output with the amount of blocks each miner has mined since the white list control has been activated.	
+* New RPC command called **dumpMinerStats** use to generate a JSON output with the amount of blocks each miner has mined since the white list control has been activated.
 
 
 ## version 2.0.2
@@ -59,7 +59,7 @@ New functionality that detects transactions with Contribution Contracts (CC) emb
 Basic rules for Contribution Contracts to be valid are:
 
 * Version: must be 1.0 (0100 in Hex)
-* Output 0 of CC genesis transaction: must be of 1000 IoPs and the output must remain unspents (UTXO) for the entire life cycle of the contract. 
+* Output 0 of CC genesis transaction: must be of 1000 IoPs and the output must remain unspents (UTXO) for the entire life cycle of the contract.
 If this output is used as input in any other transaction while the contract is valid,
 it will automatically stop execution and be declared invalid.
 * Max. block reward can't exceed 0.1 IoPs.
@@ -78,7 +78,7 @@ A contract will be considered to be executed if the following is true:
 * Is a valid contract
 * The amount of votes indicating YES is greater than the amount of votes indicating No. The core detects Voting transactions by reading the blockchain.
 * Blockchain height is withing block start height.
-* The contract reward won't make exceed the limit of 1 IoP per block considering all the currently executing contracts. If all executing contracts sum a total reward of 0.9 IoPs, the contract won't be included if the 
+* The contract reward won't make exceed the limit of 1 IoP per block considering all the currently executing contracts. If all executing contracts sum a total reward of 0.9 IoPs, the contract won't be included if the
 reward is greater than 0.1 IoPs. If this limit is exceeded, then the contract will be in QUEUED status until a slot is freed in the queue.
 
 Contract cancellation
@@ -137,15 +137,22 @@ Improvements
 * remove unused cout code.
 
 ## version 4.0.1
- 
-Improvements 
- 
+
+Improvements
+
 * New mining cap calculation algorithm
-* Switched over to gitian building 
-* made Berkley-DB 5.3 the default 
+* Switched over to gitian building
+* made Berkley-DB 5.3 the default
 
 ## version 4.0.2
- 
-Improvements 
- 
+
+Improvements
+
 * Quick fix of the mining thread. CCs still need refactoring
+
+## version 4.0.3
+
+Improvements
+
+* Introducing checkpoints for testnet
+* New checkpoints for mainnet
