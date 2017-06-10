@@ -55,8 +55,8 @@ QT_TRANSLATE_NOOP("IoP-core", ""
 "Discover own IP addresses (default: 1 when listening and no -externalip or -"
 "proxy)"),
 QT_TRANSLATE_NOOP("IoP-core", ""
-"Distributed under the MIT software license, see the accompanying file "
-"COPYING or <http://www.opensource.org/licenses/mit-license.php>."),
+"Distributed under the terms of the GNU General Public License version 3."
+"See [COPYING](COPYING) for more information or see <http:#www.gnu.org/licenses/>."),
 QT_TRANSLATE_NOOP("IoP-core", ""
 "Do not keep transactions in the mempool longer than <n> hours (default: %u)"),
 QT_TRANSLATE_NOOP("IoP-core", ""

@@ -21,7 +21,7 @@ BEGIN
             VALUE "FileVersion",        VER_FILEVERSION_STR
             VALUE "InternalName",       "IoPd"
             VALUE "LegalCopyright",     COPYRIGHT_STR
-            VALUE "LegalTrademarks1",   "Distributed under the MIT software license, see the accompanying file COPYING or http://www.opensource.org/licenses/mit-license.php."
+            VALUE "LegalTrademarks1",   "Distributed under the terms of the GNU General Public License version 3. See [COPYING](COPYING) for more information or see <http:#www.gnu.org/licenses/>."
             VALUE "OriginalFilename",   "IoPd.exe"
             VALUE "ProductName",        "IoPd"
             VALUE "ProductVersion",     VER_PRODUCTVERSION_STR

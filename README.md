@@ -21,8 +21,8 @@ the IoP Core software, see https://IoP.org/en/download, or read the
 License
 -------
 
-IoP Core is released under the terms of the MIT license. See [COPYING](COPYING) for more
-information or see https://opensource.org/licenses/MIT.
+IoP Core is released under the terms of the GNU General Public License version 3. See [COPYING](COPYING) for more
+information or see <http:#www.gnu.org/licenses/>.
 
 Development Process
 -------------------
@@ -83,5 +83,3 @@ Translators should also subscribe to the [mailing list](https://groups.google.co
 # Installing
 
 Please read the [installation](INSTALL.md) Document.
-
-

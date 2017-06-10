@@ -5,11 +5,13 @@ that were changed this year.
 
 For example:
 
-// Copyright (c) 2009-2012 The Bitcoin Core developers
+// Copyright (c) 2009-2012 The Bitcoin Core developers 
+// Copyright (c) 2017 IoP Ventures LLC
 
 it will change it to
 
-// Copyright (c) 2009-2015 The Bitcoin Core developers
+// Copyright (c) 2009-2015 The Bitcoin Core developers 
+// Copyright (c) 2017 IoP Ventures LLC
 '''
 import os
 import time

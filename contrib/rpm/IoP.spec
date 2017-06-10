@@ -19,7 +19,7 @@ Release:	2%{?dist}
 Summary:	Peer to Peer Cryptographic Currency
 
 Group:		Applications/System
-License:	MIT
+License:	GPL3
 URL:		https://IoP.org/
 Source0:	https://IoP.org/bin/IoP-core-%{version}/IoP-%{version}.tar.gz
 Source1:	http://download.oracle.com/berkeley-db/db-%{bdbv}.NC.tar.gz
