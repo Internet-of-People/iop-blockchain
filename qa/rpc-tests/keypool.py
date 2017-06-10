@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Copyright (c) 2014-2016 The Bitcoin Core developers
 
-# This program is free software: you can redistribute it and/or modify\n# it under the terms of the GNU General Public License as published by\n# the Free Software Foundation, either version 3 of the License, or\n# (at your option) any later version.\n\n# This program is distributed in the hope that it will be useful,\n# but WITHOUT ANY WARRANTY; without even the implied warranty of\n# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the \n# GNU General Public License for more details.\n\n# You should have received a copy of the GNU General Public License\n# along with this program. If not, see <http:#www.gnu.org/licenses/>.#
+# This program is free software: you can redistribute it and/or modify\n# it under the terms of the GNU General Public License as published by\n# the Free Software Foundation, either version 3 of the License, or\n# (at your option) any later version.\n\n# This program is distributed in the hope that it will be useful,\n# but WITHOUT ANY WARRANTY; without even the implied warranty of\n# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the \n# GNU General Public License for more details.\n\n# You should have received a copy of the GNU General Public License\n# along with this program. If not, see <http://www.gnu.org/licenses/>.#
 
 # Exercise the wallet keypool, and interaction with wallet encryption/locking
 
@@ -16,7 +16,7 @@ class KeyPoolTest(IoPTestFramework):
         addr_before_encrypting_data = nodes[0].validateaddress(addr_before_encrypting)
         wallet_info_old = nodes[0].getwalletinfo()
         assert(addr_before_encrypting_data['hdmasterkeyid'] == wallet_info_old['hdmasterkeyid'])
-        
+
         # Encrypt wallet and wait to terminate
         nodes[0].encryptwallet('test')
         IoPd_processes[0].wait()
@@ -28,7 +28,7 @@ class KeyPoolTest(IoPTestFramework):
         wallet_info = nodes[0].getwalletinfo()
         assert(addr_before_encrypting_data['hdmasterkeyid'] != wallet_info['hdmasterkeyid'])
         assert(addr_data['hdmasterkeyid'] == wallet_info['hdmasterkeyid'])
-        
+
         try:
             addr = nodes[0].getnewaddress()
             raise AssertionError('Keypool should be exhausted after one address')

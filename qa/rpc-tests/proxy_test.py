@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Copyright (c) 2015-2016 The Bitcoin Core developers
 
-# This program is free software: you can redistribute it and/or modify\n# it under the terms of the GNU General Public License as published by\n# the Free Software Foundation, either version 3 of the License, or\n# (at your option) any later version.\n\n# This program is distributed in the hope that it will be useful,\n# but WITHOUT ANY WARRANTY; without even the implied warranty of\n# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the \n# GNU General Public License for more details.\n\n# You should have received a copy of the GNU General Public License\n# along with this program. If not, see <http:#www.gnu.org/licenses/>.#
+# This program is free software: you can redistribute it and/or modify\n# it under the terms of the GNU General Public License as published by\n# the Free Software Foundation, either version 3 of the License, or\n# (at your option) any later version.\n\n# This program is distributed in the hope that it will be useful,\n# but WITHOUT ANY WARRANTY; without even the implied warranty of\n# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the \n# GNU General Public License for more details.\n\n# You should have received a copy of the GNU General Public License\n# along with this program. If not, see <http://www.gnu.org/licenses/>.#
 
 import socket
 
@@ -74,9 +74,9 @@ class ProxyTest(IoPTestFramework):
         # Note: proxies are not used to connect to local nodes
         # this is because the proxy to use is based on CService.GetNetwork(), which return NET_UNROUTABLE for localhost
         args = [
-            ['-listen', '-debug=net', '-debug=proxy', '-proxy=%s:%i' % (self.conf1.addr),'-proxyrandomize=1'], 
-            ['-listen', '-debug=net', '-debug=proxy', '-proxy=%s:%i' % (self.conf1.addr),'-onion=%s:%i' % (self.conf2.addr),'-proxyrandomize=0'], 
-            ['-listen', '-debug=net', '-debug=proxy', '-proxy=%s:%i' % (self.conf2.addr),'-proxyrandomize=1'], 
+            ['-listen', '-debug=net', '-debug=proxy', '-proxy=%s:%i' % (self.conf1.addr),'-proxyrandomize=1'],
+            ['-listen', '-debug=net', '-debug=proxy', '-proxy=%s:%i' % (self.conf1.addr),'-onion=%s:%i' % (self.conf2.addr),'-proxyrandomize=0'],
+            ['-listen', '-debug=net', '-debug=proxy', '-proxy=%s:%i' % (self.conf2.addr),'-proxyrandomize=1'],
             []
             ]
         if self.have_ipv6:
@@ -176,7 +176,7 @@ class ProxyTest(IoPTestFramework):
         assert_equal(n1['onion']['proxy'], '%s:%i' % (self.conf2.addr))
         assert_equal(n1['onion']['proxy_randomize_credentials'], False)
         assert_equal(n1['onion']['reachable'], True)
-        
+
         n2 = networks_dict(self.nodes[2].getnetworkinfo())
         for net in ['ipv4','ipv6','onion']:
             assert_equal(n2[net]['proxy'], '%s:%i' % (self.conf2.addr))

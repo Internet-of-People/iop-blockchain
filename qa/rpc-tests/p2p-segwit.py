@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Copyright (c) 2016 The Bitcoin Core developers
 
-# This program is free software: you can redistribute it and/or modify\n# it under the terms of the GNU General Public License as published by\n# the Free Software Foundation, either version 3 of the License, or\n# (at your option) any later version.\n\n# This program is distributed in the hope that it will be useful,\n# but WITHOUT ANY WARRANTY; without even the implied warranty of\n# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the \n# GNU General Public License for more details.\n\n# You should have received a copy of the GNU General Public License\n# along with this program. If not, see <http:#www.gnu.org/licenses/>.#
+# This program is free software: you can redistribute it and/or modify\n# it under the terms of the GNU General Public License as published by\n# the Free Software Foundation, either version 3 of the License, or\n# (at your option) any later version.\n\n# This program is distributed in the hope that it will be useful,\n# but WITHOUT ANY WARRANTY; without even the implied warranty of\n# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the \n# GNU General Public License for more details.\n\n# You should have received a copy of the GNU General Public License\n# along with this program. If not, see <http://www.gnu.org/licenses/>.#
 
 from test_framework.mininode import *
 from test_framework.test_framework import IoPTestFramework
@@ -80,7 +80,7 @@ class TestNode(NodeConnCB):
             time.sleep(self.sleep_time)
             timeout -= self.sleep_time
         raise AssertionError("Sync failed to complete")
-        
+
     def sync_with_ping(self, timeout=60):
         self.send_message(msg_ping(nonce=self.ping_counter))
         test_function = lambda: self.last_pong.nonce == self.ping_counter
@@ -508,7 +508,7 @@ class SegWitTest(IoPTestFramework):
         block = self.build_next_block()
 
         assert(len(self.utxo) > 0)
-        
+
         # Create a P2WSH transaction.
         # The witness program will be a bunch of OP_2DROP's, followed by OP_TRUE.
         # This should give us plenty of room to tweak the spending tx's
@@ -620,7 +620,7 @@ class SegWitTest(IoPTestFramework):
         print("\tTesting extra witness data in tx")
 
         assert(len(self.utxo) > 0)
-        
+
         block = self.build_next_block()
 
         witness_program = CScript([OP_DROP, OP_TRUE])
@@ -788,7 +788,7 @@ class SegWitTest(IoPTestFramework):
         witness_program = CScript([OP_DROP, OP_TRUE])
         witness_hash = sha256(witness_program)
         scriptPubKey = CScript([OP_0, witness_hash])
-        
+
         # Create a transaction that splits our utxo into many outputs
         tx = CTransaction()
         tx.vin.append(CTxIn(COutPoint(self.utxo[0].sha256, self.utxo[0].n), b""))
@@ -1626,7 +1626,7 @@ class SegWitTest(IoPTestFramework):
             tx2.wit.vtxinwit.append(CTxInWitness())
             tx2.wit.vtxinwit[-1].scriptWitness.stack = [ witness_program ]
             total_value += tx.vout[i].nValue
-        tx2.wit.vtxinwit[-1].scriptWitness.stack = [ witness_program_toomany ] 
+        tx2.wit.vtxinwit[-1].scriptWitness.stack = [ witness_program_toomany ]
         tx2.vout.append(CTxOut(total_value, CScript([OP_TRUE])))
         tx2.rehash()
 

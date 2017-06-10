@@ -56,7 +56,7 @@ QT_TRANSLATE_NOOP("IoP-core", ""
 "proxy)"),
 QT_TRANSLATE_NOOP("IoP-core", ""
 "Distributed under the terms of the GNU General Public License version 3."
-"See [COPYING](COPYING) for more information or see <http:#www.gnu.org/licenses/>."),
+"See [COPYING](COPYING) for more information or see <http://www.gnu.org/licenses/>."),
 QT_TRANSLATE_NOOP("IoP-core", ""
 "Do not keep transactions in the mempool longer than <n> hours (default: %u)"),
 QT_TRANSLATE_NOOP("IoP-core", ""

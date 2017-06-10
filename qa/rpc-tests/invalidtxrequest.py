@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Copyright (c) 2015-2016 The Bitcoin Core developers
 
-# This program is free software: you can redistribute it and/or modify\n# it under the terms of the GNU General Public License as published by\n# the Free Software Foundation, either version 3 of the License, or\n# (at your option) any later version.\n\n# This program is distributed in the hope that it will be useful,\n# but WITHOUT ANY WARRANTY; without even the implied warranty of\n# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the \n# GNU General Public License for more details.\n\n# You should have received a copy of the GNU General Public License\n# along with this program. If not, see <http:#www.gnu.org/licenses/>.#
+# This program is free software: you can redistribute it and/or modify\n# it under the terms of the GNU General Public License as published by\n# the Free Software Foundation, either version 3 of the License, or\n# (at your option) any later version.\n\n# This program is distributed in the hope that it will be useful,\n# but WITHOUT ANY WARRANTY; without even the implied warranty of\n# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the \n# GNU General Public License for more details.\n\n# You should have received a copy of the GNU General Public License\n# along with this program. If not, see <http://www.gnu.org/licenses/>.#
 
 from test_framework.test_framework import ComparisonTestFramework
 from test_framework.comptool import TestManager, TestInstance, RejectResult
@@ -16,7 +16,7 @@ In this test we connect to one node over p2p, and test tx requests.
 # Use the ComparisonTestFramework with 1 node: only use --testbinary.
 class InvalidTxRequestTest(ComparisonTestFramework):
 
-    ''' Can either run this test as 1 node with expected answers, or two and compare them. 
+    ''' Can either run this test as 1 node with expected answers, or two and compare them.
         Change the "outcome" variable from each TestInstance object to only do the comparison. '''
     def __init__(self):
         super().__init__()

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Copyright (c) 2015-2016 The Bitcoin Core developers
 
-# This program is free software: you can redistribute it and/or modify\n# it under the terms of the GNU General Public License as published by\n# the Free Software Foundation, either version 3 of the License, or\n# (at your option) any later version.\n\n# This program is distributed in the hope that it will be useful,\n# but WITHOUT ANY WARRANTY; without even the implied warranty of\n# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the \n# GNU General Public License for more details.\n\n# You should have received a copy of the GNU General Public License\n# along with this program. If not, see <http:#www.gnu.org/licenses/>.#
+# This program is free software: you can redistribute it and/or modify\n# it under the terms of the GNU General Public License as published by\n# the Free Software Foundation, either version 3 of the License, or\n# (at your option) any later version.\n\n# This program is distributed in the hope that it will be useful,\n# but WITHOUT ANY WARRANTY; without even the implied warranty of\n# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the \n# GNU General Public License for more details.\n\n# You should have received a copy of the GNU General Public License\n# along with this program. If not, see <http://www.gnu.org/licenses/>.#
 
 from test_framework.mininode import *
 from test_framework.test_framework import IoPTestFramework
@@ -80,7 +80,7 @@ class TestNode(NodeConnCB):
         return success
 
 class MaxUploadTest(IoPTestFramework):
- 
+
     def add_options(self, parser):
         parser.add_option("--testbinary", dest="testbinary",
                           default=os.getenv("IoPD", "IoPd"),
@@ -188,7 +188,7 @@ class MaxUploadTest(IoPTestFramework):
             assert_equal(test_nodes[0].block_receive_map[big_old_block], i+1)
 
         assert_equal(len(self.nodes[0].getpeerinfo()), 3)
-        # At most a couple more tries should succeed (depending on how long 
+        # At most a couple more tries should succeed (depending on how long
         # the test has been running so far).
         for i in range(3):
             test_nodes[0].send_message(getdata_request)

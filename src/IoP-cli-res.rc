@@ -21,7 +21,7 @@ BEGIN
             VALUE "FileVersion",        VER_FILEVERSION_STR
             VALUE "InternalName",       "IoP-cli"
             VALUE "LegalCopyright",     COPYRIGHT_STR
-            VALUE "LegalTrademarks1",   "Distributed under the terms of the GNU General Public License version 3. See [COPYING](COPYING) for more information or see <http:#www.gnu.org/licenses/>."
+            VALUE "LegalTrademarks1",   "Distributed under the terms of the GNU General Public License version 3. See [COPYING](COPYING) for more information or see <http://www.gnu.org/licenses/>."
             VALUE "OriginalFilename",   "IoP-cli.exe"
             VALUE "ProductName",        "IoP-cli"
             VALUE "ProductVersion",     VER_PRODUCTVERSION_STR

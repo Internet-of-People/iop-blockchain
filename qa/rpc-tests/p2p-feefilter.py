@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Copyright (c) 2016 The Bitcoin Core developers
 
-# This program is free software: you can redistribute it and/or modify\n# it under the terms of the GNU General Public License as published by\n# the Free Software Foundation, either version 3 of the License, or\n# (at your option) any later version.\n\n# This program is distributed in the hope that it will be useful,\n# but WITHOUT ANY WARRANTY; without even the implied warranty of\n# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the \n# GNU General Public License for more details.\n\n# You should have received a copy of the GNU General Public License\n# along with this program. If not, see <http:#www.gnu.org/licenses/>.#
+# This program is free software: you can redistribute it and/or modify\n# it under the terms of the GNU General Public License as published by\n# the Free Software Foundation, either version 3 of the License, or\n# (at your option) any later version.\n\n# This program is distributed in the hope that it will be useful,\n# but WITHOUT ANY WARRANTY; without even the implied warranty of\n# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the \n# GNU General Public License for more details.\n\n# You should have received a copy of the GNU General Public License\n# along with this program. If not, see <http://www.gnu.org/licenses/>.#
 #
 
 from test_framework.mininode import *
@@ -91,7 +91,7 @@ class FeeFilterTest(IoPTestFramework):
         # Change tx fee rate to 10 sat/byte and test they are no longer received
         node1.settxfee(Decimal("0.00010000"))
         [node1.sendtoaddress(node1.getnewaddress(), 1) for x in range(3)]
-        sync_mempools(self.nodes) # must be sure node 0 has received all txs 
+        sync_mempools(self.nodes) # must be sure node 0 has received all txs
 
         # Send one transaction from node0 that should be received, so that we
         # we can sync the test on receipt (if node1's txs were relayed, they'd

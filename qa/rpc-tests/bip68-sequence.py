@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Copyright (c) 2014-2016 The Bitcoin Core developers
 
-# This program is free software: you can redistribute it and/or modify\n# it under the terms of the GNU General Public License as published by\n# the Free Software Foundation, either version 3 of the License, or\n# (at your option) any later version.\n\n# This program is distributed in the hope that it will be useful,\n# but WITHOUT ANY WARRANTY; without even the implied warranty of\n# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the \n# GNU General Public License for more details.\n\n# You should have received a copy of the GNU General Public License\n# along with this program. If not, see <http:#www.gnu.org/licenses/>.#
+# This program is free software: you can redistribute it and/or modify\n# it under the terms of the GNU General Public License as published by\n# the Free Software Foundation, either version 3 of the License, or\n# (at your option) any later version.\n\n# This program is distributed in the hope that it will be useful,\n# but WITHOUT ANY WARRANTY; without even the implied warranty of\n# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the \n# GNU General Public License for more details.\n\n# You should have received a copy of the GNU General Public License\n# along with this program. If not, see <http://www.gnu.org/licenses/>.#
 
 #
 # Test BIP68 implementation
@@ -81,7 +81,7 @@ class BIP68Test(IoPTestFramework):
         # If sequence locks were used, this would require 1 block for the
         # input to mature.
         sequence_value = SEQUENCE_LOCKTIME_DISABLE_FLAG | 1
-        tx1.vin = [CTxIn(COutPoint(int(utxo["txid"], 16), utxo["vout"]), nSequence=sequence_value)] 
+        tx1.vin = [CTxIn(COutPoint(int(utxo["txid"], 16), utxo["vout"]), nSequence=sequence_value)]
         tx1.vout = [CTxOut(value, CScript([b'a']))]
 
         tx1_signed = self.nodes[0].signrawtransaction(ToHex(tx1))["hex"]
@@ -148,7 +148,7 @@ class BIP68Test(IoPTestFramework):
 
             # Track whether any sequence locks used should fail
             should_pass = True
-            
+
             # Track whether this transaction was built with sequence locks
             using_sequence_locks = False
 
@@ -370,7 +370,7 @@ class BIP68Test(IoPTestFramework):
         tx2.rehash()
 
         self.nodes[0].sendrawtransaction(ToHex(tx2))
-        
+
         # Now make an invalid spend of tx2 according to BIP68
         sequence_value = 100 # 100 block relative locktime
 

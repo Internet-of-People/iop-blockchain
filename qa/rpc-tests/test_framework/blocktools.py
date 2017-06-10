@@ -2,7 +2,7 @@
 # blocktools.py - utilities for manipulating blocks and transactions
 # Copyright (c) 2015-2016 The Bitcoin Core developers
 
-# This program is free software: you can redistribute it and/or modify\n# it under the terms of the GNU General Public License as published by\n# the Free Software Foundation, either version 3 of the License, or\n# (at your option) any later version.\n\n# This program is distributed in the hope that it will be useful,\n# but WITHOUT ANY WARRANTY; without even the implied warranty of\n# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the \n# GNU General Public License for more details.\n\n# You should have received a copy of the GNU General Public License\n# along with this program. If not, see <http:#www.gnu.org/licenses/>.#
+# This program is free software: you can redistribute it and/or modify\n# it under the terms of the GNU General Public License as published by\n# the Free Software Foundation, either version 3 of the License, or\n# (at your option) any later version.\n\n# This program is distributed in the hope that it will be useful,\n# but WITHOUT ANY WARRANTY; without even the implied warranty of\n# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the \n# GNU General Public License for more details.\n\n# You should have received a copy of the GNU General Public License\n# along with this program. If not, see <http://www.gnu.org/licenses/>.#
 
 from .mininode import *
 from .script import CScript, OP_TRUE, OP_CHECKSIG, OP_RETURN
@@ -65,7 +65,7 @@ def serialize_script_num(value):
 # otherwise an anyone-can-spend output.
 def create_coinbase(height, pubkey = None):
     coinbase = CTransaction()
-    coinbase.vin.append(CTxIn(COutPoint(0, 0xffffffff), 
+    coinbase.vin.append(CTxIn(COutPoint(0, 0xffffffff),
                 ser_string(serialize_script_num(height)), 0xffffffff))
     coinbaseoutput = CTxOut()
     coinbaseoutput.nValue = 50 * COIN

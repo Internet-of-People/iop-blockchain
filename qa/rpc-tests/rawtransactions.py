@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Copyright (c) 2014-2016 The Bitcoin Core developers
 
-# This program is free software: you can redistribute it and/or modify\n# it under the terms of the GNU General Public License as published by\n# the Free Software Foundation, either version 3 of the License, or\n# (at your option) any later version.\n\n# This program is distributed in the hope that it will be useful,\n# but WITHOUT ANY WARRANTY; without even the implied warranty of\n# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the \n# GNU General Public License for more details.\n\n# You should have received a copy of the GNU General Public License\n# along with this program. If not, see <http:#www.gnu.org/licenses/>.#
+# This program is free software: you can redistribute it and/or modify\n# it under the terms of the GNU General Public License as published by\n# the Free Software Foundation, either version 3 of the License, or\n# (at your option) any later version.\n\n# This program is distributed in the hope that it will be useful,\n# but WITHOUT ANY WARRANTY; without even the implied warranty of\n# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the \n# GNU General Public License for more details.\n\n# You should have received a copy of the GNU General Public License\n# along with this program. If not, see <http://www.gnu.org/licenses/>.#
 
 #
 # Test re-org scenarios with a mempool that contains transactions
@@ -128,7 +128,7 @@ class RawTransactionsTest(IoPTestFramework):
         rawTx = self.nodes[2].createrawtransaction(inputs, outputs)
         rawTxPartialSigned = self.nodes[1].signrawtransaction(rawTx, inputs)
         assert_equal(rawTxPartialSigned['complete'], False) #node1 only has one key, can't comp. sign the tx
-        
+
         rawTxSigned = self.nodes[2].signrawtransaction(rawTx, inputs)
         assert_equal(rawTxSigned['complete'], True) #node2 can sign the tx compl., own two of three keys
         self.nodes[2].sendrawtransaction(rawTxSigned['hex'])
@@ -143,15 +143,15 @@ class RawTransactionsTest(IoPTestFramework):
         rawtx   = self.nodes[0].createrawtransaction(inputs, outputs)
         decrawtx= self.nodes[0].decoderawtransaction(rawtx)
         assert_equal(decrawtx['vin'][0]['sequence'], 1000)
-        
+
         inputs  = [ {'txid' : "1d1d4e24ed99057e84c3f80fd8fbec79ed9e1acee37da269356ecea000000000", 'vout' : 1, 'sequence' : -1}]
         outputs = { self.nodes[0].getnewaddress() : 1 }
         assert_raises(JSONRPCException, self.nodes[0].createrawtransaction, inputs, outputs)
-        
+
         inputs  = [ {'txid' : "1d1d4e24ed99057e84c3f80fd8fbec79ed9e1acee37da269356ecea000000000", 'vout' : 1, 'sequence' : 4294967296}]
         outputs = { self.nodes[0].getnewaddress() : 1 }
         assert_raises(JSONRPCException, self.nodes[0].createrawtransaction, inputs, outputs)
-        
+
         inputs  = [ {'txid' : "1d1d4e24ed99057e84c3f80fd8fbec79ed9e1acee37da269356ecea000000000", 'vout' : 1, 'sequence' : 4294967294}]
         outputs = { self.nodes[0].getnewaddress() : 1 }
         rawtx   = self.nodes[0].createrawtransaction(inputs, outputs)

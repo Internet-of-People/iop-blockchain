@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Copyright (c) 2015-2016 The Bitcoin Core developers
 
-# This program is free software: you can redistribute it and/or modify\n# it under the terms of the GNU General Public License as published by\n# the Free Software Foundation, either version 3 of the License, or\n# (at your option) any later version.\n\n# This program is distributed in the hope that it will be useful,\n# but WITHOUT ANY WARRANTY; without even the implied warranty of\n# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the \n# GNU General Public License for more details.\n\n# You should have received a copy of the GNU General Public License\n# along with this program. If not, see <http:#www.gnu.org/licenses/>.#
+# This program is free software: you can redistribute it and/or modify\n# it under the terms of the GNU General Public License as published by\n# the Free Software Foundation, either version 3 of the License, or\n# (at your option) any later version.\n\n# This program is distributed in the hope that it will be useful,\n# but WITHOUT ANY WARRANTY; without even the implied warranty of\n# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the \n# GNU General Public License for more details.\n\n# You should have received a copy of the GNU General Public License\n# along with this program. If not, see <http://www.gnu.org/licenses/>.#
 
 from test_framework.test_framework import ComparisonTestFramework
 from test_framework.util import *
@@ -12,7 +12,7 @@ from test_framework.script import CScript
 from io import BytesIO
 import time
 
-# A canonical signature consists of: 
+# A canonical signature consists of:
 # <30> <total len> <02> <len R> <R> <02> <len S> <S> <hashtype>
 def unDERify(tx):
     '''
@@ -27,7 +27,7 @@ def unDERify(tx):
         else:
             newscript.append(i)
     tx.vin[0].scriptSig = CScript(newscript)
-    
+
 '''
 This test is meant to exercise BIP66 (DER SIG).
 Connect to a single node.
@@ -41,7 +41,7 @@ Mine 1 old-version block.
 Mine 1 new version block.
 Mine 1 old version block, see that the node rejects.
 '''
-            
+
 class BIP66Test(ComparisonTestFramework):
 
     def __init__(self):
@@ -105,7 +105,7 @@ class BIP66Test(ComparisonTestFramework):
             height += 1
         yield TestInstance(test_blocks, sync_every_block=False)
 
-        ''' 
+        '''
         Check that the new DERSIG rules are not enforced in the 750th
         version 3 block.
         '''
@@ -126,7 +126,7 @@ class BIP66Test(ComparisonTestFramework):
         height += 1
         yield TestInstance([[block, True]])
 
-        ''' 
+        '''
         Check that the new DERSIG rules are enforced in the 751st version 3
         block.
         '''

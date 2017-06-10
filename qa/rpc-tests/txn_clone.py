@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Copyright (c) 2014-2016 The Bitcoin Core developers
 
-# This program is free software: you can redistribute it and/or modify\n# it under the terms of the GNU General Public License as published by\n# the Free Software Foundation, either version 3 of the License, or\n# (at your option) any later version.\n\n# This program is distributed in the hope that it will be useful,\n# but WITHOUT ANY WARRANTY; without even the implied warranty of\n# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the \n# GNU General Public License for more details.\n\n# You should have received a copy of the GNU General Public License\n# along with this program. If not, see <http:#www.gnu.org/licenses/>.#
+# This program is free software: you can redistribute it and/or modify\n# it under the terms of the GNU General Public License as published by\n# the Free Software Foundation, either version 3 of the License, or\n# (at your option) any later version.\n\n# This program is distributed in the hope that it will be useful,\n# but WITHOUT ANY WARRANTY; without even the implied warranty of\n# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the \n# GNU General Public License for more details.\n\n# You should have received a copy of the GNU General Public License\n# along with this program. If not, see <http://www.gnu.org/licenses/>.#
 
 #
 # Test proper accounting with an equivalent malleability clone
@@ -49,11 +49,11 @@ class TxnMallTest(IoPTestFramework):
         # Coins are sent to node1_address
         node1_address = self.nodes[1].getnewaddress("from0")
 
-        # Send tx1, and another transaction tx2 that won't be cloned 
+        # Send tx1, and another transaction tx2 that won't be cloned
         txid1 = self.nodes[0].sendfrom("foo", node1_address, 40, 0)
         txid2 = self.nodes[0].sendfrom("bar", node1_address, 20, 0)
 
-        # Construct a clone of tx1, to be malleated 
+        # Construct a clone of tx1, to be malleated
         rawtx1 = self.nodes[0].getrawtransaction(txid1,1)
         clone_inputs = [{"txid":rawtx1["vin"][0]["txid"],"vout":rawtx1["vin"][0]["vout"]}]
         clone_outputs = {rawtx1["vout"][0]["scriptPubKey"]["addresses"][0]:rawtx1["vout"][0]["value"],
@@ -124,7 +124,7 @@ class TxnMallTest(IoPTestFramework):
         tx1 = self.nodes[0].gettransaction(txid1)
         tx1_clone = self.nodes[0].gettransaction(txid1_clone)
         tx2 = self.nodes[0].gettransaction(txid2)
-        
+
         # Verify expected confirmations
         assert_equal(tx1["confirmations"], -2)
         assert_equal(tx1_clone["confirmations"], 2)
@@ -133,7 +133,7 @@ class TxnMallTest(IoPTestFramework):
         # Check node0's total balance; should be same as before the clone, + 100 IoP for 2 matured,
         # less possible orphaned matured subsidy
         expected += 100
-        if (self.options.mine_block): 
+        if (self.options.mine_block):
             expected -= 50
         assert_equal(self.nodes[0].getbalance(), expected)
         assert_equal(self.nodes[0].getbalance("*", 0), expected)
