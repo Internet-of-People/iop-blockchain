@@ -15,7 +15,7 @@ You will need Apple's **XCode** (Command Line Tools are not sufficient). For Mac
   ```brew install automake berkeley-db4 libtool boost --c++11 miniupnpc openssl pkg-config homebrew/versions/protobuf260 --c++11 libevent qt5```
   This will take a while.
   
-  ```git clone https://github.com/Fermat-ORG/iop-token.git ~/Documents/iop-token```
+  ```git clone https://github.com/internet-of-people/iop-token.git ~/Documents/iop-token```
   
   ```cd ~/Documents/iop-token```
   
@@ -49,7 +49,7 @@ If everything goes well, you can find the disk image `IoP Core.dmg` in your Docu
 - Use the terminal to clone the git repository to your favorite location with e.g.
 
   ```
-  git clone https://github.com/Fermat-ORG/iop-token.git ~/GitHub/iop-token
+  git clone https://github.com/internet-of-people/iop-token.git ~/GitHub/iop-token
   ```
 
 - Change to this location using `cd ~/GitHub/iop-token` or equivalent.

@@ -1,3 +1,8 @@
+#WARNING
+
+This information is outdated!
+
+
 #IoP Blockchain
 
 ## Wallet Instalation

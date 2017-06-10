@@ -4,7 +4,7 @@ Installing IoP Client
 At this early stage we don't provide other official packages than for Ubuntu Linux.
 But you can find other community packages on the [community repositories](http://repo.fermat.community)
 
-For a little help building IoP Core on OSX see [INSTALL_OSX.md](https://github.com/Fermat-ORG/iop-blockchain/blob/beta-1.0.0/INSTALL_OSX.md)
+For a little help building IoP Core on OSX see [INSTALL_OSX.md](https://github.com/internet-of-people/iop-blockchain/blob/beta/INSTALL_OSX.md)
 
 We will provide Windows, MacOSX and other Packages after the beta phase, please be patient.
 
@@ -100,7 +100,7 @@ First you have to grab the source code, you can just clone our GitHub repository
 
 `sudo apt-get install git`
 
-`git clone https://github.com/Fermat-ORG/iop-token.git`
+`git clone https://github.com/internet-of-people/iop-token.git`
 
 `cd iop-token`
 
@@ -130,4 +130,3 @@ Finally, you can compile everything. This will take a very, very long time. Note
 If you want to run the compiled binaries directly, you can find them in directory src, e.g. src/IoPd or src/qt/IoP-qt. Otherwise, you can deploy them as usual with
 
 `make install`
-
