@@ -2,7 +2,7 @@ Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: IoP
 Upstream-Contact: Satoshi Nakamoto <satoshin@gmx.com>
  irc://#IoP@freenode.net
-Source: https://github.com/IoP/IoP
+Source: https://github.com/internet-of-people/iop-blockchain
 
 Files: *
 Copyright: 2009-2016, Bitcoin Core Developers

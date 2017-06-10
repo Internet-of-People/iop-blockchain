@@ -3,7 +3,7 @@ IoP Core integration/staging tree
 
 [![Build Status](https://travis-ci.org/IoP/IoP.svg?branch=master)](https://travis-ci.org/IoP/IoP)
 
-https://IoPcore.org
+http://iop.cash
 
 What is IoP?
 ----------------
@@ -16,7 +16,7 @@ software which enables the use of this currency.
 
 For more information, as well as an immediately useable, binary version of
 the IoP Core software, see https://IoP.org/en/download, or read the
-[original whitepaper](https://IoPcore.org/IoP.pdf).
+[original whitepaper](https://iop.cash/IoP.pdf).
 
 License
 -------

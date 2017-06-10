@@ -515,8 +515,8 @@ std::string HelpMessage(HelpMessageMode mode)
 
 std::string LicenseInfo()
 {
-    const std::string URL_SOURCE_CODE = "<https://github.com/IoP/IoP>";
-    const std::string URL_WEBSITE = "<https://IoPcore.org>";
+    const std::string URL_SOURCE_CODE = "<https://github.com/internet-of-people/iop-blockchain>";
+    const std::string URL_WEBSITE = "<https://iop.cash>";
     // todo: remove urls from translations on next change
     return CopyrightHolders(strprintf(_("Copyright (C) %i-%i"), 2009, COPYRIGHT_YEAR) + " ") + "\n" +
            "\n" +

@@ -1,22 +1,22 @@
 Please checkout the git integration branch from:
 
-https://github.com/IoP/IoP
+https://github.com/internet-of-people/iop-blockchain
 
 ... and help test.  The new features that need testing are:
 
-* -nolisten : https://github.com/IoP/IoP/pull/11
+* -nolisten : https://github.com/internet-of-people/iop-blockchain/pull/11
 * -rescan : scan block chain for missing wallet transactions
-* -printtoconsole : https://github.com/IoP/IoP/pull/37
-* RPC gettransaction details : https://github.com/IoP/IoP/pull/24
-* listtransactions new features : https://github.com/IoP/IoP/pull/10
+* -printtoconsole : https://github.com/internet-of-people/iop-blockchain/pull/37
+* RPC gettransaction details : https://github.com/internet-of-people/iop-blockchain/pull/24
+* listtransactions new features : https://github.com/internet-of-people/iop-blockchain/pull/10
 
 Bug fixes that also need testing:
 
-* -maxconnections= : https://github.com/IoP/IoP/pull/42
-* RPC listaccounts minconf : https://github.com/IoP/IoP/pull/27
-* RPC move, add time to output : https://github.com/IoP/IoP/pull/21
+* -maxconnections= : https://github.com/internet-of-people/iop-blockchain/pull/42
+* RPC listaccounts minconf : https://github.com/internet-of-people/iop-blockchain/pull/27
+* RPC move, add time to output : https://github.com/internet-of-people/iop-blockchain/pull/21
 * ...and several improvements to --help output.
 
 This needs more testing on Windows!  Please drop me a quick private message, email, or IRC message if you are able to do some testing.  If you find bugs, please open an issue at:
 
-https://github.com/IoP/IoP/issues
+https://github.com/internet-of-people/iop-blockchain/issues

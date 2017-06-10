@@ -6,10 +6,7 @@ This is a bugfix-only release based on 0.4.0.
 Please note that the wxIoP GUI client is no longer maintained nor supported. If someone would like to step up to maintain this, they should contact Luke-Jr.
 
 Please report bugs for the daemon only using the issue tracker at github:
-https://github.com/IoP/IoP/issues
-
-Stable source code is hosted at Gitorious:
-http://gitorious.org/IoP/IoPd-stable/archive-tarball/v0.4.4#.tar.gz
+https://github.com/internet-of-people/iop-blockchain/issues
 
 BUG FIXES
 
@@ -27,4 +24,3 @@ Various build fixes.
 If no password is specified to IoPd, recommend a secure password.
 Update hard-coded fallback seed nodes, choosing recent ones with long uptime and versions at least 0.4.0.
 Add checkpoint at block 168,000.
-

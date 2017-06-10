@@ -85,7 +85,7 @@ Ensure gitian-builder is up-to-date:
 
     pushd ./gitian-builder
     mkdir -p inputs
-    wget -P inputs https://IoPcore.org/cfields/osslsigncode-Backports-to-1.7.1.patch
+    wget -P inputs https://iop.cash/cfields/osslsigncode-Backports-to-1.7.1.patch
     wget -P inputs http://downloads.sourceforge.net/project/osslsigncode/osslsigncode/osslsigncode-1.7.1.tar.gz
     popd
 
@@ -261,9 +261,9 @@ IoP.org (see below for IoP.org update instructions).
 
   - IoP-dev and IoP-core-dev mailing list
 
-  - IoP Core announcements list https://IoPcore.org/en/list/announcements/join/
+  - IoP Core announcements list https://iop.cash/en/list/announcements/join/
 
-  - IoPcore.org blog post
+  - iop.cash blog post
 
   - Update title of #IoP on Freenode IRC
 

@@ -23,9 +23,9 @@ Build-Depends: debhelper,
  libprotobuf-dev, protobuf-compiler,
  python
 Standards-Version: 3.9.2
-Homepage: https://IoPcore.org/
-Vcs-Git: git://github.com/IoP/IoP.git
-Vcs-Browser: https://github.com/IoP/IoP
+Homepage: https://iop.cash/
+Vcs-Git: git://github.com/internet-of-people/iop-blockchain.git
+Vcs-Browser: https://github.com/internet-of-people/iop-blockchain
 
 Package: IoPd
 Architecture: any

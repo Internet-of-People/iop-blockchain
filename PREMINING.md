@@ -9,7 +9,7 @@ This information is outdated!
 In order to install the IoP Wallet that will allow you to send and recieve IoPs you need to follow this procedure:
 
 ### For Ubuntu users
-Follow the instructions to install here http://repo.fermat.community/index.html under the Ubuntu section.
+Follow the instructions to install here http://repo.iop.cash/index.html under the Ubuntu section.
 
 After installation is complete, start the IoP wallet by running **IoP-qt** from the command line.
 
@@ -20,7 +20,7 @@ $ IoP-qt
 
 
 ### For Windows users
-Follow the instructions to install here http://repo.fermat.community/index.html under Windows section.
+Follow the instructions to install here http://repo.iop.cash/index.html under Windows section.
 
 
 ## Address Generation
@@ -32,7 +32,7 @@ In order to recevie tokens from the Premined stage, you need to generate an IoP 
 * Click on the **Request Payment** button to generate the address.
 
 
-Next you need to save this address on the **Fermat Tokens** spreadsheet on Google Drive, by posting a comment in the Token Tracking System tab in column *IM* labelled *IoP Wallet Address* in the row that corresponds to your name.
+Next you need to save this address on the **IoP Tokens** spreadsheet on Google Drive, by posting a comment in the Token Tracking System tab in column *IM* labelled *IoP Wallet Address* in the row that corresponds to your name.
 
 ## Securing your wallet
 
@@ -72,7 +72,7 @@ importprivkey [privKeyString]
 
 Certain amount of tokens will be send using a time constrained transaction. meaning that those **IoPs** will be available to be spent after certain date.
 
-The time constrains that are applied on the *Fermat Token* spreadsheet are:
+The time constrains that are applied on the *IoP Token* spreadsheet are:
 
 * 6 months
 * 1 year
@@ -151,7 +151,7 @@ To know how many blocks you have locally, perform the following actions:
 * Go to *Help* and *debug window*
 * On the *Information* tab search for the *Current number of blocks*.
 
-Then compare it with our block explorer at [http://explorer.fermat.community/](http://explorer.fermat.community/) . The numbers should be the same.
+Then compare it with our block explorer at [http://mainnet.iop.cash/](http://mainnet.iop.cash/) . The numbers should be the same.
 
 ### Testnet blockchain
 

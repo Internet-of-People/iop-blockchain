@@ -7,7 +7,7 @@ updates. It is recommended to upgrade to this version.
 
 Please report bugs using the issue tracker at github:
 
-  <https://github.com/IoP/IoP/issues>
+  <https://github.com/internet-of-people/iop-blockchain/issues>
 
 Upgrading and downgrading
 =========================
@@ -47,7 +47,7 @@ Notable changes
 ===============
 
 This fixes a serious problem on Windows with data directories that have non-ASCII
-characters (https://github.com/IoP/IoP/issues/6078).
+characters.
 
 For other platforms there are no notable changes.
 

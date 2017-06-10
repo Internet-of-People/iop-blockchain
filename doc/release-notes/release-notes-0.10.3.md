@@ -7,7 +7,7 @@ updates. It is recommended to upgrade to this version as soon as possible.
 
 Please report bugs using the issue tracker at github:
 
-  <https://github.com/IoP/IoP/issues>
+  <https://github.com/internet-of-people/iop-blockchain/issues>
 
 Upgrading and downgrading
 =========================

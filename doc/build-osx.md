@@ -25,7 +25,7 @@ Build IoP Core
 
 1. Clone the IoP source code and cd into `IoP`
 
-        git clone https://github.com/IoP/IoP
+        git clone https://github.com/internet-of-people/iop-blockchain.git
         cd IoP
 
 2.  Build IoP-core:
@@ -92,4 +92,4 @@ Notes
 
 * Tested on OS X 10.7 through 10.11 on 64-bit Intel processors only.
 
-* Building with downloaded Qt binaries is not officially supported. See the notes in [#7714](https://github.com/IoP/IoP/issues/7714)
+* Building with downloaded Qt binaries is not officially supported.

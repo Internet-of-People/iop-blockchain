@@ -9,13 +9,11 @@ More translations are welcome; join the project at Transifex if you can help:
 https://www.transifex.net/projects/p/IoP/
 
 Please report bugs using the issue tracker at github:
-https://github.com/IoP/IoP/issues
+https://github.com/internet-of-people/iop-blockchain/issues
 
 Project source code is hosted at github; we are no longer
 distributing .tar.gz files here, you can get them
 directly from github:
-https://github.com/IoP/IoP/tarball/v0.5.1  # .tar.gz
-https://github.com/IoP/IoP/zipball/v0.5.1  # .zip
 
 For Ubuntu users, there is a new ppa maintained by Matt Corallo which
 you can add to your system so that it will automatically keep

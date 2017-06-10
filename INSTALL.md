@@ -2,7 +2,7 @@ Installing IoP Client
 ==========================
 
 At this early stage we don't provide other official packages than for Ubuntu Linux.
-But you can find other community packages on the [community repositories](http://repo.fermat.community)
+But you can find other community packages on the [community repositories](http://repo.iop.cash)
 
 For a little help building IoP Core on OSX see [INSTALL_OSX.md](https://github.com/internet-of-people/iop-blockchain/blob/beta/INSTALL_OSX.md)
 
@@ -12,7 +12,7 @@ We will provide Windows, MacOSX and other Packages after the beta phase, please 
 
 To install or upgrade the IoP Token Core on an Ubuntu trusty or xenial system, you only need this one-liner:
 
-`curl -L http://repo.fermat.community/install/install-iop-node.deb.sh | sudo bash -`
+`curl -L http://repo.iop.cash/install/install-iop-node.deb.sh | sudo bash -`
 
 Ready!
 
@@ -26,11 +26,11 @@ In the editor you do this
 
 for Ubuntu 14.04:
 
-`deb [arch=amd64] http://repo.fermat.community/ 14.04 main`
+`deb [arch=amd64] http://repo.iop.cash/ 14.04 main`
 
 for Ubuntu 16.04:
 
-`deb [arch=amd64] http://repo.fermat.community/ 16.04 main`
+`deb [arch=amd64] http://repo.iop.cash/ 16.04 main`
 
 Save and exit editor.
 
@@ -82,14 +82,14 @@ After that empty the .IoP folder despite the wallet.dat - then start the IoP-qt 
 Windows, MacOSX and Other Packages
 ========================
 We don't support offically other packages (yet).
-Nevertheless, there are [unsopported community build packages](http://repo.fermat.community) where you can even find Windows packages.
+Nevertheless, there are [unsopported community build packages](http://repo.iop.cash) where you can even find Windows packages.
 
 Using the blockchain tool
 =========================
 
-Until we have official documentation you can follow the Fermat IoP Wallet Guide:
+Until we have official documentation you can follow the IoP Wallet Guide:
 
-[English](http://repo.fermat.community/Fermat_Wallet_Tutorial/FermatWalletTutorialEN.html)
+[English](http://repo.iop.cash/IoP_Wallet_Tutorial/IoPWalletTutorialEN.html)
 
 [Spanish](https://docs.google.com/document/d/1_RkGVSKEz42Sh9NgGdt9WKrKcvi6jhdhtlxxHqgpZxA)
 
