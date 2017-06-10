@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2015 The Bitcoin Core developers 
+// Copyright (c) 2009-2015 The Bitcoin Core developers
 // Copyright (c) 2017 IoP Ventures LLC
 
 // This program is free software: you can redistribute it and/or modify
@@ -9,7 +9,7 @@
 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
@@ -529,7 +529,7 @@ std::string LicenseInfo()
            "\n" +
            "\n" +
            _("This is experimental software.") + "\n" +
-           _("Distributed under the GNU General Public license version 3, see the accompanying file COPYING or <http://www.gnu.org/licenses/>.") + "\n" +
+           _("Distributed under the GNU General Public License version 3, see the accompanying file COPYING or <http://www.gnu.org/licenses/>.") + "\n" +
            "\n" +
            _("This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit <https://www.openssl.org/> and cryptographic software written by Eric Young and UPnP software written by Thomas Bernard.") +
            "\n";
@@ -1509,14 +1509,14 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     if ( GetBoolArg("-mine", false) )
     {
         LogPrintf("Miner enabled, initializing\n");
-     
+
         // Changed option name
         string whitelistAddressStr = GetArg("-minewhitelistaddr", "");
         if ( whitelistAddressStr.empty() ) {
             // NOTE whitelisting may not be currently active, so give just a warning here instead of an error
             InitWarning("Mining is enabled but whitelisted miner address is not specified.");
         }
-        
+
         // minerWhiteListAddress must be a valid address on this network.
         CIoPAddress whitelistAddress = CIoPAddress(whitelistAddressStr);
         if ( ! whitelistAddress.IsValid() ){
@@ -1528,7 +1528,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
         if ( mineToAddressStr.empty() ) {
             mineToAddressStr = whitelistAddressStr;
         }
-        
+
         CIoPAddress mineToAddress(mineToAddressStr);
         if ( ! mineToAddress.IsValid() ) {
             return InitError("Invalid address to store mining results: " + mineToAddressStr);
@@ -1539,11 +1539,11 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                         "E.g. you can release in menu option Help/Debug Window, tab Console by issuing command:\n"
                         "walletpassphrase your_password_here 100");
         }
-        
+
         if (! fRequestShutdown) {
             boost::shared_ptr<CReserveScript> coinbaseScript( new CReserveScript() );
             coinbaseScript->reserveScript = GetScriptForDestination( mineToAddress.Get() );
-            
+
             threadGroup.create_thread(boost::bind(&MinerThread, coinbaseScript, whitelistAddress));
         }
     }
@@ -1580,8 +1580,8 @@ void MinerThread( boost::shared_ptr<CReserveScript> coinbaseScript,
         LogPrintf("Couldn't get private key for specified white list address.\n");
         return;
     }
-    
-    
+
+
     // Mine forever (until shutdown)
     while (!fRequestShutdown) {
         try {
