@@ -2,7 +2,7 @@ sudo checkinstall \
     --install=no \
     --fstrans=yes \
     --nodoc \
-    --maintainer="IoP Ventures LLC \<info@iop-ventures.com>" \
+    --maintainer="IoP Ventures LLC \<info@iop-ventures.com\>" \
     --pkgsource="https://github.com/internet-of-people/iop-blockchain" \
     --pkglicense=GPL3 \
     --pkggroup=net \
