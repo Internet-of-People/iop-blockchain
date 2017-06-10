@@ -15,14 +15,14 @@ out collectively by the network. IoP Core is the name of open source
 software which enables the use of this currency.
 
 For more information, as well as an immediately useable, binary version of
-the IoP Core software, see https://IoP.org/en/download, or read the
+the IoP Core software, see http://repo.IoP.cash, or read the
 [original whitepaper](https://iop.cash/IoP.pdf).
 
 License
 -------
 
 IoP Core is released under the terms of the GNU General Public License version 3. See [COPYING](COPYING) for more
-information or see <http:#www.gnu.org/licenses/>.
+information or see <http://www.gnu.org/licenses/>.
 
 Development Process
 -------------------
