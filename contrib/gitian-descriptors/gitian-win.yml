@@ -1,5 +1,5 @@
 ---
-name: "IoP-win-4.0.0"
+name: "iop-blockchain-win-4.0.0"
 enable_cache: true
 suites:
 - "trusty"
@@ -22,8 +22,8 @@ packages:
 - "ca-certificates"
 - "python"
 remotes:
-- "url": "https://github.com/anfauglith/iop-token-server.git"
-  "dir": "IoP"
+- "url": "https://github.com/internet-of-people/iop-blockchain.git"
+  "dir": "iop-blockchain"
 files: []
 script: |
   WRAP_DIR=$HOME/wrapped

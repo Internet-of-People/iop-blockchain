@@ -1,5 +1,5 @@
 ---
-name: "IoP-osx-4.0.0"
+name: "iop-blockchain-osx-4.0.0"
 enable_cache: true
 suites:
 - "trusty"
@@ -28,8 +28,8 @@ packages:
 - "python-setuptools"
 - "fonts-tuffy"
 remotes:
-- "url": "https://github.com/anfauglith/iop-token-server.git"
-  "dir": "IoP"
+- "url": "https://github.com/internet-of-people/iop-blockchain.git"
+  "dir": "iop-blockchain"
 files:
 - "MacOSX10.11.sdk.tar.gz"
 script: |
