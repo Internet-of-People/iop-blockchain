@@ -1,5 +1,5 @@
 ---
-name: "iop-blockchain-win-4.0.0"
+name: "iop-blockchain-win-4.1.0"
 enable_cache: true
 suites:
 - "trusty"

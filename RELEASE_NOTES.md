@@ -156,3 +156,9 @@ Improvements
 
 * Introducing checkpoints for testnet
 * New checkpoints for mainnet
+
+## version 4.1.0
+
+Improvements
+
+* Deleted all references to the Fermat Project!
