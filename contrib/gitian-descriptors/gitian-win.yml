@@ -1,5 +1,5 @@
 ---
-name: "IoP-win-4.1.0"
+name: "IoP-win-4.1.1"
 enable_cache: true
 suites:
 - "trusty"

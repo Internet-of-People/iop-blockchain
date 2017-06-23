@@ -162,3 +162,10 @@ Improvements
 Improvements
 
 * Deleted all references to the Fermat Project!
+
+## version 4.1.1
+
+Improvements
+
+* New Icon
+* New Checkpoint for mainnet

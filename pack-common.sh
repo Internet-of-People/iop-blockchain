@@ -7,7 +7,7 @@ sudo checkinstall \
     --pkglicense=GPL3 \
     --pkggroup=net \
     --pkgname=iop-blockchain \
-    --pkgversion=4.1.0 \
+    --pkgversion=4.1.1 \
     --pkgarch=$(dpkg \
     --print-architecture) \
     $@
