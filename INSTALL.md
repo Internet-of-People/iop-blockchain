@@ -4,7 +4,7 @@ Installing IoP Client
 At this early stage we don't provide other official packages than for Ubuntu Linux.
 But you can find other community packages on the [community repositories](http://repo.iop.cash)
 
-For a little help building IoP Core on OSX see [INSTALL_OSX.md](https://github.com/internet-of-people/iop-blockchain/blob/beta/INSTALL_OSX.md)
+For a little help building IoP Core on OSX see [INSTALL_OSX.md](https://github.com/Internet-of-People/iop-blockchain/blob/master/INSTALL_OSX.md)
 
 We will provide Windows, MacOSX and other Packages after the beta phase, please be patient.
 
@@ -88,8 +88,6 @@ Using the blockchain tool
 =========================
 
 Until we have official documentation you can follow the IoP Wallet Guide:
-
-[English](http://repo.iop.cash/IoP_Wallet_Tutorial/IoPWalletTutorialEN.html)
 
 [Spanish](https://docs.google.com/document/d/1_RkGVSKEz42Sh9NgGdt9WKrKcvi6jhdhtlxxHqgpZxA)
 
