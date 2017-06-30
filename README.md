@@ -14,10 +14,6 @@ with no central authority: managing transactions and issuing money are carried
 out collectively by the network. IoP Core is the name of open source
 software which enables the use of this currency.
 
-For more information, as well as an immediately useable, binary version of
-the IoP Core software, see http://repo.IoP.cash, or read the
-[original whitepaper](https://iop.cash/IoP.pdf).
-
 License
 -------
 
@@ -28,7 +24,7 @@ Development Process
 -------------------
 
 The `master` branch is regularly built and tested, but is not guaranteed to be
-completely stable. [Tags](https://github.com/IoP/IoP/tags) are created
+completely stable. [Tags](https://github.com/Internet-of-People/iop-blockchain/tags) are created
 regularly to indicate new official, stable release versions of IoP Core.
 
 The contribution workflow is described in [CONTRIBUTING.md](CONTRIBUTING.md).
@@ -36,8 +32,6 @@ The contribution workflow is described in [CONTRIBUTING.md](CONTRIBUTING.md).
 The developer [mailing list](https://lists.linuxfoundation.org/mailman/listinfo/IoP-dev)
 should be used to discuss complicated or controversial changes before working
 on a patch set.
-
-Developer IRC can be found on Freenode at #IoP-core-dev.
 
 Testing
 -------
@@ -70,15 +64,13 @@ Translations
 ------------
 
 Changes to translations as well as new translations can be submitted to
-[IoP Core's Transifex page](https://www.transifex.com/projects/p/IoP/).
+[IoP Core's Transifex page]().
 
 Translations are periodically pulled from Transifex and merged into the git repository. See the
 [translation process](doc/translation_process.md) for details on how this works.
 
 **Important**: We do not accept translation changes as GitHub pull requests because the next
 pull from Transifex would automatically overwrite them again.
-
-Translators should also subscribe to the [mailing list](https://groups.google.com/forum/#!forum/IoP-translators).
 
 # Installing
 
