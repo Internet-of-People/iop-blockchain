@@ -169,3 +169,9 @@ Improvements
 
 * New Icon
 * New Checkpoint for mainnet
+
+## version 4.1.2
+
+Improvements
+
+* New Checkpoint for mainnet
