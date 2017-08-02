@@ -1,7 +1,7 @@
 IoP Core integration/staging tree
 =====================================
 
-[![Build Status](https://travis-ci.org/IoP/IoP.svg?branch=master)](https://travis-ci.org/IoP/IoP)
+[![Build Status](https://img.shields.io/travis/Internet-of-People/iop-blockchain/master.svg?style=flat-square)](https://travis-ci.org/Internet-of-People/iop-blockchain)
 
 http://iop.cash
 
