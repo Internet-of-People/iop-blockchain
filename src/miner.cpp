@@ -210,21 +210,6 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn)
     coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
     coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
 
-    // if there are active CCs, then I need to add new outputs to each beneficiary
-    map<CIoPAddress,CAmount> beneficiaries = getCCBeneficiaries();
-
-    if (beneficiaries.size() > 0){
-    	voutSize = voutSize + beneficiaries.size();
-
-    	coinbaseTx.vout.resize(voutSize);
-    	int outputIndex = 1;
-    	for (std::map<CIoPAddress,CAmount>::iterator it = beneficiaries.begin(); it != beneficiaries.end(); it++){
-    		const CIoPAddress benAddress = it->first;
-			coinbaseTx.vout[outputIndex].scriptPubKey = GetScriptForDestination(benAddress.Get());
-			coinbaseTx.vout[outputIndex].nValue = it ->second;
-			outputIndex++;
-    	}
-    }
 
     if (minerPrivateKey.empty() || minerPrivateKey.compare("") == 0)
     	// no private key provided, so we continue as always.
