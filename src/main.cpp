@@ -1722,123 +1722,11 @@ bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex, const Consensus
 }
 
 
-/* Voting System gets the beneficiaries addresses and amounts for coinbase creation at miner */
-map<CIoPAddress,CAmount> getCCBeneficiaries()
-{
-	static int lastCallHeight = -1;
-	static map<CIoPAddress,CAmount> mbb;
-
-	if (lastCallHeight == chainActive.Height()) {// we already have value inside of mbb
-		return mbb;
-	}
-	lastCallHeight=chainActive.Height();
-
-	std::vector<ContributionContract> vcc;
-	ContributionContract::getActiveContracts(chainActive.Height()+1, vcc); // increase block height because this is call for miner for next block
-
-	BOOST_FOREACH(ContributionContract cc, vcc){
-		BOOST_FOREACH(CCBeneficiary ccb, cc.beneficiaries){
-			mbb.insert(std::pair<CIoPAddress,CAmount>(ccb.getAddress(), ccb.getAmount()));
-		}
-	}
-
-
-	return mbb;
-}
-
-UniValue ccToJson(ContributionContract cc,UniValue result){
-	result.push_back(Pair("genesistxhash", cc.genesisTxHash.ToString()));
-	result.push_back(Pair("currentheight", chainActive.Height()));
-	result.push_back(Pair("blockstart", cc.blockStart + cc.genesisBlockHeight + Params().GetConsensus().ccBlockStartAdditionalHeight));
-	result.push_back(Pair("blockend", cc.blockEnd));
-	result.push_back(Pair("blockpending", cc.blockPending));
-	result.push_back(Pair("blockreward", cc.blockReward));
-	result.push_back(Pair("state", ContributionContract::getState(cc.state)));
-	result.push_back(Pair("voteyes", cc.votes[0]));
-	result.push_back(Pair("voteno", cc.votes[1]));
-	result.push_back(Pair("op_return",cc.opReturn));
-	UniValue resultBeneficiaries(UniValue::VARR);
-	BOOST_FOREACH(CCBeneficiary ccb, cc.beneficiaries){
-		UniValue resultBeneficiary(UniValue::VOBJ);
-		resultBeneficiary.push_back(Pair("address", ccb.getAddress().ToString()));
-		resultBeneficiary.push_back(Pair("amount", ccb.getAmount()));
-		resultBeneficiaries.push_back(resultBeneficiary);
-	}
-	result.push_back(Pair("beneficiaries", resultBeneficiaries));
-	return result;
-}
-
-UniValue jsonContributionContracts(const UniValue& params){
-
-	unsigned int height = 0;
-
-	std::vector<uint256> ccGenesisHashes;
-
-	if (params.size() > 0){
-		height = atoi(params[0].get_str());
-		if (params.size()>1){
-			for(unsigned int i=0;i<params.size();i++){
-				uint256 ccGenesisHash = uint256();
-				ccGenesisHash = uint256S(params[i].get_str());
-				ccGenesisHashes.push_back(ccGenesisHash);
-			}
-		}
-	}
-	UniValue json(UniValue::VARR);
-
-	std::vector<ContributionContract> vcc;
-	ContributionContract::getContributionContractsByHeight(height,chainActive.Height(), vcc);
-	BOOST_FOREACH(ContributionContract cc, vcc){
-		UniValue result(UniValue::VOBJ);
-		if (ccGenesisHashes.empty()){
-			result = ccToJson(cc,result);
-		}else{
-			vector<uint256>::iterator it;
-			it=find(ccGenesisHashes.begin(),ccGenesisHashes.end(),cc.genesisTxHash);
-			auto pos = std::distance(ccGenesisHashes.begin(), it);
-			if(pos >= ccGenesisHashes.size() || pos<0) {
-			    // not found
-			}else{
-				result = ccToJson(cc,result);
-			}
-		}
-		if(!result.empty())
-			json.push_back(result);
-	}
-
-	UniValue ret(UniValue::VOBJ);
-	ret.push_back(Pair("contribution_contracts", json));
-
-	return ret;
-}
-
-uint256 getContributionContract(const CTransaction& tx){
-	ContributionContract cc;
-	if(ContributionContract::getContributionContract(tx, cc))
-		return cc.genesisTxHash;
-	return uint256S(NULL);
-}
-
-
-/**
- * Gets the active Contribution Contracts lists and the sumatory of rewards for each contract
- */
-CAmount getCCSubsidy(int nHeight){
-	CAmount subsidy = 0;
-	std::vector<ContributionContract> vcc;
-	ContributionContract::getActiveContracts(nHeight, vcc);
-
-	BOOST_FOREACH(ContributionContract cc, vcc){
-		subsidy = subsidy + cc.blockReward;
-	}
-
-	return subsidy;
-}
 
 CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 {
 	/* IoP Change - since we are premining 42000 blocks, we are taking this into account for the halving calculation */
-	int halvings = (nHeight + consensusParams.nPreminedBlocks) / consensusParams.nSubsidyHalvingInterval;
+	int halvings = nHeight / consensusParams.nSubsidyHalvingInterval;
 
     // Force block reward to zero when right shift is undefined.
     if (halvings >= 64)
@@ -1846,11 +1734,13 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 
     /* IoP beta release - added new subsidy for Miner white list activation window */
     CAmount nSubsidy;
-	if (nHeight == 1)
+	if (nHeight == 1) {
 		nSubsidy = 2100000 * COIN;
-	else
+    } else if (nHeight < consensusParams.nPowSubsidyIncreaseHeight) {
 		nSubsidy = 1 * COIN; //this code line to be removed after beta release. We are forcing 1 IoP per block during this phase. Then will be 50 coins per block.
-
+    } else {
+        nSubsidy = 50 * COIN;
+    }
 
     // Subsidy is cut in half every 210,000 blocks which will occur approximately every 4 years.
     nSubsidy >>= halvings;
@@ -2702,24 +2592,15 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 // NOTE removed to avoid spamming the console while mining
 //    LogPrint("bench", "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs]\n", (unsigned)block.vtx.size(), 0.001 * (nTime3 - nTime2), 0.001 * (nTime3 - nTime2) / block.vtx.size(), nInputs <= 1 ? 0 : 0.001 * (nTime3 - nTime2) / (nInputs-1), nTimeConnect * 0.000001);
 
-
-    if (fScriptChecks) { // because of CCs this is now an expensive check, so only do it above checkpoints
-      /* Voting System blockreward might include subsidy from Contribution Contracts */
-      CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus()) + getCCSubsidy(pindex->nHeight);
+    // only check this above end of last CC.
+    if (pindex->nHeight > chainparams.GetConsensus().ccLastCCBlockHeight) { 
+      CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus());
       if (block.vtx[0].GetValueOut() > blockReward)
           return state.DoS(100,
                            error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
                                  block.vtx[0].GetValueOut(), blockReward),
                                  REJECT_INVALID, "bad-cb-amount");
-
-      /* IoP Voting System - we added this control to make sure the coinbase includes actives CC payments */
-      if (block.vtx[0].GetValueOut() < blockReward)
-              return state.DoS(100,
-                               error("ConnectBlock(): coinbase pays too less (actual=%d vs limit=%d)",
-                                     block.vtx[0].GetValueOut(), blockReward),
-                                     REJECT_INVALID, "bad-cb-amount");
     }
-
 
     if (!control.Wait())
         return state.DoS(100, false);
@@ -2877,81 +2758,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 		}
 	}
 
-    /**
-     * IoP Voting System.
-     * Searchs for a contribution contract transaction in all non-coinbase transactions of the block
-     * If we found one and is valid, we will store it.
-     */
-    LogPrint("VotingSystem", "Voting system validation started...\n");
-    BOOST_FOREACH(const CTransaction& tx, block.vtx) {
-    	if (!tx.IsCoinBase()){
-    		BOOST_FOREACH(const CTxOut& out, tx.vout) {
-				if (ContributionContract::isContributionContract(out.scriptPubKey)){
-					ContributionContract cc = ContributionContract();
-					if (ContributionContract::getContributionContract(tx, cc)){
-						cc.genesisBlockHeight = chainActive.Height() + 1;
-						// is easier to check the fee here, so let's filter an invalid CC here
-						// fee must be 1 IoP
-						if (nFees < COIN)
-							LogPrint("VotingSystem", "Contribution contract detected but with invalid fee: %s\n", cc.ToString());
-						else {
-							if (cc.isValid()){
-								// we found a valid contribution contract, lets persist it.
-								cc.persist(chainActive.Height() + 1, tx.GetHash());
-								LogPrint("VotingSystem", "Contribution Contract detected and stored: %s\n", cc.ToString());
-							} else
-								LogPrint("VotingSystem", "Contribution contract detected but is not valid: %s\n", cc.ToString());
-						}
-					}
-				}
-			}
-    	}
-    }
-
-    if (fScriptChecks) {
-      /**
-       * IoP Voting System
-       * For each active Contribution Contract we get the amount of Coins that are being sent to the benefitiaries.
-       * The Coinbase transaction must send that total to the benefitiaries of the contract, plus the miner coin-
-       */
-      CTransaction cb = CTransaction(block.vtx[0]);
-      // for each Active Contribution Contract
-      std::vector<ContributionContract> vcc;
-
-      if (ContributionContract::getActiveContracts(chainActive.Height()+1, vcc)){
-      	BOOST_FOREACH(ContributionContract cc, vcc) {
-  			// For each beneficiary of the contract
-  			if (cc.isValid()){
-
-  				// we must found for each beneficiary of the Contribution contract, an output that send the coins to the right address
-  				BOOST_FOREACH(CCBeneficiary beneficiary, cc.beneficiaries){
-  					CIoPAddress benAddress = beneficiary.getAddress();
-  					CAmount benAmount = beneficiary.getAmount();
-  					bool addressExists = false;
-
-  					// we search for an output that sends the contract reward to the beneficiary
-  					BOOST_FOREACH(const CTxOut& out, cb.vout){
-  						CScript redeemScript = out.scriptPubKey;
-  						CTxDestination destinationAddress;
-  						ExtractDestination(redeemScript, destinationAddress);
-  						CIoPAddress address(destinationAddress);
-
-  						if (address.CompareTo(benAddress) == 0 && out.nValue == benAmount )
-  							addressExists = true; // we find it!
-  					}
-
-  					// we didn't find it. Is not a valid CB.
-  					if (addressExists == false){
-  						LogPrint("Invalid coinbase transaction", "CB don't pay to Contribution Contract: %s \n%s\n", cc.ToString(), cb.ToString());
-  						return state.DoS(100, false, REJECT_INVALID, "bad-CB-CC", false, "Coinbase invalid payment");
-  					}
-  				}
-
-  			}
-  		}
-      }
-
-    }
 
 
 
@@ -6662,24 +6468,6 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         }
     }
 
-    else if (strCommand == NetMsgType::GETCC){
-    		vector<CInv> vInv;
-        	uint256 hashStart;
-        	vRecv >> hashStart;
-        	std::cout<<"height: "<<hashStart.GetHex()<<std::endl;
-    		CBlock block;
-    		CBlockIndex* startBlockIndex = mapBlockIndex[hashStart];
-    		// Send the rest of the chain
-    		if (startBlockIndex){
-    			int blockHeight = startBlockIndex->nHeight;
-    			UniValue data(UniValue::VARR);
-    			std::cout<<"height: "<<std::to_string(blockHeight)<<std::endl;
-    			data.push_back(std::to_string(blockHeight));
-    			UniValue result = jsonContributionContracts(data);
-    			std::cout<<"data: "<<result.write(1,0)<<std::endl;
-    			pfrom->PushMessage(NetMsgType::SENDCC, result.write(1,0));
-    		}
-        }
     else {
         // Ignore unknown commands for extensibility
         LogPrint("net", "Unknown command \"%s\" from peer=%d\n", SanitizeString(strCommand), pfrom->id);

@@ -93,6 +93,7 @@ public:
         consensus.powLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
         consensus.nPowTargetSpacing = 10 * 60;
+        consensus.nPowSubsidyIncreaseHeight = 50400; // 50400 is first block with higher reward
         consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.fPowNoRetargeting = false;
         consensus.nRuleChangeActivationThreshold = 1916; // 95% of 2016
@@ -120,6 +121,7 @@ public:
         consensus.minerCapSystemChangeHeight = 40320;
         // Voting System Params
         consensus.ccBlockStartAdditionalHeight = 1000;
+        consensus.ccLastCCBlockHeight = 47520;
 
 
 
@@ -203,6 +205,7 @@ public:
         consensus.powLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
         consensus.nPowTargetSpacing = 10 * 60;
+        consensus.nPowSubsidyIncreaseHeight = 10080; // 10080 is first block with higher reward
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.fPowNoRetargeting = false;
         consensus.nRuleChangeActivationThreshold = 1512; // 75% for testchains
@@ -228,6 +231,7 @@ public:
     consensus.minerCapSystemChangeHeight=7800;
 		// Voting System Params
 		consensus.ccBlockStartAdditionalHeight = 10;
+        consensus.ccLastCCBlockHeight = 9000;
 
         pchMessageStart[0] = 0xb1;
 		pchMessageStart[1] = 0xfc;
@@ -294,6 +298,7 @@ public:
         consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
         consensus.nPowTargetSpacing = 10 * 60;
+        consensus.nPowSubsidyIncreaseHeight = 20160; // 20160 is first block with higher reward
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.fPowNoRetargeting = true;
         consensus.nRuleChangeActivationThreshold = 108; // 75% for testchains
@@ -315,6 +320,7 @@ public:
     consensus.minerCapSystemChangeHeight = 5200;
 		// Voting System Params
 		consensus.ccBlockStartAdditionalHeight = 10;
+        consensus.ccLastCCBlockHeight = 7000;
 
         pchMessageStart[0] = 0x35;
 		pchMessageStart[1] = 0xb2;
