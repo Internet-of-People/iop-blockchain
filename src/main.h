@@ -283,10 +283,6 @@ bool GetTransaction(const uint256 &hash, CTransaction &tx, const Consensus::Para
 /** Find the best known block, and make it the tip of the block chain */
 bool ActivateBestChain(CValidationState& state, const CChainParams& chainparams, const CBlock* pblock = NULL);
 
-/**
- * Gets the active Contribution Contracts lists and the sumatory of rewards for each contract
- */
-CAmount getCCSubsidy(int nHeight);
 
 CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams);
 
@@ -340,10 +336,6 @@ struct CNodeStateStats {
     std::vector<int> vHeightInFlight;
 };
 
-/* Voting System */
-std::map<CIoPAddress,CAmount> getCCBeneficiaries();
-
-UniValue jsonContributionContracts(const UniValue& params);
 
 /** 
  * Count ECDSA signature operations the old-fashioned (pre-0.6) way
