@@ -1,5 +1,5 @@
 ---
-name: "IoP-linux-4.1.2"
+name: "IoP-linux-5.0.0"
 enable_cache: true
 suites:
 - "trusty"
