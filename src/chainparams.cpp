@@ -93,6 +93,10 @@ public:
         consensus.powLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
         consensus.nPowTargetSpacing = 10 * 60;
+        consensus.nPowSubsidyIncreaseHeight = 50400; // 50400 is first block with higher reward
+        consensus.nPowTargetTimeDecreaseHeight = 50400 - 1; // 50400 is first block with new diff
+        consensus.nPowNEWTargetTimespan = 2016 * 2 * 60; // 2.8 days
+        consensus.nPowNEWTargetSpacing = 2 * 60; // 2 minutes
         consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.fPowNoRetargeting = false;
         consensus.nRuleChangeActivationThreshold = 1916; // 95% of 2016
@@ -202,6 +206,10 @@ public:
         consensus.powLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
         consensus.nPowTargetSpacing = 10 * 60;
+        consensus.nPowSubsidyIncreaseHeight = 10080; // 10080 is first block with higher reward
+        consensus.nPowTargetTimeDecreaseHeight = 10080 - 1; // first calc with new values at this height
+        consensus.nPowNEWTargetTimespan = 2016 * 2 * 60; // 2.8 days
+        consensus.nPowNEWTargetSpacing = 2 * 60; // 2 minutes
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.fPowNoRetargeting = false;
         consensus.nRuleChangeActivationThreshold = 1512; // 75% for testchains
@@ -293,6 +301,10 @@ public:
         consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
         consensus.nPowTargetSpacing = 10 * 60;
+        consensus.nPowSubsidyIncreaseHeight = 20160; // 20160 is first block with higher reward
+        consensus.nPowTargetTimeDecreaseHeight = 20160 - 1; // first calc with new values at this height
+        consensus.nPowNEWTargetTimespan = 2016 * 2 * 60; // 2.8 days
+        consensus.nPowNEWTargetSpacing = 2 * 60; // 2 minutes
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.fPowNoRetargeting = true;
         consensus.nRuleChangeActivationThreshold = 108; // 75% for testchains

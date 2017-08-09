@@ -1848,9 +1848,10 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
     CAmount nSubsidy;
 	if (nHeight == 1)
 		nSubsidy = 2100000 * COIN;
-	else
+	else if (nHeight < consensusParams.nPowSubsidyIncreaseHeight)
 		nSubsidy = 1 * COIN; //this code line to be removed after beta release. We are forcing 1 IoP per block during this phase. Then will be 50 coins per block.
-
+    else 
+        nSubsidy = 50 * COIN;
 
     // Subsidy is cut in half every 210,000 blocks which will occur approximately every 4 years.
     nSubsidy >>= halvings;
