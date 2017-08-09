@@ -1,24 +1,18 @@
-IoP Core integration/staging tree
-=====================================
+IoP Core
+========
 
 [![Build Status](https://img.shields.io/travis/Internet-of-People/iop-blockchain/master.svg?style=flat-square)](https://travis-ci.org/Internet-of-People/iop-blockchain)
 
 http://iop.cash
 
 What is IoP?
-----------------
+------------
 
 IoP is an experimental digital currency that enables instant payments to
 anyone, anywhere in the world. IoP uses peer-to-peer technology to operate
 with no central authority: managing transactions and issuing money are carried
 out collectively by the network. IoP Core is the name of open source
 software which enables the use of this currency.
-
-License
--------
-
-IoP Core is released under the terms of the GNU General Public License version 3. See [COPYING](COPYING) for more
-information or see <http://www.gnu.org/licenses/>.
 
 Development Process
 -------------------
@@ -72,6 +66,25 @@ Translations are periodically pulled from Transifex and merged into the git repo
 **Important**: We do not accept translation changes as GitHub pull requests because the next
 pull from Transifex would automatically overwrite them again.
 
-# Installing
+Installing
+----------
 
-Please read the [installation](INSTALL.md) Document.
+Please read the [installation](INSTALL.md) document.
+
+License
+-------
+
+Copyright © 2009-2017 Libertaria Corp., Decentralized Society Foundation, IoP Ventures LLC
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+See [COPYING](COPYING) for more
+information or see <http://www.gnu.org/licenses/>.
