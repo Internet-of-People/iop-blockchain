@@ -1726,7 +1726,7 @@ bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex, const Consensus
 CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 {
 	/* IoP Change - since we are premining 42000 blocks, we are taking this into account for the halving calculation */
-	int halvings = (nHeight + consensusParams.nPreminedBlocks) / consensusParams.nSubsidyHalvingInterval;
+	int halvings = nHeight / consensusParams.nSubsidyHalvingInterval;
 
     // Force block reward to zero when right shift is undefined.
     if (halvings >= 64)
