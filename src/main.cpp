@@ -2590,9 +2590,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 // NOTE removed to avoid spamming the console while mining
 //    LogPrint("bench", "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs]\n", (unsigned)block.vtx.size(), 0.001 * (nTime3 - nTime2), 0.001 * (nTime3 - nTime2) / block.vtx.size(), nInputs <= 1 ? 0 : 0.001 * (nTime3 - nTime2) / (nInputs-1), nTimeConnect * 0.000001);
 
-
-    if (pindex->nHeight > 60480) { // hack to ensure compatibility with the old CC implementation.
-      /* Voting System blockreward might include subsidy from Contribution Contracts */
+    // only check this above end of last CC.
+    if (pindex->nHeight > 47521) { 
       CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus());
       if (block.vtx[0].GetValueOut() > blockReward)
           return state.DoS(100,
@@ -2600,7 +2599,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                  block.vtx[0].GetValueOut(), blockReward),
                                  REJECT_INVALID, "bad-cb-amount");
     }
-
 
     if (!control.Wait())
         return state.DoS(100, false);

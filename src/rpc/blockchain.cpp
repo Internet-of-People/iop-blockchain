@@ -1438,7 +1438,6 @@ static const CRPCCommand commands[] =
     { "blockchain",         "gettxout",               &gettxout,               true  },
     { "blockchain",         "gettxoutsetinfo",        &gettxoutsetinfo,        true  },
     { "blockchain",         "verifychain",            &verifychain,            true  },
-	{ "blockchain",         "dumpCC",         		  &dumpCC,		           true  },
 	{ "mining",             "dumpminerstats",         &dumpminerstats,         true  },
 
     /* Not shown in help */
