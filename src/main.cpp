@@ -1846,12 +1846,13 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 
     /* IoP beta release - added new subsidy for Miner white list activation window */
     CAmount nSubsidy;
-	if (nHeight == 1)
+	if (nHeight == 1) {
 		nSubsidy = 2100000 * COIN;
-	else if (nHeight < consensusParams.nPowSubsidyIncreaseHeight)
+    } else if (nHeight < consensusParams.nPowSubsidyIncreaseHeight) {
 		nSubsidy = 1 * COIN; //this code line to be removed after beta release. We are forcing 1 IoP per block during this phase. Then will be 50 coins per block.
-    else 
+    } else {
         nSubsidy = 50 * COIN;
+    }
 
     // Subsidy is cut in half every 210,000 blocks which will occur approximately every 4 years.
     nSubsidy >>= halvings;
