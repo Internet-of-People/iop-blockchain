@@ -85,6 +85,7 @@ struct Params {
 
     /* Voting System Parameters */
     int ccBlockStartAdditionalHeight; // this amount of blocks is used to calculate the start of a CC. Current Height + n + User Provided CC height
+    int ccLastCCBlockHeight;
 };
 } // namespace Consensus
 
