@@ -83,6 +83,7 @@ struct Params {
     std::set<std::string> minerWhiteListAdminAddress;
     int minerCapSystemChangeHeight;
 
+    int nPowSubsidyIncreaseHeight;
     /* Voting System Parameters */
     int ccBlockStartAdditionalHeight; // this amount of blocks is used to calculate the start of a CC. Current Height + n + User Provided CC height
 };
