@@ -182,3 +182,7 @@ Improvements
 * removed CC functionality for noticable speedup
 * Block Reward will increase to the initially planned 50 IOP/block on block 50400
 * Premine is disregarded in halving to partially make up for coins lost during the 1 IOP/block phase
+
+## version 5.0.1
+
+* checkpoint for mainnet added
